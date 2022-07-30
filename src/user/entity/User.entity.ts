@@ -1,0 +1,36 @@
+import { Column, Entity } from 'typeorm';
+import { CoreEntity } from '../../common/entity/Core.entity';
+
+@Entity('user')
+export class UserEntity extends CoreEntity {
+    @Column({
+        nullable: false,
+        type: 'varchar',
+        length: 17,
+    })
+    name: string;
+
+    @Column({
+        nullable: true,
+        type: 'int',
+    })
+    pinCount: number;
+
+    @Column({
+        nullable: true,
+        type: 'varchar',
+    })
+    image: string;
+
+    @Column({
+        nullable: true,
+        type: 'int',
+    })
+    totalDistance: number;
+
+    @Column({
+        nullable: true,
+        type: 'int',
+    })
+    totalTime: number;
+}
