@@ -1,4 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { WalkEntity } from 'src/walkway/entity/Walk.entity';
+import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
 
 @Entity('user')
@@ -33,4 +35,10 @@ export class UserEntity extends CoreEntity {
         type: 'int',
     })
     totalTime: number;
+
+	@OneToMany(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.user)
+	walkways: WalkwayEntity[];
+
+	@OneToMany(() => WalkEntity, (walkEntity) => walkEntity.user)
+	walks: WalkEntity[];
 }
