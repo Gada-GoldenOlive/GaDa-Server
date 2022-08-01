@@ -11,7 +11,7 @@ export class WalkEntity extends CoreEntity {
     })
     walkTime: number;
 
-	@Column({
+    @Column({
         nullable: false,
         type: 'int',
     })
@@ -23,10 +23,10 @@ export class WalkEntity extends CoreEntity {
     })
     isFinished: boolean;
 
-	@ManyToOne(() => UserEntity, (userEntity) => userEntity.walks)
-	user: UserEntity;
+    @ManyToOne(() => UserEntity, (userEntity) => userEntity.walks)
+    user: UserEntity;
 
-	@ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.walks)
-	walkway: WalkEntity;
-	
+    @ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.walks)
+    walkway: WalkEntity;
+    
 }

@@ -7,7 +7,7 @@ import { WalkwayEntity } from './entity/Walkway.entity';
   imports: [
     TypeOrmModule.forFeature([
         WalkwayEntity,
-		WalkEntity,
+        WalkEntity,
     ])
   ],
   controllers: [],

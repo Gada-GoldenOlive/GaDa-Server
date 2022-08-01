@@ -2,6 +2,7 @@ import { UserEntity } from 'src/user/entity/User.entity';
 import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { WalkEntity } from './Walk.entity';
+import { LineString } from 'geojson';
 
 @Entity('walkway')
 export class WalkwayEntity extends CoreEntity {
@@ -32,20 +33,20 @@ export class WalkwayEntity extends CoreEntity {
 
     @Column({
         nullable: true,
-		type: 'linestring',
+        type: 'linestring',
     })
-    path: string;
+    path: LineString;
 
-	@Column({
+    @Column({
         nullable: false,
         type: 'varchar',
         length: 17,
     })
     creator: string;
 
-	@ManyToOne(() => UserEntity, (userEntity) => userEntity.walkways)
-	user: UserEntity;
+    @ManyToOne(() => UserEntity, (userEntity) => userEntity.walkways)
+    user: UserEntity;
 
-	@OneToMany(() => WalkEntity, (walkEntity) => walkEntity.walkway)
-	walks: WalkEntity[];
+    @OneToMany(() => WalkEntity, (walkEntity) => walkEntity.walkway)
+    walks: WalkEntity[];
 }

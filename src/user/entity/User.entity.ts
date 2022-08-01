@@ -36,9 +36,9 @@ export class UserEntity extends CoreEntity {
     })
     totalTime: number;
 
-	@OneToMany(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.user)
-	walkways: WalkwayEntity[];
+    @OneToMany(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.user)
+    walkways: WalkwayEntity[];
 
-	@OneToMany(() => WalkEntity, (walkEntity) => walkEntity.user)
-	walks: WalkEntity[];
+    @OneToMany(() => WalkEntity, (walkEntity) => walkEntity.user)
+    walks: WalkEntity[];
 }
