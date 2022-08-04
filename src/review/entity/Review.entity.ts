@@ -1,4 +1,5 @@
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
+
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { UserEntity } from '../../user/entity/User.entity';
 import { VEHCILE_STATUS, Vehicle } from '../domain/Review/Vehicle';
@@ -42,8 +43,4 @@ export class ReviewEntity extends CoreEntity {
 
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.reviews)
     user: UserEntity;
-
-    /**
-     * title, content, star, vehicle, imgae, walkwayId, userId
-     */
 }
