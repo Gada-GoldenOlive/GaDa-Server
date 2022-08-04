@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { ReviewEntity } from './entity/Review.entity';
 
 @Module({
@@ -13,7 +14,3 @@ import { ReviewEntity } from './entity/Review.entity';
 })
 
 export class ReviewModule {}
-
-/**
- * 
- */
