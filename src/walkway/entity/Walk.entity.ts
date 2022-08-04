@@ -27,6 +27,5 @@ export class WalkEntity extends CoreEntity {
     user: UserEntity;
 
     @ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.walks)
-    walkway: WalkEntity;
-    
+    walkway: WalkEntity;   
 }

@@ -13,7 +13,3 @@ import { UserEntity } from './entity/User.entity';
 })
 
 export class UserModule {}
-
-/**
- * 
- */
