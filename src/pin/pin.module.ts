@@ -1,17 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { WalkEntity } from './entity/Walk.entity';
-import { WalkwayEntity } from './entity/Walkway.entity';
+import { PinEntity } from './entity/Pin.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-        WalkwayEntity,
-        WalkEntity,
+        PinEntity,
     ])
   ],
   controllers: [],
   providers: [],
 })
 
-export class WalkwayModule {}
+export class PinModule {}

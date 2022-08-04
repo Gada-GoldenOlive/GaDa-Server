@@ -3,6 +3,7 @@ import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { WalkEntity } from './Walk.entity';
 import { LineString } from 'geojson';
+import { PinEntity } from '../../pin/entity/Pin.entity';
 
 @Entity('walkway')
 export class WalkwayEntity extends CoreEntity {
@@ -49,4 +50,7 @@ export class WalkwayEntity extends CoreEntity {
 
     @OneToMany(() => WalkEntity, (walkEntity) => walkEntity.walkway)
     walks: WalkEntity[];
+
+    @OneToMany(() => PinEntity, (pinEntity) => pinEntity.walkway)
+    pins: PinEntity[];
 }
