@@ -1,6 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
-// import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
+import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
 
 @Entity('pin')
 export class PinEntity extends CoreEntity {
@@ -24,7 +24,6 @@ export class PinEntity extends CoreEntity {
     })
     image: string;
 
-    // TODO: walkway entity merge된 후에 주석 해제
-    // @ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.pins)
-    // walkway: WalkwayEntity;
+    @ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.pins)
+    walkway: WalkwayEntity;
 }

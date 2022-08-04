@@ -13,7 +13,3 @@ import { PinEntity } from './entity/Pin.entity';
 })
 
 export class PinModule {}
-
-/**
- * 
- */
