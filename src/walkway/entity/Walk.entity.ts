@@ -1,4 +1,4 @@
-import { UserEntity } from 'src/user/entity/User.entity';
+import { UserEntity } from '../../user/entity/User.entity';
 import { Column, Entity, ManyToOne} from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { WalkwayEntity } from './Walkway.entity';
