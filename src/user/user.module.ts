@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
+import { UserController } from './controller/UserController';
 import { UserEntity } from './entity/User.entity';
 
 @Module({
@@ -9,7 +9,7 @@ import { UserEntity } from './entity/User.entity';
         UserEntity,
     ])
   ],
-  controllers: [],
+  controllers: [ UserController ],
   providers: [],
 })
 

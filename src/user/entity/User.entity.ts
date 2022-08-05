@@ -44,6 +44,6 @@ export class UserEntity extends CoreEntity {
     @OneToMany(() => WalkEntity, (walkEntity) => walkEntity.user)
     walks: WalkEntity[];
 
-    @OneToMany(() => ReviewEntity, (ReviewEntity) => ReviewEntity.user)
-    reviews: ReviewEntity
+    @OneToMany(() => ReviewEntity, (reviewEntity) => reviewEntity.user)
+    reviews: ReviewEntity[];
 }
