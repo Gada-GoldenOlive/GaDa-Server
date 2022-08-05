@@ -7,6 +7,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PinEntity } from './pin/entity/Pin.entity';
 import { PinModule } from './pin/pin.module';
+import { ReviewEntity } from './review/entity/Review.entity';
+import { ReviewModule } from './review/review.module';
 import { UserEntity } from './user/entity/User.entity';
 import { UserModule } from './user/user.module';
 import { WalkEntity } from './walkway/entity/Walk.entity';
@@ -40,11 +42,13 @@ import { WalkwayModule } from './walkway/walkway.module';
         PinEntity,
         WalkwayEntity,
         WalkEntity,
+        ReviewEntity,
       ],
     }),
     UserModule,
     PinModule,
     WalkwayModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],
