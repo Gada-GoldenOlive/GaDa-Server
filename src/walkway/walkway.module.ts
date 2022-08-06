@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { WalkEntity } from './entity/Walk.entity';
 import { WalkwayEntity } from './entity/Walkway.entity';
 
