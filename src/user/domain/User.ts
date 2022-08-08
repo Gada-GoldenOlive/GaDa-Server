@@ -1,7 +1,6 @@
 import _ from 'lodash';
 
 import { AggregateRoot } from '../../common/domain/AggregateRoot';
-import { PROPS_VALUES_ARE_REQUIRED } from '../../common/domain/Image/Image';
 import { ImageUrl, IMAGE_URL_SHOULD_NOT_BE_EMPTY } from '../../common/domain/Image/ImageUrl';
 import { Result } from '../../common/presentationals/Result';
 import { UserName } from './UserName';
@@ -23,6 +22,8 @@ export interface UserProps extends UserNewProps {
 }
 
 export const initialNumber = 0;
+
+export const PROPS_VALUES_ARE_REQUIRED = 'Props values are required.';
 
 export class User extends AggregateRoot<UserProps> {
     private constructor(props: UserProps, id?: string) {
