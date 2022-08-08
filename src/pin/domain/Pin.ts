@@ -4,7 +4,7 @@ import { PinTitle } from './PinTitle';
 import { PinContent } from './PinContent';
 import { AggregateRoot } from '../../common/domain/AggregateRoot';
 import { Result } from '../../common/presentationals/Result';
-import { ImageUrl, IMAGE_URL_SHOULD_NOT_BE_EMPTY } from '../../common/domain/Image/ImageUrl';
+import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 
 export interface PinNewProps {
     title: PinTitle;
@@ -27,10 +27,6 @@ export class Pin extends AggregateRoot<PinProps> {
     static createNew(props: PinNewProps): Result<Pin> {
         if (_.isNil(props.title) || _.isNil(props.content)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
-        }
-
-        if(_.isEmpty(props.image)) {
-            return Result.fail(IMAGE_URL_SHOULD_NOT_BE_EMPTY);
         }
 
         return Result.ok(new Pin({
