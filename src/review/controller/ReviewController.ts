@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
@@ -26,23 +26,26 @@ export class ReviewController {
         }
     }
 
-    @Get()
+    @Get('/:walkwayId')
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllReviewResponse,
     })
-    async getAll() {
+    async getAll(
+        @Param('walkwayId') walkwayId: string,
+    ) {
         // TODO: 차후 UseCase 생성 시 추가
     }
 
 
-    @Patch('/:userId')
+    @Patch('/:reviewId')
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
     })
     async update(
         @Body() request: UpdateReviewRequest,
+        @Param('reviewId') reviewId: string,
     ): Promise<CommonResponse> {
         // TODO: 차후 UseCase 생성 시 추가
         return {
@@ -51,12 +54,14 @@ export class ReviewController {
         }        
     }
 
-    @Delete('/:userId')
+    @Delete('/:reviewId')
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
     })
-    async delete(): Promise<CommonResponse> {
+    async delete(
+        @Param('reviewId') reviewId: string,
+    ): Promise<CommonResponse> {
         // TODO: 차후 UseCase 생성 시 추가
         return {
             code: StatusCodes.NO_CONTENT,
