@@ -1,5 +1,5 @@
 import { PROPS_VALUES_ARE_REQUIRED } from '../../common/domain/Image/Image';
-import { ImageUrl, IMAGE_URL_SHOULD_NOT_BE_EMPTY } from '../../common/domain/Image/ImageUrl';
+import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { initialNumber, User } from './User';
 import { UserName } from './UserName';
 import { UserPinCount } from './UserPinCount';
@@ -138,5 +138,4 @@ describe('User', () => {
         expect(userPinCountOrErrorWithNull.value.pinCount.value).toBe(initialNumber);
         expect(userPinCountOrErrorWithUndefined.value.pinCount.value).toBe(initialNumber);
     });
-
 })

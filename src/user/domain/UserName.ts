@@ -15,7 +15,7 @@ export class UserName extends ValueObject<UserNameProps> {
     }
 
     static create(userNameString: string): Result<UserName> {
-        if (_.isEmpty(userNameString) || _.isNil(userNameString)) {
+        if (_.isEmpty(userNameString)) {
             return Result.fail(USER_NAME_SHOULD_NOT_BE_EMPTY);
         }
 
