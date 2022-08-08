@@ -1,8 +1,9 @@
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { LineString } from 'geojson';
+
 import { UserEntity } from '../../user/entity/User.entity';
-import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { WalkEntity } from './Walk.entity';
-import { LineString } from 'geojson';
 import { PinEntity } from '../../pin/entity/Pin.entity';
 
 @Entity('walkway')

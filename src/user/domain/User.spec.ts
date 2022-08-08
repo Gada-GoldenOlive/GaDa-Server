@@ -58,7 +58,7 @@ describe('User', () => {
     });
 
     it('name이 null이나 undefined로 전달될 경우 User createNew는 실패해야 한다.', () => {
-        const userOrErrorWIthNull = User.createNew({
+        const userOrErrorWithNull = User.createNew({
             name: null,
             image: userImage,
             pinCount: userPinCount,
@@ -66,7 +66,7 @@ describe('User', () => {
             totalTime: userTotalDistance,
         });
         
-        const userOrErrorWIthUndefined = User.createNew({
+        const userOrErrorWithUndefined = User.createNew({
             name: undefined,
             image: userImage,
             pinCount: userPinCount,
@@ -74,10 +74,10 @@ describe('User', () => {
             totalTime: userTotalDistance,
         });
         
-        expect(userOrErrorWIthNull.isFailure).toBeTruthy();
-        expect(userOrErrorWIthUndefined.isFailure).toBeTruthy();
-        expect(userOrErrorWIthNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
-        expect(userOrErrorWIthUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+        expect(userOrErrorWithNull.isFailure).toBeTruthy();
+        expect(userOrErrorWithUndefined.isFailure).toBeTruthy();
+        expect(userOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+        expect(userOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
     });
 
     it('user pin count가 전달되지 않았을 경우 createNew에서 0개로 자동 생성되어야 한다.', () => {
