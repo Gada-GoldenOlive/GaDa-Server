@@ -1,6 +1,5 @@
 import { UserTotalDistance, USER_TOTAL_DISTANCE_CANNOT_BE_NEGATIVE } from './UserTotalDistance';
 
-
 describe('UserTotalDistance', () => {
     const startUserTotalDistanceNumber = 0;
 

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PinController } from './controller/PinController';
 import { PinEntity } from './entity/Pin.entity';
 
 @Module({
@@ -8,7 +9,7 @@ import { PinEntity } from './entity/Pin.entity';
         PinEntity,
     ])
   ],
-  controllers: [],
+  controllers: [ PinController ],
   providers: [],
 })
 

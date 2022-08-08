@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { AggregateRoot } from '../../common/domain/AggregateRoot';
-import { ImageUrl, IMAGE_URL_SHOULD_NOT_BE_EMPTY } from '../../common/domain/Image/ImageUrl';
+import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { Result } from '../../common/presentationals/Result';
 import { UserName } from './UserName';
 import { UserPinCount } from './UserPinCount';
@@ -31,12 +31,8 @@ export class User extends AggregateRoot<UserProps> {
     }
 
     static createNew(props: UserNewProps): Result<User> {
-        if (_.isNil(props.name) || _.isEmpty(props.name)) {
+        if (_.isNil(props.name)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
-        }
-
-        if (_.isEmpty(props.image)) {
-            return Result.fail(IMAGE_URL_SHOULD_NOT_BE_EMPTY);
         }
 
         // TODO: image url이 전달되지 않을 경우에 default를 뭐로 설정해줘야 하나?
