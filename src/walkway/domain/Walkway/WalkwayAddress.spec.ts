@@ -16,14 +16,4 @@ describe('WalkwayAddress', () => {
         expect(walkwayAddressOrError.isFailure).toBeTruthy();
         expect(walkwayAddressOrError.errorValue()).toBe(WALKWAY_ADDRESS_SHOULD_NOT_BE_EMPTY);
     });
-
-    it('WalkwayAddress에 null이나 undefined 값이 들어온다면 create는 실패해야한다.', () => {
-        const walkwayAddressOrErrorWithNull = WalkwayAddress.create(null);
-        const walkwayAddressOrErrorWithUndifined = WalkwayAddress.create(undefined);
-
-        expect(walkwayAddressOrErrorWithNull.isFailure).toBeTruthy();
-        expect(walkwayAddressOrErrorWithUndifined.isFailure).toBeTruthy();
-        expect(walkwayAddressOrErrorWithNull.errorValue()).toBe(WALKWAY_ADDRESS_SHOULD_NOT_BE_EMPTY);
-        expect(walkwayAddressOrErrorWithUndifined.errorValue()).toBe(WALKWAY_ADDRESS_SHOULD_NOT_BE_EMPTY);
-    })
 })
