@@ -1,6 +1,5 @@
 import { UserTotalTime, USER_TOTAL_TIME_CANNOT_BE_NEGATIVE } from './UserTotalTime';
 
-
 describe('UserTotalTime', () => {
     const startUserTotalTimeNumber = 0;
 
