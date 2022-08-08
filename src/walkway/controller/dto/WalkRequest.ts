@@ -1,14 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { WalkFinishStatus, WALK_FINISH_STATUS } from "../../domain/Walk/WalkFinishStatus";
 
 export class CreateWalkRequest {
     @ApiProperty()
-    walkTime: number;
+    time: number;
 
     @ApiProperty()
-    walkDistance: number;
+    distance: number;
 
-    @ApiProperty()
-    isFinished: boolean;
+    @ApiProperty({
+        enum: WalkFinishStatus
+    })
+    finishStatus: WALK_FINISH_STATUS;
 }
 
 export class UpdateWalkRequest {
@@ -16,11 +19,13 @@ export class UpdateWalkRequest {
     id: string;
 
     @ApiProperty()
-    walkTime?: number;
+    time?: number;
 
     @ApiProperty()
-    walkDistance?: number;
+    distance?: number;
 
-    @ApiProperty()
-    isFinished?: boolean;
+    @ApiProperty({
+        enum: WalkFinishStatus
+    })
+    finishStatus: WALK_FINISH_STATUS;
 }

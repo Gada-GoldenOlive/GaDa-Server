@@ -1,13 +1,13 @@
 import { AggregateRoot } from "../../../common/domain/AggregateRoot";
 import { Result } from "../../../common/presentationals/Result";
 import { WalkDistance } from "./WalkDistance";
-import { WalkIsFinished } from "./WalkIsFinished";
+import { WALK_FINISH_STATUS } from "./WalkFinishStatus";
 import { WalkTime } from "./WalkTime";
 
 export interface WalkNewProps {
     time: WalkTime,
     distance: WalkDistance,
-    isFinished: WalkIsFinished,
+    isFinished: WALK_FINISH_STATUS,
 }
 
 export interface WalkProps extends WalkNewProps {
@@ -40,7 +40,7 @@ export class Walk extends AggregateRoot<WalkProps> {
         return this.props.distance;
     }
 
-    get isFinish(): WalkIsFinished {
+    get isFinish(): WALK_FINISH_STATUS {
         return this.props.isFinished;
     }
 
