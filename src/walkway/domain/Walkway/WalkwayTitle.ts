@@ -14,7 +14,7 @@ export class WalkwayTitle extends ValueObject<WalkwayTitleProps> {
     }
 
     static create(walkwayTitleString: string): Result<WalkwayTitle> {
-        if (_.isEmpty(walkwayTitleString) || _.isNil(walkwayTitleString)) {
+        if (_.isEmpty(walkwayTitleString)) {
             return Result.fail(WALKWAY_TITLE_SHOULD_NOT_BE_EMPTY);
         }
 

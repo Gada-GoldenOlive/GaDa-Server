@@ -1,7 +1,6 @@
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { Walkway } from './Walkway';
 import { WalkwayAddress } from './WalkwayAddress';
-import { WalkwayCreator, } from './WalkwayCreator';
 import { WalkwayDistance } from './WalkwayDistance';
 import { WalkwayPath } from './WalkwayPath';
 import { WalkwayTime } from './WalkwayTime';
@@ -17,7 +16,6 @@ describe('Walkway', () => {
         'type': 'LineString',
         'coordinates': [[100, 40], [105, 45], [110, 55]],
     }).value;
-    const walkwayCreator = WalkwayCreator.create('서지니').value;
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -28,7 +26,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
-            creator: walkwayCreator,
         });
 
         expect(walkwayOrError.isSuccess).toBeTruthy();
@@ -38,7 +35,6 @@ describe('Walkway', () => {
         expect(walkwayOrError.value.distance.value).toBe(walkwayDistance.value);
         expect(walkwayOrError.value.time.value).toBe(walkwayTime.value);
         expect(walkwayOrError.value.path.value).toBe(walkwayPath.value);
-        expect(walkwayOrError.value.creator.value).toBe(walkwayCreator.value);
     })
 
     it('Walkway create 성공', () => {
@@ -48,7 +44,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
-            creator: walkwayCreator,
             createdAt,
             updatedAt,
         }, TEST_WALKWAY_ID);
@@ -60,7 +55,6 @@ describe('Walkway', () => {
         expect(walkwayOrError.value.distance.value).toBe(walkwayDistance.value);
         expect(walkwayOrError.value.time.value).toBe(walkwayTime.value);
         expect(walkwayOrError.value.path.value).toBe(walkwayPath.value);
-        expect(walkwayOrError.value.creator.value).toBe(walkwayCreator.value);
         expect(walkwayOrError.value.createdAt).toBe(createdAt);
         expect(walkwayOrError.value.updatedAt).toBe(updatedAt);
     })
@@ -72,7 +66,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
-            creator: walkwayCreator,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -81,7 +74,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
-            creator: walkwayCreator,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
@@ -97,7 +89,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
-            creator: walkwayCreator,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -106,32 +97,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
-            creator: walkwayCreator,
-        });
-
-        expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
-        expect(walkwayOrErrorWithUndefined.isFailure).toBeTruthy();
-        expect(walkwayOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
-        expect(walkwayOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
-    })
-
-    it('creator가 null이나 undefined로 전달될 경우 Walkway createNew는 실패해야 한다.', () => {
-        const walkwayOrErrorWithNull = Walkway.createNew({
-            title: walkwayTitle,
-            address: walkwayAddress,
-            distance: walkwayDistance,
-            time: walkwayTime,
-            path: walkwayPath,
-            creator: null,
-        });
-
-        const walkwayOrErrorWithUndefined = Walkway.createNew({
-            title: walkwayTitle,
-            address: walkwayAddress,
-            distance: walkwayDistance,
-            time: walkwayTime,
-            path: walkwayPath,
-            creator: undefined,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
@@ -147,7 +112,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: null,
-            creator: walkwayCreator,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -156,7 +120,6 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: undefined,
-            creator: walkwayCreator,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();

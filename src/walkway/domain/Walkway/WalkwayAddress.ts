@@ -15,7 +15,7 @@ export class WalkwayAddress extends ValueObject<WalkwayAddressProps> {
     }
 
     static create(walkwayAddressString: string): Result<WalkwayAddress> {
-        if (_.isEmpty(walkwayAddressString) || _.isNil(walkwayAddressString)) {
+        if (_.isEmpty(walkwayAddressString)) {
             return Result.fail(WALKWAY_ADDRESS_SHOULD_NOT_BE_EMPTY);
         }
 

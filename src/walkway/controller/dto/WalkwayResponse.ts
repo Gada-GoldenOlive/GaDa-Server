@@ -22,6 +22,9 @@ export class WalkwayDto {
 
     @ApiProperty()
     creator: string;
+
+    @ApiProperty()
+    creatorId: string;
 }
 
 export class GetAllNearWalkwayResponse {

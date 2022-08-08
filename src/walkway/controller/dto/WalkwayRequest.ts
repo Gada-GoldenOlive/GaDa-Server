@@ -16,9 +16,6 @@ export class CreateWalkwayRequest {
 
     @ApiProperty()
     path: LineString;
-
-    @ApiProperty()
-    creator: string;
 }
 
 export class UpdateWalkwayRequest {
@@ -39,8 +36,4 @@ export class UpdateWalkwayRequest {
 
     @ApiPropertyOptional()
     path?: LineString;
-
-    @ApiPropertyOptional()
-    creator?: string;
 }
-

@@ -16,7 +16,7 @@ export class WalkwayPath extends ValueObject<WalkwaypathProps> {
     }
 
     static create(walkwayPathLineString: LineString): Result<WalkwayPath> {
-        if (_.isNil(walkwayPathLineString) || _.isEmpty(walkwayPathLineString.coordinates)) {
+        if (_.isEmpty(walkwayPathLineString.coordinates)) {
             return Result.fail(WALKWAY_PATH_SHOULD_NOT_BE_EMPTY);
         }
 
