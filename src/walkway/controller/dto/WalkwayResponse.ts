@@ -1,5 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { LineString } from "geojson";
+import { Point } from "../../domain/Walkway/WalkwayPath";
+
+export class PointDto implements Point {
+    @ApiProperty()
+    lat: number;
+
+    @ApiProperty()
+    lng: number;
+}
 
 export class WalkwayDto {
     @ApiProperty()
@@ -18,7 +26,12 @@ export class WalkwayDto {
     time: number;
 
     @ApiProperty()
-    path: LineString;
+    pinCount: number;
+
+    @ApiProperty({
+        type: [PointDto],
+    })
+    path: PointDto[];
 
     @ApiProperty()
     creator: string;

@@ -12,10 +12,10 @@ describe('Walkway', () => {
     const walkwayAddress = WalkwayAddress.create('서울특별시 성동구 왕십리로 222').value;
     const walkwayDistance = WalkwayDistance.create(300).value;
     const walkwayTime = WalkwayTime.create(30).value;
-    const walkwayPath = WalkwayPath.create({
-        'type': 'LineString',
-        'coordinates': [[100, 40], [105, 45], [110, 55]],
-    }).value;
+    const walkwayPath = WalkwayPath.create([
+        {lat: 100, lng: 40}, 
+        {lat: 100, lng: 40},
+    ]).value;
     const createdAt = new Date();
     const updatedAt = new Date();
 

@@ -1,11 +1,15 @@
-import { LineString } from 'geojson';
 import _ from 'lodash';
 
 import { ValueObject } from '../../../common/domain/ValueObject';
 import { Result } from '../../../common/presentationals/Result';
 
+export interface Point {
+    lat: number;
+    lng: number;
+}
+
 interface WalkwaypathProps {
-    value: LineString;
+    value: Point[];
 }
 
 export const WALKWAY_PATH_SHOULD_NOT_BE_EMPTY = 'Walkway path should not be empty.';
@@ -15,15 +19,15 @@ export class WalkwayPath extends ValueObject<WalkwaypathProps> {
         super(props);
     }
 
-    static create(walkwayPathLineString: LineString): Result<WalkwayPath> {
-        if (_.isEmpty(walkwayPathLineString.coordinates)) {
+    static create(walkwayPathPoint: Point[]): Result<WalkwayPath> {
+        if (_.isEmpty(walkwayPathPoint)) {
             return Result.fail(WALKWAY_PATH_SHOULD_NOT_BE_EMPTY);
         }
 
-        return Result.ok(new WalkwayPath({ value: walkwayPathLineString }));
+        return Result.ok(new WalkwayPath({ value: walkwayPathPoint }));
     }
 
-    get value(): LineString {
+    get value(): Point[] {
         return this.props.value;
     }
 }

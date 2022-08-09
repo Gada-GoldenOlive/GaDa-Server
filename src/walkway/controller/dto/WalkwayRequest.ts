@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { LineString } from 'geojson';
+
+import { PointDto } from './WalkwayResponse';
 
 export class CreateWalkwayRequest {
     @ApiProperty()
@@ -14,8 +15,10 @@ export class CreateWalkwayRequest {
     @ApiProperty()
     time: number;
 
-    @ApiProperty()
-    path: LineString;
+    @ApiProperty({
+        type: [PointDto],
+    })
+    path: PointDto[];
 }
 
 export class UpdateWalkwayRequest {
@@ -34,6 +37,8 @@ export class UpdateWalkwayRequest {
     @ApiPropertyOptional()
     time?: number;
 
-    @ApiPropertyOptional()
-    path?: LineString;
+    @ApiPropertyOptional({
+        type: [PointDto],
+    })
+    path?: PointDto[];
 }

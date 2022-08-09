@@ -1,10 +1,10 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { LineString } from 'geojson';
 
 import { UserEntity } from '../../user/entity/User.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { WalkEntity } from './Walk.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
+import { Point } from '../domain/Walkway/WalkwayPath';
 
 @Entity('walkway')
 export class WalkwayEntity extends CoreEntity {
@@ -37,7 +37,7 @@ export class WalkwayEntity extends CoreEntity {
         nullable: true,
         type: 'linestring',
     })
-    path: LineString;
+    path: Point[];
 
     @Column({
         nullable: false,
