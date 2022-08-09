@@ -28,6 +28,9 @@ export class WalkwayDto {
     @ApiProperty()
     pinCount: number;
 
+    @ApiProperty()
+    averageStar: number;
+
     @ApiProperty({
         type: [PointDto],
     })
