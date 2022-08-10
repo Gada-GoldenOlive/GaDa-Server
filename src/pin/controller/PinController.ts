@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreatePinRequest, UpdatePinRequest } from './dto/PinRequest';
@@ -25,12 +25,13 @@ export class PinController {
         }
     }
 
-    @Get('/:walkwayId')
+    @Get()
     @ApiOkResponse({
         type: GetAllPinResponse,
     })
     async getAll(
-        @Param('walkwayId') walkwayId: string,
+        @Query('walkwayId') walkwayId?: string,
+        @Query('userId') userId?: string,
     ) {
         // TODO: 차후 Usecase 생성시 추가
     }

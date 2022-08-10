@@ -1,6 +1,8 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
+import { UserEntity } from '../../user/entity/User.entity';
 import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
+import { PinStatus, PIN_STATUS } from '../domain/PinStatus';
 
 @Entity('pin')
 export class PinEntity extends CoreEntity {
@@ -24,6 +26,18 @@ export class PinEntity extends CoreEntity {
     })
     image: string;
 
-    @ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.pins)
+    @Column({
+        nullable: false,
+        type: 'enum',
+        enum: PinStatus,
+        default: PinStatus.NORMAL,
+    })
+    @Index()
+    status: PIN_STATUS;
+
+    @ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.pins, { nullable: false })
     walkway: WalkwayEntity;
+
+    @ManyToOne(() => UserEntity, (userEntity) => userEntity.pins, { nullable: false })
+    user: UserEntity;
 }
