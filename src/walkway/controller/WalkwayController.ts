@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateWalkwayRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllNearWalkwayResponse } from './dto/WalkwayResponse';
+import { GetAllNearWalkwayResponse, GetWalkwayResponse } from './dto/WalkwayResponse';
 
 @Controller('walkway')
 @ApiTags('산책로')
@@ -19,11 +19,17 @@ export class WalkwayController {
         @Body() request: CreateWalkwayRequest,
     ) {}
 
-    @Get('/:longitude/:latitude')
+    @Get('/:lat/:lng')
     @ApiOkResponse({
         type: GetAllNearWalkwayResponse,
     })
     async getAllNear() {}
+
+    @Get('/walkwayId')
+    @ApiOkResponse({
+        type: GetWalkwayResponse,
+    })
+    async getWalkway() {}
 
     @Patch('/:walkwayId')
     @ApiResponse({

@@ -1,12 +1,10 @@
-import { LineString } from 'geojson';
-
-import { WalkwayPath, WALKWAY_PATH_SHOULD_NOT_BE_EMPTY } from './WalkwayPath';
+import { Point, WalkwayPath, WALKWAY_PATH_SHOULD_NOT_BE_EMPTY } from './WalkwayPath';
 
 describe('WalkwayPath', () => {
-    const walkwayPathLineString: LineString = {
-        'type': 'LineString',
-        'coordinates': [[100, 40], [105, 45], [110, 55]],
-    }
+    const walkwayPathLineString: Point[] = [
+        {lat: 100, lng: 40}, 
+        {lat: 100, lng: 40},
+    ]
 
     it('WalkwayPath create 성공', () => {
         const WalkwayPathOrError = WalkwayPath.create(walkwayPathLineString);
@@ -16,10 +14,7 @@ describe('WalkwayPath', () => {
     })
 
     it('산책로의 경로 좌표가 하나도 없다면 create는 실패해야한다.', () => {
-        const walkwayPathOrErrorWithEmptyCoordinates = WalkwayPath.create({
-            'type': 'LineString',
-            'coordinates': [],
-        });
+        const walkwayPathOrErrorWithEmptyCoordinates = WalkwayPath.create([]);
 
         expect(walkwayPathOrErrorWithEmptyCoordinates.isFailure).toBeTruthy();
         expect(walkwayPathOrErrorWithEmptyCoordinates.errorValue()).toBe(WALKWAY_PATH_SHOULD_NOT_BE_EMPTY);
