@@ -12,6 +12,9 @@ export class PinDto {
 
     @ApiProperty()
     image: string;
+
+    @ApiProperty()
+    userId: string;
 }
 
 export class GetAllPinResponse {

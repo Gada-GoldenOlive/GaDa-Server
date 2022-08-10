@@ -1,15 +1,19 @@
 import { StatusCodes } from 'http-status-codes';
-
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreatePinRequest, UpdatePinRequest } from './dto/PinRequest';
 import { GetAllPinResponse } from './dto/PinResponse';
+import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
+import _ from 'lodash';
 
 @Controller('pin')
 @ApiTags('핀')
 export class PinController {
-    constructor() {}
+    constructor(
+        private readonly getAllPinUseCase: GetAllPinUseCase,
+    ) {}
 
     @Post()
     @ApiCreatedResponse({
@@ -32,8 +36,32 @@ export class PinController {
     async getAll(
         @Query('walkwayId') walkwayId?: string,
         @Query('userId') userId?: string,
-    ) {
+    ): Promise<GetAllPinResponse> {
         // TODO: 차후 Usecase 생성시 추가
+        // const [ walkwayResponse, userResponse ] = await Promise.all([
+        //     // TODO: find walkyway usecase, find user usecase 만든 다음 여기에 추가
+        // ]);
+
+        const getAllPinUSeCaseResponse = await this.getAllPinUseCase.execute({
+            // walkwayResponse.walkway,
+            // userResponse.user,
+        });
+
+        if (getAllPinUSeCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.OK);
+        }
+
+        const pins = _.map(getAllPinUSeCaseResponse.pins, (pin) => ({
+            id: pin.id,
+            title: pin.title.value,
+            content: pin.content.value,
+            image: pin.image.value,
+            userId: pin.user.id,
+        }))
+
+        return {
+            pins,
+        }
     }
 
     @Patch('/:pinId')
