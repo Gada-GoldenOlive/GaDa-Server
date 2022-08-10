@@ -2,7 +2,6 @@ import { PROPS_VALUES_ARE_REQUIRED } from '../../common/domain/Image/Image';
 import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { initialNumber, User } from './User';
 import { UserName } from './UserName';
-import { UserPinCount } from './UserPinCount';
 import { UserTotalDistance } from './UserTotalDistance';
 import { UserTotalTime } from './UserTotalTime';
 
@@ -11,7 +10,6 @@ describe('User', () => {
     const TEST_USER_ID = 'test-user-uuid';
     const userName = UserName.create('시어니').value;
     const userImage = ImageUrl.create('test-image-url.png').value;
-    const userPinCount = UserPinCount.create(initialNumber).value;
     const userTotalDistance = UserTotalDistance.create(initialNumber).value;
     const userTotalTime = UserTotalTime.create(initialNumber).value;
     const createdAt = new Date();
@@ -21,16 +19,14 @@ describe('User', () => {
         const userOrError = User.createNew({
             name: userName,
             image: userImage,
-            pinCount: userPinCount,
             totalDistance: userTotalDistance,
-            totalTime: userTotalDistance,
+            totalTime: userTotalTime,
         });
 
         expect(userOrError.isSuccess).toBeTruthy();
         expect(userOrError.value.id).toBeDefined();
         expect(userOrError.value.name.value).toBe(userName.value);
         expect(userOrError.value.image.value).toBe(userImage.value);
-        expect(userOrError.value.pinCount.value).toBe(userPinCount.value);
         expect(userOrError.value.totalDistance.value).toBe(userTotalDistance.value);
         expect(userOrError.value.totalTime.value).toBe(userTotalTime.value);
     });
@@ -39,9 +35,8 @@ describe('User', () => {
         const userOrError = User.create({
             name: userName,
             image: userImage,
-            pinCount: userPinCount,
             totalDistance: userTotalDistance,
-            totalTime: userTotalDistance,
+            totalTime: userTotalTime,
             createdAt,
             updatedAt,
         }, TEST_USER_ID);
@@ -50,7 +45,6 @@ describe('User', () => {
         expect(userOrError.value.id).toBe(TEST_USER_ID);
         expect(userOrError.value.name.value).toBe(userName.value);
         expect(userOrError.value.image.value).toBe(userImage.value);
-        expect(userOrError.value.pinCount.value).toBe(userPinCount.value);
         expect(userOrError.value.totalDistance.value).toBe(userTotalDistance.value);
         expect(userOrError.value.totalTime.value).toBe(userTotalTime.value);
         expect(userOrError.value.createdAt).toBe(createdAt);
@@ -61,17 +55,15 @@ describe('User', () => {
         const userOrErrorWithNull = User.createNew({
             name: null,
             image: userImage,
-            pinCount: userPinCount,
             totalDistance: userTotalDistance,
-            totalTime: userTotalDistance,
+            totalTime: userTotalTime,
         });
         
         const userOrErrorWithUndefined = User.createNew({
             name: undefined,
             image: userImage,
-            pinCount: userPinCount,
             totalDistance: userTotalDistance,
-            totalTime: userTotalDistance,
+            totalTime: userTotalTime,
         });
         
         expect(userOrErrorWithNull.isFailure).toBeTruthy();
@@ -80,24 +72,11 @@ describe('User', () => {
         expect(userOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
     });
 
-    it('user pin count가 전달되지 않았을 경우 createNew에서 0개로 자동 생성되어야 한다.', () => {
-        const userPinCountOrError = User.createNew({
-            name: userName,
-            image: userImage,
-            totalDistance: userTotalDistance,
-            totalTime: userTotalDistance,
-        });
-
-        expect(userPinCountOrError.isSuccess).toBeTruthy();
-        expect(userPinCountOrError.value.pinCount.value).toBe(initialNumber);
-    })
-
     it('user total distance가 전달되지 않았을 경우 createNew에서 0으로 자동 생성되어야 한다.', () => {
         const userTotalDistanceOrError = User.createNew({
             name: userName,
             image: userImage,
-            pinCount: userPinCount,
-            totalTime: userTotalDistance,
+            totalTime: userTotalTime,
         });
 
         expect(userTotalDistanceOrError.isSuccess).toBeTruthy();
@@ -108,7 +87,6 @@ describe('User', () => {
         const userTotalTimeOrError = User.createNew({
             name: userName,
             image: userImage,
-            pinCount: userPinCount,
             totalDistance: userTotalDistance,
         });
 
@@ -116,26 +94,46 @@ describe('User', () => {
         expect(userTotalTimeOrError.value.totalTime.value).toBe(initialNumber);
     });
 
-    it('user pin count가 null이나 undefined로 전달 될 경우 createNew에서 0개로 자동 생성되어야 한다.', () => {
-        const userPinCountOrErrorWithNull = User.createNew({
+    it('user total distance가 null이나 undefined로 전달 될 경우 createNew에서 0개로 자동 생성되어야 한다.', () => {
+        const userTotalDistanceOrErrorWithNull = User.createNew({
             name: userName,
             image: userImage,
-            pinCount: null,
-            totalDistance: userTotalDistance,
-            totalTime: userTotalDistance,
+            totalDistance: null,
+            totalTime: userTotalTime,
         });
 
-        const userPinCountOrErrorWithUndefined = User.createNew({
+        const userTotalDistanceOrErrorWithUndefined = User.createNew({
             name: userName,
             image: userImage,
-            pinCount: null,
-            totalDistance: userTotalDistance,
-            totalTime: userTotalDistance,
+            totalDistance: undefined,
+            totalTime: userTotalTime,
         });
 
-        expect(userPinCountOrErrorWithNull.isSuccess).toBeTruthy();
-        expect(userPinCountOrErrorWithUndefined.isSuccess).toBeTruthy();
-        expect(userPinCountOrErrorWithNull.value.pinCount.value).toBe(initialNumber);
-        expect(userPinCountOrErrorWithUndefined.value.pinCount.value).toBe(initialNumber);
+        expect(userTotalDistanceOrErrorWithNull.isSuccess).toBeTruthy();
+        expect(userTotalDistanceOrErrorWithUndefined.isSuccess).toBeTruthy();
+        expect(userTotalDistanceOrErrorWithNull.value.totalDistance.value).toBe(initialNumber);
+        expect(userTotalDistanceOrErrorWithUndefined.value.totalDistance.value).toBe(initialNumber);
     });
+    
+    it('user total time이 null이나 undefined로 전달 될 경우 createNew에서 0개로 자동 생성되어야 한다.', () => {
+        const userTotalTimeOrErrorWithNull = User.createNew({
+            name: userName,
+            image: userImage,
+            totalDistance: userTotalDistance,
+            totalTime: null,
+        });
+
+        const userTotalTimeOrErrorWithUndefined = User.createNew({
+            name: userName,
+            image: userImage,
+            totalDistance: userTotalDistance,
+            totalTime: undefined,
+        });
+
+        expect(userTotalTimeOrErrorWithNull.isSuccess).toBeTruthy();
+        expect(userTotalTimeOrErrorWithUndefined.isSuccess).toBeTruthy();
+        expect(userTotalTimeOrErrorWithNull.value.totalDistance.value).toBe(initialNumber);
+        expect(userTotalTimeOrErrorWithUndefined.value.totalDistance.value).toBe(initialNumber);
+    });
+
 })

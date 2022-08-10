@@ -4,6 +4,7 @@ import { WalkEntity } from 'src/walkway/entity/Walk.entity';
 import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { ReviewEntity } from '../../review/entity/Review.entity';
+import { PinEntity } from '../../pin/entity/Pin.entity';
 
 @Entity('user')
 export class UserEntity extends CoreEntity {
@@ -13,12 +14,6 @@ export class UserEntity extends CoreEntity {
         length: 17,
     })
     name: string;
-
-    @Column({
-        nullable: true,
-        type: 'int',
-    })
-    pinCount: number;
 
     @Column({
         nullable: true,
@@ -46,4 +41,7 @@ export class UserEntity extends CoreEntity {
 
     @OneToMany(() => ReviewEntity, (reviewEntity) => reviewEntity.user)
     reviews: ReviewEntity[];
+
+    @OneToMany(() => PinEntity, (pinEntity) => pinEntity.user)
+    pins: PinEntity[];
 }
