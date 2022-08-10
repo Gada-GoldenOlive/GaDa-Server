@@ -4,14 +4,12 @@ import { AggregateRoot } from '../../common/domain/AggregateRoot';
 import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { Result } from '../../common/presentationals/Result';
 import { UserName } from './UserName';
-import { UserPinCount } from './UserPinCount';
 import { UserTotalDistance } from './UserTotalDistance';
 import { UserTotalTime } from './UserTotalTime';
 
 export interface UserNewProps {
     name: UserName;
     image?: ImageUrl;
-    pinCount?: UserPinCount;
     totalDistance?: UserTotalDistance;
     totalTime?: UserTotalTime;
 }
@@ -38,7 +36,6 @@ export class User extends AggregateRoot<UserProps> {
         // TODO: image url이 전달되지 않을 경우에 default를 뭐로 설정해줘야 하나?
         return Result.ok(new User({
             ...props,
-            pinCount: UserPinCount.create(initialNumber).value,
             totalDistance: UserTotalDistance.create(initialNumber).value,
             totalTime: UserTotalTime.create(initialNumber).value,
             createdAt: new Date(),
@@ -57,11 +54,7 @@ export class User extends AggregateRoot<UserProps> {
     get image(): ImageUrl {
         return this.props.image;
     }
-
-    get pinCount(): UserPinCount {
-        return this.props.pinCount;
-    }
-
+    
     get totalDistance(): UserTotalDistance {
         return this.props.totalDistance;
     }
