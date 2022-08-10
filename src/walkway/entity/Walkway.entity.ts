@@ -35,7 +35,7 @@ export class WalkwayEntity extends CoreEntity {
 
     @Column({
         nullable: true,
-        type: 'linestring',
+        type: 'json',
     })
     path: Point[];
 
