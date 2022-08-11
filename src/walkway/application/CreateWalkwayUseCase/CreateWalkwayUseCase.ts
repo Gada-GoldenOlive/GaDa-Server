@@ -17,7 +17,7 @@ export enum CreateWalkwayUseCaseCodes {
     FAILURE = 'FAILURE',
 }
 
-export class createWalkwayUseCase implements UseCase<ICreateWalkwayUseCaseRequest, ICreateWalkwayUseCaseResponse> {
+export class CreateWalkwayUseCase implements UseCase<ICreateWalkwayUseCaseRequest, ICreateWalkwayUseCaseResponse> {
     constructor(
         @Inject(WALKWAY_REPOSITORY)
         private readonly walkwayRespository: IWalkwayRepository,

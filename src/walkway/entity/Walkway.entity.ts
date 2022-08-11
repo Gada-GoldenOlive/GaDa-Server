@@ -21,13 +21,13 @@ export class WalkwayEntity extends CoreEntity {
     address: string;
 
     @Column({
-        nullable: true,
+        nullable: false,
         type: 'float',
     })
     distance: number;
 
     @Column({
-        nullable: true,
+        nullable: false,
         type: 'int',
     })
     time: number;

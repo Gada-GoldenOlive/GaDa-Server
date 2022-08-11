@@ -59,13 +59,13 @@ export class getSeoulmapWalkways {
     }
 
     isBadWalkway(walkwayData: any): boolean {
-        if (walkwayData['COT_CONTS_NAME'].endsWith('_우수'))
-            return false;
-        if (walkwayData['COT_CONTS_NAME'] == '0')
-            return false;
-        if (walkwayData['COT_VALUE_01'].startsWith('우수: '))
-            return false;
-        return true;
+        if (walkwayData['COT_CONTS_NAME'].endsWith('불량'))
+            return true;
+        if (walkwayData['COT_CONTS_NAME'] == '2')
+            return true;
+        if (walkwayData['COT_VALUE_01'].startsWith('불량: '))
+            return true;
+        return false;
     }
 
     getAddress(response: any): string {
@@ -77,9 +77,12 @@ export class getSeoulmapWalkways {
 
     getTitle(contsName: any, address: string): string {
         if (isNaN(contsName)) {
-            if (contsName.includes('_우수') || contsName.includes('_보통') || contsName.includes('_불량'))
-                contsName = contsName.substring(0, contsName.length - 3);
             contsName = contsName.replace(/_/gi, ' ');
+            if (contsName.includes('우수') || contsName.includes('보통') || contsName.includes('불량'))
+                contsName = contsName.substring(0, contsName.length - 2);
+            contsName.trim();
+            if (contsName.length == 0)
+                return address + ' 산책로';
             if (!contsName.endsWith('산책로'))
                 contsName += ' 산책로';
             return contsName;

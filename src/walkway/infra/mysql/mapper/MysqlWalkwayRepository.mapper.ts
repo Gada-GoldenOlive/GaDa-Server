@@ -65,7 +65,7 @@ export class MysqlWalkwayRepositoryMapper {
     static stringToPoint(string: string): Point {
         let lat: number
         let lng: number
-
+        // TODO: Point 타입 가져왔을 때 포맷 보고 수정해야함.
         return {
             lat: lat,
             lng: lng,

@@ -3,7 +3,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
-import { createSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
+import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkwayRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
 import { GetAllNearWalkwayResponse, GetWalkwayResponse } from './dto/WalkwayResponse';
 import { getSeoulmapWalkways } from '../smartSeoulMap/getSeoulMapWalkways';
@@ -12,7 +12,7 @@ import { getSeoulmapWalkways } from '../smartSeoulMap/getSeoulMapWalkways';
 @ApiTags('산책로')
 export class WalkwayController {
     constructor(
-        private readonly createSeoulmapWalkwaysUseCase: createSeoulmapWalkwaysUseCase,
+        private readonly createSeoulmapWalkwaysUseCase: CreateSeoulmapWalkwaysUseCase,
         private readonly getSeoulmapWalkways: getSeoulmapWalkways,
     ) {}
 

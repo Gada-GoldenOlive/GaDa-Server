@@ -18,7 +18,7 @@ export enum CreateSeoulmapWalkwaysUseCaseCodes {
     FAILURE = 'FAILURE',
 }
 
-export class createSeoulmapWalkwaysUseCase implements UseCase<ICreateSeoulmapWalkwaysUseCaseRequest, ICreateSeoulmapWalkwaysUseCaseResponse> {
+export class CreateSeoulmapWalkwaysUseCase implements UseCase<ICreateSeoulmapWalkwaysUseCaseRequest, ICreateSeoulmapWalkwaysUseCaseResponse> {
     constructor(
         @Inject(WALKWAY_REPOSITORY)
         private readonly walkwayRespository: IWalkwayRepository,

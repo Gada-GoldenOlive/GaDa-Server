@@ -1,10 +1,10 @@
 import { mock, MockProxy } from 'jest-mock-extended';
 
 import { IWalkwayRepository } from "../../infra/IWalkwayRepository";
-import { createSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from "./CreateSeoulmapWalkwaysUseCase";
+import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from "./CreateSeoulmapWalkwaysUseCase";
 
 describe('CreateSeoulmapWalkwaysUseCase', () => {
-    let uut: createSeoulmapWalkwaysUseCase;
+    let uut: CreateSeoulmapWalkwaysUseCase;
     let walkwayRepository: MockProxy<IWalkwayRepository>;
 
     const testWalkwayTitle_1 = '용답 산책로';
@@ -26,7 +26,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
 
     beforeAll(() => {
         walkwayRepository = mock<IWalkwayRepository>();
-        uut = new createSeoulmapWalkwaysUseCase(walkwayRepository);
+        uut = new CreateSeoulmapWalkwaysUseCase(walkwayRepository);
     });
 
     it('create 성공', async () => {

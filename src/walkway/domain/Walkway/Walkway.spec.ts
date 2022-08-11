@@ -41,6 +41,7 @@ describe('Walkway', () => {
         expect(walkwayOrError.value.distance.value).toBe(walkwayDistance.value);
         expect(walkwayOrError.value.time.value).toBe(walkwayTime.value);
         expect(walkwayOrError.value.path.value).toBe(walkwayPath.value);
+        expect(walkwayOrError.value.startPoint.value).toBe(walkwayStartPoint.value);
     })
 
     it('Walkway create 성공', () => {
@@ -62,6 +63,7 @@ describe('Walkway', () => {
         expect(walkwayOrError.value.distance.value).toBe(walkwayDistance.value);
         expect(walkwayOrError.value.time.value).toBe(walkwayTime.value);
         expect(walkwayOrError.value.path.value).toBe(walkwayPath.value);
+        expect(walkwayOrError.value.startPoint.value).toBe(walkwayStartPoint.value);
         expect(walkwayOrError.value.createdAt).toBe(createdAt);
         expect(walkwayOrError.value.updatedAt).toBe(updatedAt);
     })
