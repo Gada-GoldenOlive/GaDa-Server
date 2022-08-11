@@ -7,6 +7,8 @@ import { ICreateWalkwayUseCaseRequest } from '../application/CreateWalkwayUseCas
 import { Point } from '../domain/Walkway/WalkwayStartPoint';
 
 export class getSeoulmapWalkways {
+    private titleCnt = 1;
+
     async getValues(): Promise<ICreateWalkwayUseCaseRequest[]> {
         const httpService: HttpService = new HttpService();
         const URL = 'https://map.seoul.go.kr/smgis/apps/theme.do?cmd=getContentsList&key=86a16bf8aaed4777b5d3618d916e93fb&page_no=1&page_size=30000&coord_x=126&coord_y=37&distance=10000000&theme_id=11102801';
@@ -16,10 +18,10 @@ export class getSeoulmapWalkways {
             if (this.isBadWalkway(walkwayData) || this.getDistance(walkwayData['COT_COORD_DATA']) < 0.5)
                 return false;
             return true;
-          }).map((walkwayData) => {
+        }).map((walkwayData) => {
             return this.createValue(walkwayData);
         });
-        return values;
+        return this.changeDuplicateTitle(values);
     }
 
     createValue(response: any): ICreateWalkwayUseCaseRequest{
@@ -80,7 +82,7 @@ export class getSeoulmapWalkways {
             contsName = contsName.replace(/_/gi, ' ');
             if (contsName.includes('우수') || contsName.includes('보통') || contsName.includes('불량'))
                 contsName = contsName.substring(0, contsName.length - 2);
-            contsName.trim();
+            contsName = contsName.trim();
             if (contsName.length == 0)
                 return address + ' 산책로';
             if (!contsName.endsWith('산책로'))
@@ -88,5 +90,29 @@ export class getSeoulmapWalkways {
             return contsName;
         }
         return address + ' 산책로';
+    }
+
+    changeDuplicateTitle(walkways: any): any {
+        let sortedWalkways = walkways.sort((w1, w2) => {
+            if (w1.title > w2.title) return 1;
+            if (w1.title == w2.title) return 0;
+            return -1;
+        })
+
+        let lastTitle = '';
+        let titleCnt = 1;
+        sortedWalkways.forEach(walkway => {
+            if (walkway.title == lastTitle) {
+                lastTitle = walkway.title;
+                walkway.title += titleCnt;
+                titleCnt++;
+            }
+            else {
+                titleCnt = 1;
+                lastTitle = walkway.title;
+            }
+        })
+
+        return sortedWalkways;
     }
 }

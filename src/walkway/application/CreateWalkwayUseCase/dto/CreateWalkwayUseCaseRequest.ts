@@ -1,3 +1,4 @@
+import { User } from '../../../../user/domain/User';
 import { Point } from '../../../domain/Walkway/WalkwayStartPoint';
 
 export interface ICreateWalkwayUseCaseRequest {
@@ -6,4 +7,5 @@ export interface ICreateWalkwayUseCaseRequest {
     distance: number;
     time: number;
     path: Point[];
+    // user: User;
 }

@@ -2,6 +2,7 @@ import { Inject } from "@nestjs/common";
 import _ from "lodash";
 
 import { UseCase } from "../../../common/application/UseCase";
+import { User } from "../../../user/domain/User";
 import { Walkway } from "../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../domain/Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../../domain/Walkway/WalkwayDistance";
@@ -34,6 +35,7 @@ export class CreateSeoulmapWalkwaysUseCase implements UseCase<ICreateSeoulmapWal
                     time: WalkwayTime.create(walkway.time).value,
                     path: WalkwayPath.create(walkway.path).value,
                     startPoint: WalkwayStartPoint.create(walkway.path[0]).value,
+                    // user: walkway.user,
                 }).value;
             }));
             await this.walkwayRespository.saveAll(walkways);

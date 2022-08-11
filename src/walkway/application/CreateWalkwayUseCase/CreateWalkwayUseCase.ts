@@ -32,6 +32,7 @@ export class CreateWalkwayUseCase implements UseCase<ICreateWalkwayUseCaseReques
                 time: WalkwayTime.create(request.time).value,
                 path: WalkwayPath.create(request.path).value,
                 startPoint: WalkwayStartPoint.create(request.path[0]).value,
+                // user: request.user,
             }).value;
             await this.walkwayRespository.save(walkway);
 

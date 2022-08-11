@@ -1,4 +1,9 @@
 import { mock, MockProxy } from 'jest-mock-extended';
+import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
+import { User } from '../../../user/domain/User';
+import { UserName } from '../../../user/domain/UserName';
+import { UserTotalDistance } from '../../../user/domain/UserTotalDistance';
+import { UserTotalTime } from '../../../user/domain/UserTotalTime';
 
 import { IWalkwayRepository } from "../../infra/IWalkwayRepository";
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from "./CreateSeoulmapWalkwaysUseCase";
@@ -23,6 +28,16 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
         { lat: 30, lng: 30 },
         { lat: 40, lng: 30 },
     ];
+    const createdAt = new Date();
+    const updatedAt = new Date();
+    const testUser = User.create({
+        name: UserName.create('user name').value,
+        image: ImageUrl.create('user-image-test.jpg').value,
+        totalDistance: UserTotalDistance.create(30).value,
+        totalTime: UserTotalTime.create(300).value,
+        createdAt,
+        updatedAt,
+    }, 'test-user-uuid').value;
 
     beforeAll(() => {
         walkwayRepository = mock<IWalkwayRepository>();
@@ -40,6 +55,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_1,
                     time: testWalkwayTime_1,
                     path: testWalkwayPath_1,
+                    // user: testUser,
                 },
                 {
                     title: testWalkwayTitle_2,
@@ -47,6 +63,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_2,
                     time: testWalkwayTime_2,
                     path: testWalkwayPath_2,
+                    // user: testUser,
                 },
             ]
         });
@@ -65,6 +82,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_1,
                     time: testWalkwayTime_1,
                     path: testWalkwayPath_1,
+                    // user: testUser,
                 },
                 {
                     title: testWalkwayTitle_2,
@@ -72,6 +90,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_2,
                     time: testWalkwayTime_2,
                     path: testWalkwayPath_2,
+                    // user: testUser,
                 },
             ]
         });

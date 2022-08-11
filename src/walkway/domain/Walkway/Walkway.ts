@@ -1,12 +1,14 @@
-import _ from 'lodash';
+import _, { isNil } from 'lodash';
 
 import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { Result } from '../../../common/presentationals/Result';
+import { User } from '../../../user/domain/User';
 import { WalkwayAddress } from './WalkwayAddress';
 import { WalkwayDistance } from './WalkwayDistance';
 import { WalkwayPath } from './WalkwayPath';
 import { WalkwayStartPoint } from './WalkwayStartPoint';
+import { WalkwayStatus, WALKWAY_STATUS } from './WalkwayStatus';
 import { WalkwayTime } from './WalkwayTime';
 import { WalkwayTitle } from './WalkwayTitle';
 
@@ -17,6 +19,8 @@ export interface WalkwayNewProps {
     time: WalkwayTime;
     path: WalkwayPath;
     startPoint: WalkwayStartPoint;
+ //   user: User;
+    status?: WalkwayStatus;
 }
 
 export interface WalkwayProps extends WalkwayNewProps {
@@ -36,6 +40,7 @@ export class Walkway extends AggregateRoot<WalkwayProps> {
 
         return Result.ok(new Walkway({
             ...props,
+            status: this.getWalkwayStatusAndSetIfStatusIsUndefined(props),
             createdAt: new Date(),
             updatedAt: new Date(),
         }))
@@ -69,11 +74,28 @@ export class Walkway extends AggregateRoot<WalkwayProps> {
         return this.props.startPoint;
     }
 
+    get status(): WALKWAY_STATUS {
+        return this.props.status;
+    }
+
     get createdAt(): Date {
         return this.props.createdAt;
     }
     
     get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+
+    // get user(): User {
+    //     return this.props.user;
+    // }
+
+    private static getWalkwayStatusAndSetIfStatusIsUndefined(props: WalkwayNewProps) {
+        let { status } = props;
+        if (_.isNil(props.status) || _.isEmpty(props.status)) {
+            status = WalkwayStatus.NORMAL;
+        }
+        
+        return status;
     }
 }
