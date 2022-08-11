@@ -6,6 +6,7 @@ import { Result } from '../../../common/presentationals/Result';
 import { WalkwayAddress } from './WalkwayAddress';
 import { WalkwayDistance } from './WalkwayDistance';
 import { WalkwayPath } from './WalkwayPath';
+import { WalkwayStartPoint } from './WalkwayStartPoint';
 import { WalkwayTime } from './WalkwayTime';
 import { WalkwayTitle } from './WalkwayTitle';
 
@@ -15,6 +16,7 @@ export interface WalkwayNewProps {
     distance: WalkwayDistance;
     time: WalkwayTime;
     path: WalkwayPath;
+    startPoint: WalkwayStartPoint;
 }
 
 export interface WalkwayProps extends WalkwayNewProps {
@@ -28,7 +30,7 @@ export class Walkway extends AggregateRoot<WalkwayProps> {
     }
 
     static createNew(props: WalkwayNewProps): Result<Walkway> {
-        if (_.isNil(props.title) || _.isNil(props.address) || _.isNil(props.path) || _.isNil(props.distance) || _.isNil(props.time)) {
+        if (_.isNil(props.title) || _.isNil(props.address) || _.isNil(props.path) || _.isNil(props.startPoint) || _.isNil(props.distance) || _.isNil(props.time)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 
@@ -61,6 +63,10 @@ export class Walkway extends AggregateRoot<WalkwayProps> {
 
     get path(): WalkwayPath {
         return this.props.path;
+    }
+
+    get startPoint(): WalkwayStartPoint {
+        return this.props.startPoint;
     }
 
     get createdAt(): Date {

@@ -2,29 +2,25 @@ import _ from 'lodash';
 
 import { ValueObject } from '../../../common/domain/ValueObject';
 import { Result } from '../../../common/presentationals/Result';
+import { Point } from './WalkwayStartPoint';
 
-export interface Point {
-    lat: number;
-    lng: number;
-}
-
-interface WalkwaypathProps {
+interface WalkwayPathProps {
     value: Point[];
 }
 
 export const WALKWAY_PATH_SHOULD_NOT_BE_EMPTY = 'Walkway path should not be empty.';
 
-export class WalkwayPath extends ValueObject<WalkwaypathProps> {
-    private constructor(props: WalkwaypathProps) {
+export class WalkwayPath extends ValueObject<WalkwayPathProps> {
+    private constructor(props: WalkwayPathProps) {
         super(props);
     }
 
-    static create(walkwayPathPoint: Point[]): Result<WalkwayPath> {
-        if (_.isEmpty(walkwayPathPoint)) {
+    static create(walkwayPathPoints: Point[]): Result<WalkwayPath> {
+        if (_.isEmpty(walkwayPathPoints)) {
             return Result.fail(WALKWAY_PATH_SHOULD_NOT_BE_EMPTY);
         }
 
-        return Result.ok(new WalkwayPath({ value: walkwayPathPoint }));
+        return Result.ok(new WalkwayPath({ value: walkwayPathPoints }));
     }
 
     get value(): Point[] {

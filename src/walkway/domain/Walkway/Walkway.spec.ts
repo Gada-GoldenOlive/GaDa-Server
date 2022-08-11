@@ -3,6 +3,7 @@ import { Walkway } from './Walkway';
 import { WalkwayAddress } from './WalkwayAddress';
 import { WalkwayDistance } from './WalkwayDistance';
 import { WalkwayPath } from './WalkwayPath';
+import { WalkwayStartPoint } from './WalkwayStartPoint';
 import { WalkwayTime } from './WalkwayTime';
 import { WalkwayTitle } from './WalkwayTitle';
 
@@ -16,6 +17,10 @@ describe('Walkway', () => {
         {lat: 100, lng: 40}, 
         {lat: 100, lng: 40},
     ]).value;
+    const walkwayStartPoint = WalkwayStartPoint.create({
+        lat: 100,
+        lng: 40
+    }).value;
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -26,6 +31,7 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
         });
 
         expect(walkwayOrError.isSuccess).toBeTruthy();
@@ -44,6 +50,7 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
             createdAt,
             updatedAt,
         }, TEST_WALKWAY_ID);
@@ -66,6 +73,7 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -74,6 +82,7 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
@@ -89,6 +98,7 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -97,6 +107,7 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
@@ -112,6 +123,7 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: null,
+            startPoint: walkwayStartPoint,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -120,6 +132,32 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: undefined,
+            startPoint: walkwayStartPoint,
+        });
+
+        expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
+        expect(walkwayOrErrorWithUndefined.isFailure).toBeTruthy();
+        expect(walkwayOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+        expect(walkwayOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+    })
+
+    it('startPoint가 null이나 undefined로 전달될 경우 Walkway createNew는 실패해야 한다.', () => {
+        const walkwayOrErrorWithNull = Walkway.createNew({
+            title: walkwayTitle,
+            address: walkwayAddress,
+            distance: walkwayDistance,
+            time: walkwayTime,
+            path: walkwayPath,
+            startPoint: null,
+        });
+
+        const walkwayOrErrorWithUndefined = Walkway.createNew({
+            title: walkwayTitle,
+            address: walkwayAddress,
+            distance: walkwayDistance,
+            time: walkwayTime,
+            path: walkwayPath,
+            startPoint: undefined,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();

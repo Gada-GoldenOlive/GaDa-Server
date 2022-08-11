@@ -1,17 +1,16 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 
 import { UserEntity } from '../../user/entity/User.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { WalkEntity } from './Walk.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
-import { Point } from '../domain/Walkway/WalkwayPath';
 
 @Entity('walkway')
 export class WalkwayEntity extends CoreEntity {
     @Column({
         nullable: false,
         type: 'varchar',
-        length: 20,
+        length: 30,
     })
     title: string;
 
@@ -23,7 +22,7 @@ export class WalkwayEntity extends CoreEntity {
 
     @Column({
         nullable: true,
-        type: 'int',
+        type: 'float',
     })
     distance: number;
 
@@ -34,17 +33,19 @@ export class WalkwayEntity extends CoreEntity {
     time: number;
 
     @Column({
-        nullable: true,
+        nullable: false,
         type: 'json',
     })
-    path: Point[];
+    path: string;
 
+    @Index({ spatial: true })
     @Column({
+        type: 'geometry',
+        spatialFeatureType: 'point', 
+        srid: 4326,
         nullable: false,
-        type: 'varchar',
-        length: 17,
     })
-    creator: string;
+    startPoint: string;
 
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.walkways)
     user: UserEntity;
