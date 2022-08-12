@@ -4,6 +4,7 @@ import { AggregateRoot } from '../../common/domain/AggregateRoot';
 import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { Result } from '../../common/presentationals/Result';
 import { UserName } from './UserName';
+import { UserStatus, USER_STATUS } from './UserStatus';
 import { UserTotalDistance } from './UserTotalDistance';
 import { UserTotalTime } from './UserTotalTime';
 
@@ -12,6 +13,7 @@ export interface UserNewProps {
     image?: ImageUrl;
     totalDistance?: UserTotalDistance;
     totalTime?: UserTotalTime;
+    status?: USER_STATUS;
 }
 
 export interface UserProps extends UserNewProps {
@@ -38,6 +40,7 @@ export class User extends AggregateRoot<UserProps> {
             ...props,
             totalDistance: UserTotalDistance.create(initialNumber).value,
             totalTime: UserTotalTime.create(initialNumber).value,
+            status: this.getUserStatusAndSetIfStatusIsUndefined(props),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));
@@ -63,11 +66,24 @@ export class User extends AggregateRoot<UserProps> {
         return this.props.totalTime;
     }
 
+    get status(): USER_STATUS {
+        return this.props.status;
+    }
+
     get createdAt(): Date {
         return this.props.createdAt;
     }
 
     get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+
+    private static getUserStatusAndSetIfStatusIsUndefined(props: UserNewProps) {
+        let { status } = props;
+        if (_.isNil(props.status) || _.isEmpty(props.status)) {
+            status = UserStatus.NORMAL;
+        }
+        
+        return status;
     }
 }

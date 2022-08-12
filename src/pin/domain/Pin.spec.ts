@@ -1,14 +1,18 @@
 import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { User } from '../../user/domain/User';
 import { UserName } from '../../user/domain/UserName';
+import { UserStatus } from '../../user/domain/UserStatus';
 import { UserTotalDistance } from '../../user/domain/UserTotalDistance';
 import { UserTotalTime } from '../../user/domain/UserTotalTime';
 import { Walkway } from '../../walkway/domain/Walkway/Walkway';
 import { WalkwayAddress } from '../../walkway/domain/Walkway/WalkwayAddress';
 import { WalkwayDistance } from '../../walkway/domain/Walkway/WalkwayDistance';
 import { WalkwayPath } from '../../walkway/domain/Walkway/WalkwayPath';
+import { WalkwayStartPoint } from '../../walkway/domain/Walkway/WalkwayStartPoint';
+import { WalkwayStatus } from '../../walkway/domain/Walkway/WalkwayStatus';
 import { WalkwayTime } from '../../walkway/domain/Walkway/WalkwayTime';
 import { WalkwayTitle } from '../../walkway/domain/Walkway/WalkwayTitle';
+import { MysqlWalkwayRepositoryMapper } from '../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin, PROPS_VALUES_ARE_REQUIRED } from './Pin';
 import { PinContent } from './PinContent';
 import { PinStatus } from './PinStatus';
@@ -26,9 +30,13 @@ describe('Pin', () => {
     const walkwayAddress = WalkwayAddress.create('산책로 주소').value
     const walkwayDistance = WalkwayDistance.create(25).value;
     const walkwayTime = WalkwayTime.create(30).value;
-    const walkwayPath = WalkwayPath.create({
-        'type': 'LineString',
-        'coordinates': [[100, 40], [105, 45], [110, 55]],
+    const walkwayPath = WalkwayPath.create([
+        {lat: 100, lng: 40}, 
+        {lat: 100, lng: 40},
+    ]).value;
+    const walkwayStartPoint = WalkwayStartPoint.create({
+        lat: 100,
+        lng: 40
     }).value;
     const walkway = Walkway.create({
         title: walkwayTitle,
@@ -36,6 +44,8 @@ describe('Pin', () => {
         distance: walkwayDistance,
         time: walkwayTime,
         path: walkwayPath,
+        status: WalkwayStatus.NORMAL,
+        startPoint: walkwayStartPoint,
         createdAt,
         updatedAt,
     }, TEST_WALKWAY_ID).value;
@@ -49,6 +59,7 @@ describe('Pin', () => {
         image: userImage,
         totalDistance: userTotalDistance,
         totalTime: userTotalTime,
+        status: UserStatus.NORMAL,
         createdAt,
         updatedAt,
     }, TEST_USER_ID).value;
@@ -88,6 +99,7 @@ describe('Pin', () => {
         expect(pinOrError.value.title.value).toBe(pinTitle.value);
         expect(pinOrError.value.content.value).toBe(pinContent.value);
         expect(pinOrError.value.image.value).toBe(pinImage.value);
+        expect(pinOrError.value.status).toBe(PinStatus.NORMAL);
         expect(pinOrError.value.createdAt).toBe(createdAt);
         expect(pinOrError.value.updatedAt).toBe(updatedAt);
     });
@@ -143,7 +155,7 @@ describe('Pin', () => {
         expect(pinOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
     });
 
-    it('walkway가 null이나 undefined로 전달될 경우 Pin createNew는 실패해야 한다.', () => {
+    it('user가 null이나 undefined로 전달될 경우 Pin createNew는 실패해야 한다.', () => {
         const pinOrErrorWithNull = Pin.createNew({
             title: pinTitle,
             content: pinContent,

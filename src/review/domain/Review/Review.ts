@@ -4,8 +4,11 @@ import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Result } from '../../../common/presentationals/Result';
+import { User } from '../../../user/domain/User';
+import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { ReviewContent } from './ReviewContent';
 import { ReviewStar } from './ReviewStar';
+import { ReviewStatus, REVIEW_STATUS } from './ReviewStatus';
 import { ReviewTitle } from './ReviewTitle';
 import { VEHCILE_STATUS } from './Vehicle';
 
@@ -15,6 +18,9 @@ export interface ReviewNewProps {
     star: ReviewStar;
     content: ReviewContent;
     image?: ImageUrl;
+    status?: REVIEW_STATUS;
+    walkway: Walkway;
+    user: User;
 }
 
 export interface ReviewProps extends ReviewNewProps {
@@ -35,6 +41,7 @@ export class Review extends AggregateRoot<ReviewProps> {
 
         return Result.ok(new Review({
             ...props,
+            status: this.getReviewStatusAndSetIfStatusIsUndefined(props),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));
@@ -62,5 +69,34 @@ export class Review extends AggregateRoot<ReviewProps> {
 
     get image(): ImageUrl {
         return this.props.image;
+    }
+    
+    get status(): REVIEW_STATUS {
+        return this.props.status;
+    }
+
+    get walkway(): Walkway {
+        return this.props.walkway;
+    }
+
+    get user(): User {
+        return this.props.user;
+    }
+
+    get createdAt(): Date {
+        return this.props.createdAt;
+    }
+    
+    get updatedAt(): Date {
+        return this.props.updatedAt;
+    }
+    
+    private static getReviewStatusAndSetIfStatusIsUndefined(props: ReviewNewProps) {
+        let { status } = props;
+        if (_.isNil(props.status) || _.isEmpty(props.status)) {
+            status = ReviewStatus.NORMAL;
+        }
+        
+        return status;
     }
 }

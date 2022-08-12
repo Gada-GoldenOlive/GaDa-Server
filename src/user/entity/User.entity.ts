@@ -1,10 +1,11 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { WalkEntity } from 'src/walkway/entity/Walk.entity';
 import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { ReviewEntity } from '../../review/entity/Review.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
+import { UserStatus, USER_STATUS } from '../domain/UserStatus';
 
 @Entity('user')
 export class UserEntity extends CoreEntity {
@@ -32,6 +33,15 @@ export class UserEntity extends CoreEntity {
         type: 'int',
     })
     totalTime: number;
+
+    @Column({
+        nullable: false,
+        type: 'enum',
+        enum: UserStatus,
+        default: UserStatus.NORMAL,
+    })
+    @Index()
+    status: USER_STATUS;
 
     @OneToMany(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.user)
     walkways: WalkwayEntity[];
