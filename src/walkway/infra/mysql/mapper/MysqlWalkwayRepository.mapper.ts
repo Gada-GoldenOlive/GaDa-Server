@@ -37,6 +37,10 @@ export class MysqlWalkwayRepositoryMapper {
     }
 
     static toEntity(walkway: Walkway): WalkwayEntity {
+        if (_.isNil(walkway)) {
+            return null;
+        }
+
         const entity: WalkwayEntity = {
             id: walkway.id,
             title: walkway.title.value,
@@ -45,6 +49,7 @@ export class MysqlWalkwayRepositoryMapper {
             time: walkway.time.value,
             path: this.pathToString(walkway.path.value),
             startPoint: this.pointToString(walkway.startPoint.value),
+            status: walkway.status,
             createdAt: walkway.createdAt,
             updatedAt: walkway.updatedAt,
             user: undefined,

@@ -4,6 +4,7 @@ import { UserEntity } from '../../user/entity/User.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { WalkEntity } from './Walk.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
+import { WalkwayStatus, WALKWAY_STATUS } from '../domain/Walkway/WalkwayStatus';
 
 @Entity('walkway')
 export class WalkwayEntity extends CoreEntity {
@@ -44,8 +45,17 @@ export class WalkwayEntity extends CoreEntity {
         spatialFeatureType: 'point', 
         srid: 4326,
         nullable: false,
-    })
+    }) 
     startPoint: string;
+
+    @Column({
+        nullable: false,
+        type: 'enum',
+        enum: WalkwayStatus,
+        default: WalkwayStatus.NORMAL,
+    })
+    @Index()
+    status: WALKWAY_STATUS
 
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.walkways)
     user: UserEntity;

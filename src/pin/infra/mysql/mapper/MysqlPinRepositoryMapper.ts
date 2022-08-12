@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
 import { User } from '../../../../user/domain/User';
 import { UserName } from '../../../../user/domain/UserName';
@@ -8,8 +9,10 @@ import { Walkway } from '../../../../walkway/domain/Walkway/Walkway';
 import { WalkwayAddress } from '../../../../walkway/domain/Walkway/WalkwayAddress';
 import { WalkwayDistance } from '../../../../walkway/domain/Walkway/WalkwayDistance';
 import { WalkwayPath } from '../../../../walkway/domain/Walkway/WalkwayPath';
+import { WalkwayStartPoint } from '../../../../walkway/domain/Walkway/WalkwayStartPoint';
 import { WalkwayTime } from '../../../../walkway/domain/Walkway/WalkwayTime';
 import { WalkwayTitle } from '../../../../walkway/domain/Walkway/WalkwayTitle';
+import { MysqlWalkwayRepositoryMapper } from '../../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin } from '../../../domain/Pin';
 import { PinContent } from '../../../domain/PinContent';
 import { PinTitle } from '../../../domain/PinTitle';
@@ -30,7 +33,9 @@ export class MysqlPinRepositoryMapper {
                     address: WalkwayAddress.create(entity.walkway.address).value,
                     distance: WalkwayDistance.create(entity.walkway.distance).value,
                     time: WalkwayTime.create(entity.walkway.time).value,
-                    path: WalkwayPath.create(entity.walkway.path).value,
+                    path: WalkwayPath.create(MysqlWalkwayRepositoryMapper.stringToPath(entity.walkway.path)).value,
+                    startPoint: WalkwayStartPoint.create(MysqlWalkwayRepositoryMapper.stringToPoint(entity.walkway.startPoint)).value,
+                    status: entity.walkway.status,
                     createdAt: entity.walkway.createdAt,
                     updatedAt: entity.walkway.updatedAt,
                 },
@@ -42,6 +47,7 @@ export class MysqlPinRepositoryMapper {
                     image: ImageUrl.create(entity.user.image).value,
                     totalDistance: UserTotalDistance.create(entity.user.totalDistance).value,
                     totalTime: UserTotalTime.create(entity.user.totalTime).value,
+                    status: entity.user.status,
                     createdAt: entity.user.createdAt,
                     updatedAt: entity.user.updatedAt,
                 },
@@ -52,7 +58,7 @@ export class MysqlPinRepositoryMapper {
             }, entity.id).value;
     }
 
-    static toDomains(entites: PinEntity[]): Pin[] {
-        return _.map(entites, this.toDomain);
+    static toDomains(entities: PinEntity[]): Pin[] {
+        return _.map(entities, this.toDomain);
     }
 }
