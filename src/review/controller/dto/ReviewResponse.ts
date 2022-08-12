@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import { VEHCILE_STATUS, Vehicle } from '../../domain/Review/Vehicle';
 
 export class ReviewDto {
@@ -27,6 +28,12 @@ export class ReviewDto {
 
     @ApiProperty()
     userName: string;
+
+    @ApiProperty()
+    walkwayId: string;
+
+    @ApiProperty()
+    walkwayTitle: string;
 }
 
 export class GetAllReviewResponse {
@@ -35,7 +42,7 @@ export class GetAllReviewResponse {
     })
     reviews?: ReviewDto[];
 
-    AverageStar: number;
+    averageStar: number;
 }
 
 export class GetReviewResponse {

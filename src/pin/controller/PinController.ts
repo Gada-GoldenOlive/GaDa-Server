@@ -18,6 +18,7 @@ export class PinController {
     ) {}
 
     @Post()
+    @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
     })
