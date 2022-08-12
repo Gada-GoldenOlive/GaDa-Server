@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
@@ -26,13 +26,14 @@ export class ReviewController {
         }
     }
 
-    @Get('/:walkwayId')
+    @Get()
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllReviewResponse,
     })
     async getAll(
-        @Param('walkwayId') walkwayId: string,
+        @Query('walkwayId') walkwayId?: string,
+        @Query('userId') userId?: string,
     ) {
         // TODO: 차후 UseCase 생성 시 추가
     }

@@ -29,4 +29,27 @@ export class MysqlUserRepositoryMapper {
     static toDomains(entities: UserEntity[]): User[] {
         return _.map(entities, this.toDomain);
     }
+
+    static toEntity(user: User): UserEntity {
+        if (_.isNil(user)) {
+            return null;
+        }
+
+        const entity: UserEntity = {
+            id: user.id,
+            name: user.name.value,
+            image: user.image.value,
+            totalDistance: user.totalDistance.value,
+            totalTime: user.totalTime.value,
+            status: user.status,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            walkways: undefined,
+            walks: undefined,
+            reviews: undefined,
+            pins: undefined,
+        };
+
+        return entity;
+    }
 }
