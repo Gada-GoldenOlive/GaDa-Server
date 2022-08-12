@@ -22,14 +22,14 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
     ];
     const createdAt = new Date();
     const updatedAt = new Date();
-    // const testUser = User.create({
-    //     name: UserName.create('user name').value,
-    //     image: ImageUrl.create('user-image-test.jpg').value,
-    //     totalDistance: UserTotalDistance.create(30).value,
-    //     totalTime: UserTotalTime.create(300).value,
-    //     createdAt,
-    //     updatedAt,
-    // }, 'test-user-uuid').value;
+    const testUser = User.create({
+        name: UserName.create('user name').value,
+        image: ImageUrl.create('user-image-test.jpg').value,
+        totalDistance: UserTotalDistance.create(30).value,
+        totalTime: UserTotalTime.create(300).value,
+        createdAt,
+        updatedAt,
+    }, 'test-user-uuid').value;
 
     beforeAll(() => {
         walkwayRepository = mock<IWalkwayRepository>();
@@ -45,7 +45,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
             distance: testWalkwayDistance,
             time: testWalkwayTime,
             path: testWalkwayPath,
-            // user: testUser,
+            user: testUser,
         });
 
         expect(createWalkwayResponse.code).toBe(CreateWalkwayUseCaseCodes.SUCCESS);
@@ -60,7 +60,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
             distance: testWalkwayDistance,
             time: testWalkwayTime,
             path: testWalkwayPath,
-            // user: testUser,
+            user: testUser,
         });
 
         expect(createWalkwayResponse.code).toBe(CreateWalkwayUseCaseCodes.FAILURE);

@@ -1,12 +1,14 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkwayRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllNearWalkwayResponse, GetWalkwayResponse } from './dto/WalkwayResponse';
+import { GetAllNearWalkwayResponse, GetWalkwayResponse, WalkwayDto } from './dto/WalkwayResponse';
 import { getSeoulmapWalkways } from '../smartSeoulMap/getSeoulMapWalkways';
+import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
+import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 
 @Controller('walkway')
 @ApiTags('산책로')
@@ -14,6 +16,9 @@ export class WalkwayController {
     constructor(
         private readonly createSeoulmapWalkwaysUseCase: CreateSeoulmapWalkwaysUseCase,
         private readonly getSeoulmapWalkways: getSeoulmapWalkways,
+        private readonly getWalkwayUseCase: GetWalkwayUseCase,
+        private readonly getAllPinUseCase: GetAllPinUseCase,
+        private readonly getAllReviewUseCase: GetAllReviewUseCase,
     ) {}
 
     @Post()
@@ -63,7 +68,45 @@ export class WalkwayController {
     @ApiOkResponse({
         type: GetWalkwayResponse,
     })
-    async getWalkway() {}
+    async getWalkway(@Param('walkwayId') walkwayId: string): Promise<GetWalkwayResponse> {
+        const getWalkwayUseCaseResponse = await this.getWalkwayUseCase.execute({
+            id: walkwayId,
+        });
+        if (getWalkwayUseCaseResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND WALKWAY', 404);
+        }
+
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            walkway: getWalkwayUseCaseResponse.walkway,
+        })
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL PIN', 404);
+        }
+
+        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+            walkway: getWalkwayUseCaseResponse.walkway,
+        })
+        if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL REVIEW', 404);
+        }
+
+        const walkway : WalkwayDto = {
+            id: getWalkwayUseCaseResponse.walkway.id,
+            title: getWalkwayUseCaseResponse.walkway.title.value,
+            address: getWalkwayUseCaseResponse.walkway.address.value,
+            distance: getWalkwayUseCaseResponse.walkway.distance.value,
+            time: getWalkwayUseCaseResponse.walkway.time.value,
+            pinCount: getAllPinUseCaseResponse.pins.length,
+            averageStar: getAllReviewUseCaseResponse.averageStar,
+            path: getWalkwayUseCaseResponse.walkway.path.value,
+            creator: getWalkwayUseCaseResponse.walkway.user.name.value,
+            creatorId: getWalkwayUseCaseResponse.walkway.user.id,
+        };
+
+        return {
+            walkway,
+        };
+    }
 
     @Patch('/:walkwayId')
     @ApiResponse({

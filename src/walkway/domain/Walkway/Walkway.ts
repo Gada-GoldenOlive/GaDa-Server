@@ -1,4 +1,4 @@
-import _, { isNil } from 'lodash';
+import _ from 'lodash';
 
 import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
@@ -19,7 +19,7 @@ export interface WalkwayNewProps {
     time: WalkwayTime;
     path: WalkwayPath;
     startPoint: WalkwayStartPoint;
- //   user: User;
+    user: User;
     status?: WalkwayStatus;
 }
 
@@ -86,9 +86,9 @@ export class Walkway extends AggregateRoot<WalkwayProps> {
         return this.props.updatedAt;
     }
 
-    // get user(): User {
-    //     return this.props.user;
-    // }
+    get user(): User {
+        return this.props.user;
+    }
 
     private static getWalkwayStatusAndSetIfStatusIsUndefined(props: WalkwayNewProps) {
         let { status } = props;

@@ -7,5 +7,5 @@ export interface ICreateWalkwayUseCaseRequest {
     distance: number;
     time: number;
     path: Point[];
-    // user: User;
+    user: User;
 }

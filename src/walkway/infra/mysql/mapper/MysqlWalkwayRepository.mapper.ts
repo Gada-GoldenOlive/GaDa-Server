@@ -15,21 +15,20 @@ export class MysqlWalkwayRepositoryMapper {
             return null;
         }
 
-    // TODO: 나중에 user toDomain 만들어진 뒤에 해야할 듯.
-    //     return Walkway.create(
-    //         {
-    //             title: WalkwayTitle.create(entity.title).value,
-    //             address: WalkwayAddress.create(entity.address).value,
-    //             distance: WalkwayDistance.create(entity.distance).value,
-    //             time: WalkwayTime.create(entity.time).value,
-    //             path: WalkwayPath.create(this.stringToPath(entity.path)).value,
-    //             startPoint: WalkwayStartPoint.create(this.stringToPoint(entity.startPoint)).value,
-    //             user: MysqlUserRepositoryMapper.toDomain(entity.user),
-    //             createdAt: entity.createdAt,
-    //             updatedAt: entity.updatedAt,
-    //         },
-    //         entity.id
-    //     ).value;
+        return Walkway.create(
+            {
+                title: WalkwayTitle.create(entity.title).value,
+                address: WalkwayAddress.create(entity.address).value,
+                distance: WalkwayDistance.create(entity.distance).value,
+                time: WalkwayTime.create(entity.time).value,
+                path: WalkwayPath.create(this.stringToPath(entity.path)).value,
+                startPoint: WalkwayStartPoint.create(this.stringToPoint(entity.startPoint)).value,
+                user: MysqlUserRepositoryMapper.toDomain(entity.user),
+                createdAt: entity.createdAt,
+                updatedAt: entity.updatedAt,
+            },
+            entity.id
+        ).value;
     }
 
     static toDomains(entities: WalkwayEntity[]): Walkway[] {
