@@ -35,6 +35,7 @@ export class getSeoulmapWalkways {
             distance: distance ,
             time: +(distance / DEFAULT_SPEED).toFixed(0),
             path: this.getPath(response['COT_COORD_DATA']),
+            user: null,
         };
         return value;
     }

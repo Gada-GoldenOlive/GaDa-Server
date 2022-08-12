@@ -55,7 +55,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_1,
                     time: testWalkwayTime_1,
                     path: testWalkwayPath_1,
-                    // user: testUser,
+                    user: testUser,
                 },
                 {
                     title: testWalkwayTitle_2,
@@ -63,7 +63,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_2,
                     time: testWalkwayTime_2,
                     path: testWalkwayPath_2,
-                    // user: testUser,
+                    user: testUser,
                 },
             ]
         });
@@ -82,7 +82,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_1,
                     time: testWalkwayTime_1,
                     path: testWalkwayPath_1,
-                    // user: testUser,
+                    user: testUser,
                 },
                 {
                     title: testWalkwayTitle_2,
@@ -90,7 +90,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
                     distance: testWalkwayDistance_2,
                     time: testWalkwayTime_2,
                     path: testWalkwayPath_2,
-                    // user: testUser,
+                    user: testUser,
                 },
             ]
         });

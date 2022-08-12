@@ -35,7 +35,7 @@ export class CreateSeoulmapWalkwaysUseCase implements UseCase<ICreateSeoulmapWal
                     time: WalkwayTime.create(walkway.time).value,
                     path: WalkwayPath.create(walkway.path).value,
                     startPoint: WalkwayStartPoint.create(walkway.path[0]).value,
-                    // user: walkway.user,
+                    user: walkway.user,
                 }).value;
             }));
             await this.walkwayRespository.saveAll(walkways);
