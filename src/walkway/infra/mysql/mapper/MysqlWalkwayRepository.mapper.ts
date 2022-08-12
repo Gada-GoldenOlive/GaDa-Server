@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { MysqlUserRepositoryMapper } from "../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper";
 
 import { Walkway } from "../../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../../domain/Walkway/WalkwayAddress";

@@ -9,6 +9,7 @@ import { GetAllNearWalkwayResponse, GetWalkwayResponse, WalkwayDto } from './dto
 import { getSeoulmapWalkways } from '../smartSeoulMap/getSeoulMapWalkways';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
+import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
 
 @Controller('walkway')
 @ApiTags('산책로')
