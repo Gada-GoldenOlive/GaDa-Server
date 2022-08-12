@@ -13,6 +13,12 @@ export class MysqlWalkwayRepository implements IWalkwayRepository {
         private readonly walkwayRepository: Repository<WalkwayEntity>,
     ) {}
 
+    async findOne(id: string): Promise<Walkway> {
+        const walkway = await this.walkwayRepository.findOne( { where : { id }} );
+
+        return MysqlWalkwayRepositoryMapper.toDomain(walkway);
+    }
+
     async save(walkway: Walkway): Promise<boolean> {
         await this.walkwayRepository.save(
             MysqlWalkwayRepositoryMapper.toEntity(walkway)
