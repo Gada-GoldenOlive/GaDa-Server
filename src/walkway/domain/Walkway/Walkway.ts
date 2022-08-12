@@ -20,7 +20,7 @@ export interface WalkwayNewProps {
     path: WalkwayPath;
     startPoint: WalkwayStartPoint;
  //   user: User;
-    status?: WalkwayStatus;
+    status?: WALKWAY_STATUS;
 }
 
 export interface WalkwayProps extends WalkwayNewProps {
