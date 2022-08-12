@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Point } from "../../domain/Walkway/WalkwayPath";
+import { Point } from "../../domain/Walkway/WalkwayStartPoint";
 
 export class PointDto implements Point {
     @ApiProperty()

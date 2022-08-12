@@ -1,4 +1,5 @@
-import { Point, WalkwayPath, WALKWAY_PATH_SHOULD_NOT_BE_EMPTY } from './WalkwayPath';
+import { WalkwayPath, WALKWAY_PATH_SHOULD_NOT_BE_EMPTY } from './WalkwayPath';
+import { Point } from './WalkwayStartPoint';
 
 describe('WalkwayPath', () => {
     const walkwayPathLineString: Point[] = [

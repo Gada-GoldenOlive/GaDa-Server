@@ -1,8 +1,15 @@
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
+import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
+import { User } from '../../../user/domain/User';
+import { UserName } from '../../../user/domain/UserName';
+import { UserTotalDistance } from '../../../user/domain/UserTotalDistance';
+import { UserTotalTime } from '../../../user/domain/UserTotalTime';
 import { Walkway } from './Walkway';
 import { WalkwayAddress } from './WalkwayAddress';
 import { WalkwayDistance } from './WalkwayDistance';
 import { WalkwayPath } from './WalkwayPath';
+import { WalkwayStartPoint } from './WalkwayStartPoint';
+import { WalkwayStatus } from './WalkwayStatus';
 import { WalkwayTime } from './WalkwayTime';
 import { WalkwayTitle } from './WalkwayTitle';
 
@@ -16,8 +23,26 @@ describe('Walkway', () => {
         {lat: 100, lng: 40}, 
         {lat: 100, lng: 40},
     ]).value;
+    const walkwayStartPoint = WalkwayStartPoint.create({
+        lat: 100,
+        lng: 40
+    }).value;
     const createdAt = new Date();
     const updatedAt = new Date();
+    // const TEST_USER_ID = 'test-user-uuid';
+    // const userName = UserName.create('유저이름').value;
+    // const userImage = ImageUrl.create('user-image-test.png').value;
+    // const userTotalDistance = UserTotalDistance.create(20).value;
+    // const userTotalTime = UserTotalTime.create(1123).value;
+    // const user = User.create({
+    //     name: userName,
+    //     image: userImage,
+    //     totalDistance: userTotalDistance,
+    //     totalTime: userTotalTime,
+    //     createdAt,
+    //     updatedAt,
+    // }, TEST_USER_ID).value;
+
 
     it('Walkway createNew 성공', () => {
         const walkwayOrError = Walkway.createNew({
@@ -26,6 +51,9 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
+            status: WalkwayStatus.NORMAL,
         });
 
         expect(walkwayOrError.isSuccess).toBeTruthy();
@@ -35,6 +63,8 @@ describe('Walkway', () => {
         expect(walkwayOrError.value.distance.value).toBe(walkwayDistance.value);
         expect(walkwayOrError.value.time.value).toBe(walkwayTime.value);
         expect(walkwayOrError.value.path.value).toBe(walkwayPath.value);
+        expect(walkwayOrError.value.startPoint.value).toBe(walkwayStartPoint.value);
+        // expect(walkwayOrError.value.user).toBeDefined();
     })
 
     it('Walkway create 성공', () => {
@@ -44,6 +74,9 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
+            status: WalkwayStatus.NORMAL,
             createdAt,
             updatedAt,
         }, TEST_WALKWAY_ID);
@@ -55,6 +88,8 @@ describe('Walkway', () => {
         expect(walkwayOrError.value.distance.value).toBe(walkwayDistance.value);
         expect(walkwayOrError.value.time.value).toBe(walkwayTime.value);
         expect(walkwayOrError.value.path.value).toBe(walkwayPath.value);
+        expect(walkwayOrError.value.startPoint.value).toBe(walkwayStartPoint.value);
+        // expect(walkwayOrError.value.user).toBeDefined();
         expect(walkwayOrError.value.createdAt).toBe(createdAt);
         expect(walkwayOrError.value.updatedAt).toBe(updatedAt);
     })
@@ -66,6 +101,8 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -74,6 +111,8 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
@@ -89,6 +128,8 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -97,6 +138,8 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
@@ -112,6 +155,8 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: null,
+            startPoint: walkwayStartPoint,
+            // user,
         });
 
         const walkwayOrErrorWithUndefined = Walkway.createNew({
@@ -120,6 +165,8 @@ describe('Walkway', () => {
             distance: walkwayDistance,
             time: walkwayTime,
             path: undefined,
+            startPoint: walkwayStartPoint,
+            // user,
         });
 
         expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
@@ -127,4 +174,102 @@ describe('Walkway', () => {
         expect(walkwayOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
         expect(walkwayOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
     })
+
+    it('startPoint가 null이나 undefined로 전달될 경우 Walkway createNew는 실패해야 한다.', () => {
+        const walkwayOrErrorWithNull = Walkway.createNew({
+            title: walkwayTitle,
+            address: walkwayAddress,
+            distance: walkwayDistance,
+            time: walkwayTime,
+            path: walkwayPath,
+            startPoint: null,
+            // user,
+        });
+
+        const walkwayOrErrorWithUndefined = Walkway.createNew({
+            title: walkwayTitle,
+            address: walkwayAddress,
+            distance: walkwayDistance,
+            time: walkwayTime,
+            path: walkwayPath,
+            startPoint: undefined,
+            // user,
+        });
+
+        expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
+        expect(walkwayOrErrorWithUndefined.isFailure).toBeTruthy();
+        expect(walkwayOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+        expect(walkwayOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+    });
+
+    // it('user가 null이나 undefined로 전달될 경우 Walkway createNew는 실패해야 한다.', () => {
+    //     const walkwayOrErrorWithNull = Walkway.createNew({
+    //         title: walkwayTitle,
+    //         address: walkwayAddress,
+    //         distance: walkwayDistance,
+    //         time: walkwayTime,
+    //         path: walkwayPath,
+    //         startPoint: walkwayStartPoint,
+    //         // user: null,
+    //     });
+
+    //     const walkwayOrErrorWithUndefined = Walkway.createNew({
+    //         title: walkwayTitle,
+    //         address: walkwayAddress,
+    //         distance: walkwayDistance,
+    //         time: walkwayTime,
+    //         path: walkwayPath,
+    //         startPoint: walkwayStartPoint,
+    //         // user: undefined,
+    //     });
+
+    //     expect(walkwayOrErrorWithNull.isFailure).toBeTruthy();
+    //     expect(walkwayOrErrorWithUndefined.isFailure).toBeTruthy();
+    //     expect(walkwayOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+    //     expect(walkwayOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+    // });
+
+    it('status가 전달되지 않은 경우에는 NORMAL로 임의 설정되어야 한다.', () => {
+        const walkwayStatusOrError = Walkway.createNew({
+            title: walkwayTitle,
+            address: walkwayAddress,
+            distance: walkwayDistance,
+            time: walkwayTime,
+            path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
+        });
+        
+        expect(walkwayStatusOrError.isSuccess).toBeTruthy();
+        expect(walkwayStatusOrError.value.status).toBe(WalkwayStatus.NORMAL);
+    });
+
+    it('status가 null이나 undefined로 전달되는 경우에는 NORMAL로 임의 설정되어야 한다.', () => {
+        const walkwayOrErrorWithNull = Walkway.createNew({
+            title: walkwayTitle,
+            address: walkwayAddress,
+            distance: walkwayDistance,
+            time: walkwayTime,
+            path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
+            status: null,
+        });
+
+        const walkwayOrErrorWithUndefined = Walkway.createNew({
+            title: walkwayTitle,
+            address: walkwayAddress,
+            distance: walkwayDistance,
+            time: walkwayTime,
+            path: walkwayPath,
+            startPoint: walkwayStartPoint,
+            // user,
+            status: undefined,
+        });
+
+        expect(walkwayOrErrorWithNull.isSuccess).toBeTruthy();
+        expect(walkwayOrErrorWithUndefined.isSuccess).toBeTruthy();
+        expect(walkwayOrErrorWithNull.value.status).toBe(WalkwayStatus.NORMAL);
+        expect(walkwayOrErrorWithUndefined.value.status).toBe(WalkwayStatus.NORMAL);
+    });
 })
