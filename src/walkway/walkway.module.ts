@@ -10,12 +10,23 @@ import { CreateSeoulmapWalkwaysUseCase } from './application/CreateSeoulmapWalkw
 import { CreateWalkwayUseCase } from './application/CreateWalkwayUseCase/CreateWalkwayUseCase';
 import { MysqlWalkwayRepository } from './infra/mysql/MysqlWalkwayRepository';
 import { getSeoulmapWalkways } from './smartSeoulMap/getSeoulMapWalkways';
+import { GetWalkwayUseCase } from './application/GetWalkwayUseCase/GetWalkwayUseCase';
+import { GetAllPinUseCase } from '../pin/application/GetAllPinUseCase/GetAllPinUseCase';
+import { PIN_REPOSITORY } from '../pin/infra/IPinRepository';
+import { MysqlPinRepository } from '../pin/infra/mysql/MysqlPinRepository';
+import { PinEntity } from '../pin/entity/Pin.entity';
+import { GetAllReviewUseCase } from '../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
+import { REVIEW_REPOSITORY } from '../review/infra/IReviewRepository';
+import { MysqlReviewRepository } from '../review/infra/mysql/MysqlReviewRepository';
+import { ReviewEntity } from '../review/entity/Review.entity';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
             WalkwayEntity,
             WalkEntity,
+            PinEntity,
+            ReviewEntity,
         ])
     ],
     controllers: [
@@ -26,9 +37,20 @@ import { getSeoulmapWalkways } from './smartSeoulMap/getSeoulMapWalkways';
         CreateSeoulmapWalkwaysUseCase,
         CreateWalkwayUseCase,
         getSeoulmapWalkways,
+        GetWalkwayUseCase,
+        GetAllPinUseCase,
+        GetAllReviewUseCase,
         {
             provide: WALKWAY_REPOSITORY,
             useClass: MysqlWalkwayRepository
+        },
+        {
+            provide: PIN_REPOSITORY,
+            useClass: MysqlPinRepository
+        },
+        {
+            provide: REVIEW_REPOSITORY,
+            useClass: MysqlReviewRepository
         }
     ],
 })

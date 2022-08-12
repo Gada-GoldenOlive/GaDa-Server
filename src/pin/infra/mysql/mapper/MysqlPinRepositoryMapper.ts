@@ -5,6 +5,7 @@ import { User } from '../../../../user/domain/User';
 import { UserName } from '../../../../user/domain/UserName';
 import { UserTotalDistance } from '../../../../user/domain/UserTotalDistance';
 import { UserTotalTime } from '../../../../user/domain/UserTotalTime';
+import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 import { Walkway } from '../../../../walkway/domain/Walkway/Walkway';
 import { WalkwayAddress } from '../../../../walkway/domain/Walkway/WalkwayAddress';
 import { WalkwayDistance } from '../../../../walkway/domain/Walkway/WalkwayDistance';
@@ -36,23 +37,13 @@ export class MysqlPinRepositoryMapper {
                     path: WalkwayPath.create(MysqlWalkwayRepositoryMapper.stringToPath(entity.walkway.path)).value,
                     startPoint: WalkwayStartPoint.create(MysqlWalkwayRepositoryMapper.stringToPoint(entity.walkway.startPoint)).value,
                     status: entity.walkway.status,
+                    user: MysqlUserRepositoryMapper.toDomain(entity.walkway.user),
                     createdAt: entity.walkway.createdAt,
                     updatedAt: entity.walkway.updatedAt,
                 },
                 entity.walkway.id,
             ).value,
-            user: User.create(
-                {
-                    name: UserName.create(entity.user.name).value,
-                    image: ImageUrl.create(entity.user.image).value,
-                    totalDistance: UserTotalDistance.create(entity.user.totalDistance).value,
-                    totalTime: UserTotalTime.create(entity.user.totalTime).value,
-                    status: entity.user.status,
-                    createdAt: entity.user.createdAt,
-                    updatedAt: entity.user.updatedAt,
-                },
-                entity.user.id,
-            ).value,
+            user: MysqlUserRepositoryMapper.toDomain(entity.user),
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
             }, entity.id).value;
