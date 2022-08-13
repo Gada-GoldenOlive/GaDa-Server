@@ -5,8 +5,7 @@ import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/M
 import { MysqlWalkwayRepositoryMapper } from '../../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin } from '../../../domain/Pin';
 import { PinContent } from '../../../domain/PinContent';
-import { PinLatitude } from '../../../domain/PinLatitude';
-import { PinLongitude } from '../../../domain/PinLongitude';
+import { PinLocation, Point } from '../../../domain/PinLocation';
 import { PinTitle } from '../../../domain/PinTitle';
 import { PinEntity } from '../../../entity/Pin.entity';
 
@@ -20,8 +19,7 @@ export class MysqlPinRepositoryMapper {
             title: PinTitle.create(entity.title).value,
             content: PinContent.create(entity.content).value,
             image: entity.image ? ImageUrl.create(entity.image).value : null,
-            latitude: PinLatitude.create(entity.latitude).value,
-            longitude: PinLongitude.create(entity.longitude).value,
+            location: PinLocation.create(MysqlPinRepositoryMapper.convertToPoint(entity.location)).value,
             walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
             user: MysqlUserRepositoryMapper.toDomain(entity.user),
             createdAt: entity.createdAt,
@@ -47,8 +45,7 @@ export class MysqlPinRepositoryMapper {
             title: pin.title.value,
             content: pin.content.value,
             image: pin.image.value,
-            latitude: pin.latitude.value,
-            longitude: pin.longitude.value,
+            location: this.pointToString(pin.location.value),
             status: pin.status,
             walkway: MysqlWalkwayRepositoryMapper.toEntity(pin.walkway),
             user: MysqlUserRepositoryMapper.toEntity(pin.user),
@@ -61,5 +58,22 @@ export class MysqlPinRepositoryMapper {
 
     static toEntities(pins: Pin[]): PinEntity[] {
         return _.map(pins, (pin) => this.toEntity(pin));
+    }
+
+    static convertToPoint(location: string): Point {
+        let locationArray = location.split(' ');
+        
+        const point = {
+            lat: +locationArray[0].slice(6),
+            lng: +locationArray[1].slice(0, -1),
+        };
+
+        return point;
+    }
+
+    static pointToString(point: Point): string {
+        let poinString = `POINT(${point.lng} ${point.lat})`;
+
+        return poinString;
     }
 }

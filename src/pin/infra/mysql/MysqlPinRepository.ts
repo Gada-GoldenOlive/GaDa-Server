@@ -5,7 +5,9 @@ import { User } from '../../../user/domain/User';
 import { UserStatus } from '../../../user/domain/UserStatus';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayStatus } from '../../../walkway/domain/Walkway/WalkwayStatus';
+import { MysqlWalkwayRepositoryMapper } from '../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin } from '../../domain/Pin';
+import { Point } from '../../domain/PinLocation';
 import { PinStatus } from '../../domain/PinStatus';
 import { PinEntity } from '../../entity/Pin.entity';
 import { IPinRepository } from '../IPinRepository';
@@ -36,16 +38,24 @@ export class MysqlPinRepository implements IPinRepository {
 
         const query = this.pinRepository
         .createQueryBuilder('pin')
-        .where('pin.status = :status', { status: PinStatus.NORMAL })
         .leftJoinAndSelect('pin.walkway', 'walkway')
         .leftJoinAndSelect('walkway.user', 'user_walkway')
         .leftJoinAndSelect('pin.user', 'user')
-        .andWhere('walkway.status = :status', { status: WalkwayStatus.NORMAL })
-        .andWhere('user.status = :status', { status: UserStatus.NORMAL });
+        .where('pin.status = :normal', { normal: PinStatus.NORMAL })
+        .andWhere('walkway.status = :normal', { normal: WalkwayStatus.NORMAL })
+        .andWhere('user.status = :normal', { normal: UserStatus.NORMAL });
 
-        if (walkway) query.andWhere('walkway.id = :walkwayId', { walkwayId: walkway.id });
-        if (user) query.andWhere('user.id = :userId', { userId: user.id });
+        if (walkway) {
+            query.andWhere('walkway.id = :walkwayId', { walkwayId: walkway.id })
+            .setParameter('standardPoint', MysqlWalkwayRepositoryMapper.pointToString(walkway.startPoint.value))
+            .orderBy(('ST_Distance_Sphere(ST_GeomFromText(:standardPoint, 4326), pin.location)'));
+        }
 
+        if (user) {
+            query.andWhere('user.id = :userId', { userId: user.id })
+            .orderBy('pin.createdAt', 'DESC');
+        }
+        
         const pins = await query.getMany();
 
         return MysqlPinRepositoryMapper.toDomains(pins);

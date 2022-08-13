@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -64,7 +64,7 @@ export class PinController {
             getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 user: userResponse.user,
             });
-        };
+        }
 
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
@@ -75,7 +75,9 @@ export class PinController {
             title: pin.title.value,
             content: pin.content.value,
             image: pin.image ? pin.image.value : null,
+            location: pin.location.value,
             userId: pin.user.id,
+            walkwayId: pin.walkway.id,
         }));
 
         return {

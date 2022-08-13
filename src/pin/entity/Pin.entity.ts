@@ -27,17 +27,14 @@ export class PinEntity extends CoreEntity {
     })
     image: string;
 
+    @Index({ spatial: true })
     @Column({
+        type: 'geometry',
+        spatialFeatureType: 'point', 
+        srid: 4326,
         nullable: false,
-        type: 'varchar',
     })
-    latitude: string; // NOTE: 위도
-
-    @Column({
-        nullable: false,
-        type: 'varchar',
-    })
-    longitude: string; // NOTE: 경도
+    location: string;
 
     @Column({
         nullable: false,
