@@ -9,7 +9,6 @@ import { WALKWAY_REPOSITORY } from './infra/IWalkwayRepository';
 import { CreateSeoulmapWalkwaysUseCase } from './application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkwayUseCase } from './application/CreateWalkwayUseCase/CreateWalkwayUseCase';
 import { MysqlWalkwayRepository } from './infra/mysql/MysqlWalkwayRepository';
-import { getSeoulmapWalkways } from './smartSeoulMap/getSeoulMapWalkways';
 import { GetWalkwayUseCase } from './application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase } from '../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { PIN_REPOSITORY } from '../pin/infra/IPinRepository';
@@ -19,6 +18,7 @@ import { GetAllReviewUseCase } from '../review/application/GetAllReviewUseCase/G
 import { REVIEW_REPOSITORY } from '../review/infra/IReviewRepository';
 import { MysqlReviewRepository } from '../review/infra/mysql/MysqlReviewRepository';
 import { ReviewEntity } from '../review/entity/Review.entity';
+import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 
 @Module({
     imports: [
@@ -36,7 +36,7 @@ import { ReviewEntity } from '../review/entity/Review.entity';
     providers: [
         CreateSeoulmapWalkwaysUseCase,
         CreateWalkwayUseCase,
-        getSeoulmapWalkways,
+        GetSeoulmapWalkwayUseCase,
         GetWalkwayUseCase,
         GetAllPinUseCase,
         GetAllReviewUseCase,

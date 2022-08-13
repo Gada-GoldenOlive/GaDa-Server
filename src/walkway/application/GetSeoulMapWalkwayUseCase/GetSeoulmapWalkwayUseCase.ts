@@ -2,14 +2,11 @@ import { HttpService } from '@nestjs/axios';
 import { LineString } from 'geojson';
 import _ from 'lodash';
 import { firstValueFrom } from 'rxjs';
+import { Point } from '../../domain/Walkway/WalkwayStartPoint';
+import { ICreateWalkwayUseCaseRequest } from '../CreateWalkwayUseCase/dto/CreateWalkwayUseCaseRequest';
 
-import { ICreateWalkwayUseCaseRequest } from '../application/CreateWalkwayUseCase/dto/CreateWalkwayUseCaseRequest';
-import { Point } from '../domain/Walkway/WalkwayStartPoint';
-
-export class getSeoulmapWalkways {
-    private titleCnt = 1;
-
-    async getValues(): Promise<ICreateWalkwayUseCaseRequest[]> {
+export class GetSeoulmapWalkwayUseCase {
+    async execute(): Promise<ICreateWalkwayUseCaseRequest[]> {
         const httpService: HttpService = new HttpService();
         const URL = 'https://map.seoul.go.kr/smgis/apps/theme.do?cmd=getContentsList&key=86a16bf8aaed4777b5d3618d916e93fb&page_no=1&page_size=30000&coord_x=126&coord_y=37&distance=10000000&theme_id=11102801';
 
