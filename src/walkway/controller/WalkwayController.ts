@@ -70,12 +70,15 @@ export class WalkwayController {
         summary: '추천 산책로 목록 가져오기',
         description: 'query로 받은 좌표에서 반경 2km 이내에 있는 산책로 목록을 리턴함.'
     })
-    async getAllNear(@Query('lat') lat: number, @Query('lng') lng: number) {
+    async getAllNear(
+        @Query('lat') lat: number,
+        @Query('lng') lng: number
+    ) {
         const getAllNearWalkwayResponse = await this.getAllNearWalkwayUseCase.execute({
             coordinates: { lat, lng },
         });
         if (getAllNearWalkwayResponse.code != GetAllNearWalkwayUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND NEAR WALKWAYS', 404);
+            throw new HttpException('FAIL TO FIND NEAR WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         let walkways = []
@@ -84,14 +87,14 @@ export class WalkwayController {
                 walkway: walkway,
             })
             if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-                throw new HttpException('FAIL TO FIND ALL PIN', 404);
+                throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
             }
     
             const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
                 walkway: walkway,
             })
             if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
-                throw new HttpException('FAIL TO FIND ALL REVIEW', 404);
+                throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
             }
     
             let tmp = {
@@ -128,21 +131,21 @@ export class WalkwayController {
             id: walkwayId,
         });
         if (getWalkwayUseCaseResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND WALKWAY', 404);
+            throw new HttpException('FAIL TO FIND WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             walkway: getWalkwayUseCaseResponse.walkway,
         })
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND ALL PIN', 404);
+            throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
             walkway: getWalkwayUseCaseResponse.walkway,
         })
         if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND ALL REVIEW', 404);
+            throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         let creator = '스마트서울맵';
