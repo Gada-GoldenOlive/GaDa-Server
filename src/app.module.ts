@@ -31,6 +31,7 @@ import { WalkwayModule } from './walkway/walkway.module';
         }),
         TypeOrmModule.forRoot({
             type: 'mysql',
+            legacySpatialSupport: false,
             host: process.env.DB_HOST,
             port: +process.env.DB_PORT,
             username: process.env.DB_USER,
