@@ -36,7 +36,7 @@ export class WalkwayEntity extends CoreEntity {
 
     @Column({
         nullable: false,
-        type: 'json',
+        type: 'longtext',
     })
     path: string;
 

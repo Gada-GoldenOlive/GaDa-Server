@@ -1,4 +1,5 @@
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
+
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { UserEntity } from '../../user/entity/User.entity';
 import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
@@ -25,6 +26,18 @@ export class PinEntity extends CoreEntity {
         type: 'varchar',
     })
     image: string;
+
+    @Column({
+        nullable: false,
+        type: 'varchar',
+    })
+    latitude: string; // NOTE: 위도
+
+    @Column({
+        nullable: false,
+        type: 'varchar',
+    })
+    longitude: string; // NOTE: 경도
 
     @Column({
         nullable: false,

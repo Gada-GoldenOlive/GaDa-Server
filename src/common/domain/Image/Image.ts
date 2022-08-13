@@ -1,8 +1,8 @@
 import _ from 'lodash';
+
 import { Result } from '../../presentationals/Result';
 import { AggregateRoot } from '../AggregateRoot';
 import { ImageUrl } from './ImageUrl';
-
 
 export interface ImageNewProps {
     url: ImageUrl;
@@ -47,5 +47,4 @@ export class Image extends AggregateRoot<ImageProps> {
     get updatedAt(): Date {
         return this.props.updatedAt;
     }
-
 }

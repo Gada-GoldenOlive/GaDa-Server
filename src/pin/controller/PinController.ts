@@ -8,6 +8,8 @@ import { CreatePinRequest, UpdatePinRequest } from './dto/PinRequest';
 import { GetAllPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
+import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
+import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 
 @Controller('pin')
 @ApiTags('핀')
@@ -15,6 +17,7 @@ export class PinController {
     constructor(
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly getUserUseCase: GetUserUseCase,
+        private readonly getWalkwayUseCase: GetWalkwayUseCase,
     ) {}
 
     @Post()
@@ -40,32 +43,38 @@ export class PinController {
         @Query('walkwayId') walkwayId?: string,
         @Query('userId') userId?: string,
     ): Promise<GetAllPinResponse> {
-        // TODO: 차후 Usecase 생성시 추가
         const [ walkwayResponse, userResponse ] = await Promise.all([
-            // TODO: find walkyway usecase, find user usecase 만든 다음 여기에 추가
-            this.getUserUseCase.execute({
+            this.getWalkwayUseCase.execute({
                 id: walkwayId,
             }),
-            // NOTE: 위에 건 진짜 아님
             this.getUserUseCase.execute({
                 id: userId,
             }),
         ]);
 
-        const getAllPinUSeCaseResponse = await this.getAllPinUseCase.execute({
-            // walkway: walkwayResponse.walkway,
-            user: userResponse.user,
-        });
+        let getAllPinUseCaseResponse: IGetAllPinUseCaseResponse;
 
-        if (getAllPinUSeCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.OK);
+        if (walkwayResponse) {
+            getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+                walkway: walkwayResponse.walkway,
+            });
+        };
+
+        if (userResponse) {
+            getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+                user: userResponse.user,
+            });
+        };
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const pins = _.map(getAllPinUSeCaseResponse.pins, (pin) => ({
+        const pins = _.map(getAllPinUseCaseResponse.pins, (pin) => ({
             id: pin.id,
             title: pin.title.value,
             content: pin.content.value,
-            image: pin.image.value,
+            image: pin.image ? pin.image.value : null,
             userId: pin.user.id,
         }));
 

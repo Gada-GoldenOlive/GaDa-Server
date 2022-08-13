@@ -15,7 +15,7 @@ export class PinTitle extends ValueObject<PinTitleProps> {
     }
 
     static create(pinTitleString: string): Result<PinTitle> {
-        if (_.isEmpty(pinTitleString) || _.isNil(pinTitleString)) {
+        if (_.isEmpty(pinTitleString)) {
             return Result.fail(PIN_TITLE_SHOULD_NOT_BE_EMPTY);
         }
 

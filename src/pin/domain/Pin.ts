@@ -8,11 +8,15 @@ import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { PinStatus, PIN_STATUS } from './PinStatus';
 import { Walkway } from '../../walkway/domain/Walkway/Walkway';
 import { User } from '../../user/domain/User';
+import { PinLatitude } from './PinLatitude';
+import { PinLongitude } from './PinLongitude';
 
 export interface PinNewProps {
     title: PinTitle;
     content?: PinContent;
     image?: ImageUrl;
+    latitude: PinLatitude;
+    longitude: PinLongitude;
     walkway: Walkway;
     user: User;
     status?: PIN_STATUS;
@@ -31,7 +35,7 @@ export class Pin extends AggregateRoot<PinProps> {
     }
 
     static createNew(props: PinNewProps): Result<Pin> {
-        if (_.isNil(props.title) || _.isNil(props.content) || _.isNil(props.walkway) || _.isNil(props.user)) {
+        if (_.isNil(props.title) || _.isNil(props.content) || _.isNil(props.walkway) || _.isNil(props.user) || _.isNil(props.latitude) || _.isNil(props.longitude)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 
@@ -57,6 +61,14 @@ export class Pin extends AggregateRoot<PinProps> {
 
     get image(): ImageUrl {
         return this.props.image;
+    }
+
+    get latitude(): PinLatitude {
+        return this.props.latitude;
+    }
+
+    get longitude(): PinLongitude {
+        return this.props.longitude;
     }
 
     get status(): PIN_STATUS {

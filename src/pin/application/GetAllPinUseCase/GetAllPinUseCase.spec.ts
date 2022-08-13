@@ -1,4 +1,5 @@
 import { mock, MockProxy } from 'jest-mock-extended';
+
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { User } from '../../../user/domain/User';
 import { UserName } from '../../../user/domain/UserName';
@@ -8,10 +9,13 @@ import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayAddress } from '../../../walkway/domain/Walkway/WalkwayAddress';
 import { WalkwayDistance } from '../../../walkway/domain/Walkway/WalkwayDistance';
 import { WalkwayPath } from '../../../walkway/domain/Walkway/WalkwayPath';
+import { WalkwayStartPoint } from '../../../walkway/domain/Walkway/WalkwayStartPoint';
 import { WalkwayTime } from '../../../walkway/domain/Walkway/WalkwayTime';
 import { WalkwayTitle } from '../../../walkway/domain/Walkway/WalkwayTitle';
 import { Pin } from '../../domain/Pin';
 import { PinContent } from '../../domain/PinContent';
+import { PinLatitude } from '../../domain/PinLatitude';
+import { PinLongitude } from '../../domain/PinLongitude';
 import { PinStatus } from '../../domain/PinStatus';
 import { PinTitle } from '../../domain/PinTitle';
 import { IPinRepository } from '../../infra/IPinRepository';
@@ -22,20 +26,11 @@ describe('GetAllPinUseCase', () => {
     const TEST_PIN_ID = 'test-pin-uuid';
     const testPinTitleString = '여기는 계단이에요!';
     const testPinContentString = '계단이 좀 가파르네요 이제 나이먹어서 그런지 계단 오를 때마다 무릎이 시려';
+    const testImage = 'test-image-file.jpg';
+    const testLatitude = '12124.12523152';
+    const testLongitude = '51.612351235';
     const createdAt = new Date();
     const updatedAt = new Date();
-    const testWalkway = Walkway.create({
-        title: WalkwayTitle.create("get walkway title").value,
-        address: WalkwayAddress.create('get walkway address').value,
-        distance: WalkwayDistance.create(40).value,
-        time: WalkwayTime.create(1234).value,
-        path: WalkwayPath.create({
-            'type': 'LineString',
-            'coordinates': [[100, 40], [105, 45], [110, 55]],
-        }).value,
-        createdAt,
-        updatedAt,
-    }, 'teste-walkway-uuid').value;
     const testUser = User.create({
         name: UserName.create('user name').value,
         image: ImageUrl.create('user-image-test.jpg').value,
@@ -44,6 +39,23 @@ describe('GetAllPinUseCase', () => {
         createdAt,
         updatedAt,
     }, 'test-user-uuid').value;
+    const testWalkway = Walkway.create({
+        title: WalkwayTitle.create("get walkway title").value,
+        address: WalkwayAddress.create('get walkway address').value,
+        distance: WalkwayDistance.create(40).value,
+        time: WalkwayTime.create(1234).value,
+        path: WalkwayPath.create([
+            {lat: 100, lng: 40}, 
+            {lat: 100, lng: 40},
+        ]).value,
+        startPoint: WalkwayStartPoint.create({
+            lat: 100,
+            lng: 40
+        }).value,
+        user: testUser,
+        createdAt,
+        updatedAt,
+    }, 'teste-walkway-uuid').value;
 
     let uut: GetAllPinUseCase;
     let pinRepository: MockProxy<IPinRepository>;
@@ -122,6 +134,9 @@ describe('GetAllPinUseCase', () => {
                 {
                     title: PinTitle.create(testPinTitleString).value,
                     content: PinContent.create(testPinContentString).value,
+                    image: ImageUrl.create(testImage).value,
+                    latitude: PinLatitude.create(testLatitude).value,
+                    longitude: PinLongitude.create(testLongitude).value,
                     status: PinStatus.NORMAL,
                     walkway: testWalkway,
                     user: testUser,

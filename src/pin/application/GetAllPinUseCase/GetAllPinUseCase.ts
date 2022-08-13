@@ -1,4 +1,5 @@
 import { Inject } from '@nestjs/common';
+
 import { UseCase } from '../../../common/application/UseCase';
 import { IPinRepository, PIN_REPOSITORY } from '../../infra/IPinRepository';
 import { IGetAllPinUseCaseRequest } from './dto/IGetAllPinUseCaseRequest';
@@ -17,7 +18,7 @@ export class GetAllPinUseCase implements UseCase<IGetAllPinUseCaseRequest, IGetA
 
     async execute(request: IGetAllPinUseCaseRequest): Promise<IGetAllPinUseCaseResponse> {
         try {
-            const pins = await this.pinRepository.findAll(request.walkway.id);
+            const pins = await this.pinRepository.findAll(request);
 
             return {
                 code: GetAllPinUseCaseCodes.SUCCESS,

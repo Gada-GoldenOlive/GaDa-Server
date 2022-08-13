@@ -12,9 +12,10 @@ import { WalkwayStartPoint } from '../../walkway/domain/Walkway/WalkwayStartPoin
 import { WalkwayStatus } from '../../walkway/domain/Walkway/WalkwayStatus';
 import { WalkwayTime } from '../../walkway/domain/Walkway/WalkwayTime';
 import { WalkwayTitle } from '../../walkway/domain/Walkway/WalkwayTitle';
-import { MysqlWalkwayRepositoryMapper } from '../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin, PROPS_VALUES_ARE_REQUIRED } from './Pin';
 import { PinContent } from './PinContent';
+import { PinLatitude } from './PinLatitude';
+import { PinLongitude } from './PinLongitude';
 import { PinStatus } from './PinStatus';
 import { PinTitle } from './PinTitle';
 
@@ -23,8 +24,24 @@ describe('Pin', () => {
     const pinTitle = PinTitle.create('여기에 경사가 있어요').value;
     const pinContent = PinContent.create('대충 내용').value;
     const pinImage = ImageUrl.create('test-image-url.png').value;
+    const pinLatitude = PinLatitude.create('12124.12523152').value;
+    const pinLongitude = PinLongitude.create('51.612351235').value;
     const createdAt = new Date();
     const updatedAt = new Date();
+    const TEST_USER_ID = 'test-user-uuid';
+    const userName = UserName.create('유저이름').value;
+    const userImage = ImageUrl.create('user-image-test.png').value;
+    const userTotalDistance = UserTotalDistance.create(20).value;
+    const userTotalTime = UserTotalTime.create(1123).value;
+    const user = User.create({
+        name: userName,
+        image: userImage,
+        totalDistance: userTotalDistance,
+        totalTime: userTotalTime,
+        status: UserStatus.NORMAL,
+        createdAt,
+        updatedAt,
+    }, TEST_USER_ID).value;
     const TEST_WALKWAY_ID = 'test-walkway-uuid';
     const walkwayTitle = WalkwayTitle.create('산책로 이름').value;
     const walkwayAddress = WalkwayAddress.create('산책로 주소').value
@@ -46,29 +63,18 @@ describe('Pin', () => {
         path: walkwayPath,
         status: WalkwayStatus.NORMAL,
         startPoint: walkwayStartPoint,
+        user,
         createdAt,
         updatedAt,
     }, TEST_WALKWAY_ID).value;
-    const TEST_USER_ID = 'test-user-uuid';
-    const userName = UserName.create('유저이름').value;
-    const userImage = ImageUrl.create('user-image-test.png').value;
-    const userTotalDistance = UserTotalDistance.create(20).value;
-    const userTotalTime = UserTotalTime.create(1123).value;
-    const user = User.create({
-        name: userName,
-        image: userImage,
-        totalDistance: userTotalDistance,
-        totalTime: userTotalTime,
-        status: UserStatus.NORMAL,
-        createdAt,
-        updatedAt,
-    }, TEST_USER_ID).value;
 
     it('Pin createNew 성공', () => {
         const pinOrError = Pin.createNew({
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             walkway,
             user,
             status: PinStatus.NORMAL,
@@ -87,6 +93,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway,
             user,
@@ -109,6 +117,8 @@ describe('Pin', () => {
             title: null,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway,
             user,
@@ -119,6 +129,8 @@ describe('Pin', () => {
             title: undefined,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway,
             user,
@@ -135,6 +147,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway: null,
             user,
@@ -144,6 +158,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway: undefined,
             user,
@@ -160,6 +176,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway,
             user: null,
@@ -169,6 +187,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway,
             user: undefined,
@@ -185,6 +205,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: null,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway,
             user,
@@ -194,6 +216,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: undefined,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: PinStatus.NORMAL,
             walkway,
             user,
@@ -211,6 +235,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             walkway,
             user,
         });
@@ -224,6 +250,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: null,
             walkway,
             user,
@@ -233,6 +261,8 @@ describe('Pin', () => {
             title: pinTitle,
             content: pinContent,
             image: pinImage,
+            latitude: pinLatitude,
+            longitude: pinLongitude,
             status: undefined,
             walkway,
             user,
