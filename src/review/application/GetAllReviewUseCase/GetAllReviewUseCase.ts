@@ -1,4 +1,5 @@
 import { Inject } from '@nestjs/common';
+import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IReviewRepository, REVIEW_REPOSITORY } from '../../infra/IReviewRepository';
@@ -21,14 +22,17 @@ export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAll
             const reviews = await this.pinRepository.getAll({
                 walkway: request.walkway,
             });
+            
+            let averageStar = 0;
+            if (!_.isEmpty(reviews)) {
+                let sumStar: number;
 
-            let sumStar: number;
+                for (let i in reviews) {
+                    sumStar += reviews[i].star.value;
+                }
 
-            for (let i in reviews) {
-                sumStar += reviews[i].star.value;
+                averageStar = sumStar / reviews.length;
             }
-
-            const averageStar = sumStar / reviews.length;
 
             return {
                 code: GetAllReviewUseCaseCodes.SUCCESS,

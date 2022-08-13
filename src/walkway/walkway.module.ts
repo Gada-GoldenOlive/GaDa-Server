@@ -18,6 +18,7 @@ import { GetAllReviewUseCase } from '../review/application/GetAllReviewUseCase/G
 import { REVIEW_REPOSITORY } from '../review/infra/IReviewRepository';
 import { MysqlReviewRepository } from '../review/infra/mysql/MysqlReviewRepository';
 import { ReviewEntity } from '../review/entity/Review.entity';
+import { GetAllNearWalkwayUseCase } from './application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 
 @Module({
@@ -40,6 +41,7 @@ import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCa
         GetWalkwayUseCase,
         GetAllPinUseCase,
         GetAllReviewUseCase,
+        GetAllNearWalkwayUseCase,
         {
             provide: WALKWAY_REPOSITORY,
             useClass: MysqlWalkwayRepository
