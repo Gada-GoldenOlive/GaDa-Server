@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { MysqlUserRepositoryMapper } from "../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper";
 
+import { MysqlUserRepositoryMapper } from "../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper";
 import { Walkway } from "../../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../../domain/Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../../../domain/Walkway/WalkwayDistance";
@@ -22,8 +22,8 @@ export class MysqlWalkwayRepositoryMapper {
                 address: WalkwayAddress.create(entity.address).value,
                 distance: WalkwayDistance.create(entity.distance).value,
                 time: WalkwayTime.create(entity.time).value,
-                path: WalkwayPath.create(this.stringToPath(entity.path)).value,
-                startPoint: WalkwayStartPoint.create(this.stringToPoint(entity.startPoint)).value,
+                path: WalkwayPath.create(this.convertToPath(entity.path)).value,
+                startPoint: WalkwayStartPoint.create(this.convertToPoint(entity.startPoint)).value,
                 user: MysqlUserRepositoryMapper.toDomain(entity.user),
                 createdAt: entity.createdAt,
                 updatedAt: entity.updatedAt,
@@ -65,17 +65,21 @@ export class MysqlWalkwayRepositoryMapper {
         return _.map(walkways, (walkway) => this.toEntity(walkway));
     }
 
-    static stringToPath(string: string): Point[] {
-        return JSON.parse(string);
+    static convertToPath(string: string): Point[] {
+        let toConvert: any = string;
+
+        if (typeof(toConvert) == 'string')
+            toConvert = JSON.parse(toConvert);
+
+        return toConvert;
     }
 
-    static stringToPoint(string: string): Point {
-        let lat: number
-        let lng: number
-        // TODO: Point 타입 가져왔을 때 포맷 보고 수정해야함.
+    static convertToPoint(startPoint: any): Point {
+        // startPoint : {x: lat, y: lng}
+
         return {
-            lat: lat,
-            lng: lng,
+            lat: startPoint['x'],
+            lng: startPoint['y'],
         };
     }
 
