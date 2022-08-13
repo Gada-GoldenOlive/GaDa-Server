@@ -1,4 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Point } from '../../domain/PinLocation';
+
+export class LocationDto implements Point {
+    @ApiProperty()
+    lat: number;
+
+    @ApiProperty()
+    lng: number;
+}
 
 export class PinDto {
     @ApiProperty()
@@ -14,7 +23,13 @@ export class PinDto {
     image: string;
 
     @ApiProperty()
+    location: LocationDto;
+
+    @ApiProperty()
     userId: string;
+
+    @ApiProperty()
+    walkwayId: string;
 }
 
 export class GetAllPinResponse {

@@ -1,21 +1,11 @@
 import _ from 'lodash';
 
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
-import { User } from '../../../../user/domain/User';
-import { UserName } from '../../../../user/domain/UserName';
-import { UserTotalDistance } from '../../../../user/domain/UserTotalDistance';
-import { UserTotalTime } from '../../../../user/domain/UserTotalTime';
 import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
-import { Walkway } from '../../../../walkway/domain/Walkway/Walkway';
-import { WalkwayAddress } from '../../../../walkway/domain/Walkway/WalkwayAddress';
-import { WalkwayDistance } from '../../../../walkway/domain/Walkway/WalkwayDistance';
-import { WalkwayPath } from '../../../../walkway/domain/Walkway/WalkwayPath';
-import { WalkwayStartPoint } from '../../../../walkway/domain/Walkway/WalkwayStartPoint';
-import { WalkwayTime } from '../../../../walkway/domain/Walkway/WalkwayTime';
-import { WalkwayTitle } from '../../../../walkway/domain/Walkway/WalkwayTitle';
 import { MysqlWalkwayRepositoryMapper } from '../../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin } from '../../../domain/Pin';
 import { PinContent } from '../../../domain/PinContent';
+import { PinLocation, Point } from '../../../domain/PinLocation';
 import { PinTitle } from '../../../domain/PinTitle';
 import { PinEntity } from '../../../entity/Pin.entity';
 
@@ -25,31 +15,65 @@ export class MysqlPinRepositoryMapper {
             return null;
         }
 
-        return Pin.create({
+        const pin =  Pin.create({
             title: PinTitle.create(entity.title).value,
             content: PinContent.create(entity.content).value,
-            walkway: Walkway.create(
-                {    
-                    title: WalkwayTitle.create(entity.walkway.title).value,
-                    address: WalkwayAddress.create(entity.walkway.address).value,
-                    distance: WalkwayDistance.create(entity.walkway.distance).value,
-                    time: WalkwayTime.create(entity.walkway.time).value,
-                    path: WalkwayPath.create(MysqlWalkwayRepositoryMapper.convertToPath(entity.walkway.path)).value,
-                    startPoint: WalkwayStartPoint.create(MysqlWalkwayRepositoryMapper.convertToPoint(entity.walkway.startPoint)).value,
-                    status: entity.walkway.status,
-                    user: MysqlUserRepositoryMapper.toDomain(entity.walkway.user),
-                    createdAt: entity.walkway.createdAt,
-                    updatedAt: entity.walkway.updatedAt,
-                },
-                entity.walkway.id,
-            ).value,
+            image: entity.image ? ImageUrl.create(entity.image).value : null,
+            location: PinLocation.create(MysqlPinRepositoryMapper.convertToPoint(entity.location)).value,
+            walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
             user: MysqlUserRepositoryMapper.toDomain(entity.user),
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
-            }, entity.id).value;
+        }, entity.id).value;
+
+        return pin;
     }
+
+
 
     static toDomains(entities: PinEntity[]): Pin[] {
         return _.map(entities, this.toDomain);
+    }
+
+    static toEntity(pin: Pin): PinEntity {
+        if (_.isNil(pin)) {
+            return null;
+        }
+
+        const entity: PinEntity = {
+            id: pin.id,
+            title: pin.title.value,
+            content: pin.content.value,
+            image: pin.image.value,
+            location: this.pointToString(pin.location.value),
+            status: pin.status,
+            walkway: MysqlWalkwayRepositoryMapper.toEntity(pin.walkway),
+            user: MysqlUserRepositoryMapper.toEntity(pin.user),
+            createdAt: pin.createdAt,
+            updatedAt: pin.updatedAt,
+        };
+
+        return entity;
+    }
+
+    static toEntities(pins: Pin[]): PinEntity[] {
+        return _.map(pins, (pin) => this.toEntity(pin));
+    }
+
+    static convertToPoint(location: string): Point {
+        let locationArray = location.split(' ');
+        
+        const point = {
+            lat: +locationArray[0].slice(6),
+            lng: +locationArray[1].slice(0, -1),
+        };
+
+        return point;
+    }
+
+    static pointToString(point: Point): string {
+        let poinString = `POINT(${point.lng} ${point.lat})`;
+
+        return poinString;
     }
 }
