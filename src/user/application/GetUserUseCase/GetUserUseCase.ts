@@ -1,4 +1,5 @@
 import { Inject } from '@nestjs/common';
+import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
@@ -18,6 +19,8 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
     async execute(request: IGetUserUseCaseRequest): Promise<IGetUserUseCaseResponse> {
         try {
+            if (_.isNil(request.id)) return null;
+
             const user = await this.userRepository.findOne(request.id);
 
             return {

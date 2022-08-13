@@ -1,4 +1,5 @@
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
+
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { UserEntity } from '../../user/entity/User.entity';
 import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
@@ -25,6 +26,15 @@ export class PinEntity extends CoreEntity {
         type: 'varchar',
     })
     image: string;
+
+    @Index({ spatial: true })
+    @Column({
+        type: 'geometry',
+        spatialFeatureType: 'point', 
+        srid: 4326,
+        nullable: false,
+    })
+    location: string;
 
     @Column({
         nullable: false,

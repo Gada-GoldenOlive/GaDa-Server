@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
 import { User } from '../../../domain/User';
 import { UserName } from '../../../domain/UserName';
@@ -15,7 +16,7 @@ export class MysqlUserRepositoryMapper {
         return User.create(
             {
                 name: UserName.create(entity.name).value,
-                image: ImageUrl.create(entity.image).value,
+                image: entity.image ? ImageUrl.create(entity.image).value : null,
                 totalDistance: UserTotalDistance.create(entity.totalDistance).value,
                 totalTime: UserTotalTime.create(entity.totalTime).value,
                 status: entity.status,
