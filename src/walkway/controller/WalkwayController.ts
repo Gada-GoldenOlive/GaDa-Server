@@ -6,17 +6,17 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkwayRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
 import { GetAllNearWalkwayResponse, GetWalkwayResponse, WalkwayDto } from './dto/WalkwayResponse';
-import { getSeoulmapWalkways } from '../smartSeoulMap/getSeoulMapWalkways';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
+import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 
 @Controller('walkway')
 @ApiTags('산책로')
 export class WalkwayController {
     constructor(
         private readonly createSeoulmapWalkwaysUseCase: CreateSeoulmapWalkwaysUseCase,
-        private readonly getSeoulmapWalkways: getSeoulmapWalkways,
+        private readonly getSeoulmapWalkwayUseCase: GetSeoulmapWalkwayUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
@@ -44,7 +44,7 @@ export class WalkwayController {
         type: CommonResponse,
     })
     async createSeoulmapWalkways(): Promise<CommonResponse> {
-        const values = await this.getSeoulmapWalkways.getValues();
+        const values = await this.getSeoulmapWalkwayUseCase.execute();
         if (values.length == 0) {
             throw new HttpException('FAIL TO GET SEOUL MAP WALKWAY DATA', 500);
         }
