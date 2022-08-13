@@ -1,4 +1,5 @@
 import { Inject } from "@nestjs/common";
+import _ from "lodash";
 
 import { UseCase } from "../../../common/application/UseCase";
 import { IWalkwayRepository, WALKWAY_REPOSITORY } from "../../infra/IWalkwayRepository";
@@ -19,6 +20,8 @@ IGetWalkwayUseCaseRequest, IGetWalkwayUseCaseResponse> {
 
     async execute(request?: IGetWalkwayUseCaseRequest): Promise<IGetWalkwayUseCaseResponse> {
         try {
+            if (_.isNil(request.id)) return null;
+            
             const walkway = await this.walkwayRepository.findOne(request.id);
 
             return {
