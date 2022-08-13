@@ -66,6 +66,10 @@ export class PinController {
             });
         }
 
+        if (!walkwayResponse && !userResponse) {
+            getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({});
+        }
+
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
