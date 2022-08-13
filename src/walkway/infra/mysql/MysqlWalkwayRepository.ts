@@ -3,6 +3,8 @@ import _ from "lodash";
 import { Repository } from "typeorm";
 
 import { Walkway } from "../../domain/Walkway/Walkway";
+import { Point } from "../../domain/Walkway/WalkwayStartPoint";
+import { WalkwayStatus } from "../../domain/Walkway/WalkwayStatus";
 import { WalkwayEntity } from "../../entity/Walkway.entity";
 import { IWalkwayRepository } from "../IWalkwayRepository";
 import { MysqlWalkwayRepositoryMapper } from "./mapper/MysqlWalkwayRepository.mapper";
@@ -14,9 +16,25 @@ export class MysqlWalkwayRepository implements IWalkwayRepository {
     ) {}
 
     async findOne(id: string): Promise<Walkway> {
-        const walkway = await this.walkwayRepository.findOne( { where : { id }} );
+        const walkway = await this.walkwayRepository.findOne({
+             where : { id },
+             relations: ['user'],
+        });
 
         return MysqlWalkwayRepositoryMapper.toDomain(walkway);
+    }
+
+    async findAll(coordinates: Point): Promise<Walkway[]> {
+        const foundWalkways = await this.walkwayRepository
+            .createQueryBuilder('walkway')
+            .leftJoinAndSelect('walkway.user', 'user')
+            .setParameter('curPoint', MysqlWalkwayRepositoryMapper.pointToString(coordinates))
+            .where(('ST_Distance_Sphere(ST_GeomFromText(:curPoint, 4326), walkway.startPoint) <= 2000'))
+            .andWhere('walkway.status = :normalStatus', { normalStatus: WalkwayStatus.NORMAL })
+            .orderBy('ST_Distance_Sphere(ST_GeomFromText(:curPoint, 4326), walkway.startPoint)')
+            .getMany();
+
+        return MysqlWalkwayRepositoryMapper.toDomains(foundWalkways);
     }
 
     async save(walkway: Walkway): Promise<boolean> {
@@ -31,14 +49,12 @@ export class MysqlWalkwayRepository implements IWalkwayRepository {
         if (_.isEmpty(walkways))
             return false;
 
-        let [query, parameter] = await this.walkwayRepository
+        await this.walkwayRepository
             .createQueryBuilder()
             .insert()
             .into('walkway')
             .values(MysqlWalkwayRepositoryMapper.toEntities(walkways))
-            .getQueryAndParameters();
-
-        await this.walkwayRepository.query(query.replace(/GeomFromText/gi, 'ST_GeomFromText'), parameter);
+            .execute();
 
         return true;
     }
