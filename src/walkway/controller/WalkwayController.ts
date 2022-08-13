@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post } from '@nestjs/common';
+import _ from 'lodash';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
@@ -10,6 +11,7 @@ import { getSeoulmapWalkways } from '../smartSeoulMap/getSeoulMapWalkways';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
+import { GetAllNearWalkwayUseCase, GetAllNearWalkwayUseCaseCodes } from '../application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
 
 @Controller('walkway')
 @ApiTags('산책로')
@@ -20,6 +22,7 @@ export class WalkwayController {
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
+        private readonly getAllNearWalkwayUseCase: GetAllNearWalkwayUseCase,
     ) {}
 
     @Post()
@@ -59,13 +62,64 @@ export class WalkwayController {
         }
     }
 
-    @Get('/:lat/:lng')
+    @Get('/list')
     @ApiOkResponse({
         type: GetAllNearWalkwayResponse,
     })
-    async getAllNear() {}
+    @ApiOperation({
+        summary: '추천 산책로 목록 가져오기',
+        description: 'query로 받은 좌표에서 반경 2km 이내에 있는 산책로 목록을 리턴함.'
+    })
+    async getAllNear(@Query('lat') lat: number, @Query('lng') lng: number) {
+        const getAllNearWalkwayResponse = await this.getAllNearWalkwayUseCase.execute({
+            coordinates: { lat, lng },
+        });
+        if (getAllNearWalkwayResponse.code != GetAllNearWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND NEAR WALKWAYS', 404);
+        }
 
-    @Get('/walkwayId')
+        let walkways = []
+        for (const walkway of getAllNearWalkwayResponse.walkways) {
+            const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+                walkway: walkway,
+            })
+            if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO FIND ALL PIN', 404);
+            }
+    
+            const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+                walkway: walkway,
+            })
+            if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO FIND ALL REVIEW', 404);
+            }
+    
+            let tmp = {
+                id: walkway.id,
+                title: walkway.title.value,
+                address: walkway.address.value,
+                distance: walkway.distance.value,
+                time: walkway.time.value,
+                pinCount: getAllPinUseCaseResponse.pins.length,
+                averageStar: getAllReviewUseCaseResponse.averageStar,
+                path: walkway.path.value,
+            }
+            if (_.isNil(walkway.user)) {
+                tmp['creator'] = '스마트서울맵';
+                tmp['creatorId'] = null;
+            }
+            else {
+                tmp['creator'] = walkway.user.name.value;
+                tmp['creatorId'] = walkway.user.id;
+            }
+            walkways.push(tmp);
+        }
+        return {
+            walkways,
+        }
+    }
+
+    @Get('/:walkwayId')
     @ApiOkResponse({
         type: GetWalkwayResponse,
     })
@@ -91,6 +145,12 @@ export class WalkwayController {
             throw new HttpException('FAIL TO FIND ALL REVIEW', 404);
         }
 
+        let creator = '스마트서울맵';
+        let creatorId = null;
+        if (!_.isNil(getWalkwayUseCaseResponse.walkway.user)) {
+            creator = getWalkwayUseCaseResponse.walkway.user.name.value;
+            creatorId = getWalkwayUseCaseResponse.walkway.user.id;
+        }
         const walkway : WalkwayDto = {
             id: getWalkwayUseCaseResponse.walkway.id,
             title: getWalkwayUseCaseResponse.walkway.title.value,
@@ -100,8 +160,8 @@ export class WalkwayController {
             pinCount: getAllPinUseCaseResponse.pins.length,
             averageStar: getAllReviewUseCaseResponse.averageStar,
             path: getWalkwayUseCaseResponse.walkway.path.value,
-            creator: getWalkwayUseCaseResponse.walkway.user.name.value,
-            creatorId: getWalkwayUseCaseResponse.walkway.user.id,
+            creator,
+            creatorId,
         };
 
         return {
