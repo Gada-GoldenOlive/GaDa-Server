@@ -2,7 +2,6 @@ import { Inject } from "@nestjs/common";
 import _ from "lodash";
 
 import { UseCase } from "../../../common/application/UseCase";
-import { User } from "../../../user/domain/User";
 import { Walkway } from "../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../domain/Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../../domain/Walkway/WalkwayDistance";
