@@ -20,6 +20,13 @@ import { MysqlReviewRepository } from '../review/infra/mysql/MysqlReviewReposito
 import { ReviewEntity } from '../review/entity/Review.entity';
 import { GetAllNearWalkwayUseCase } from './application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
+import { CreateWalkUseCase } from './application/CreateWalkUseCase/CreateWalkUseCase';
+import { GetUserUseCase } from '../user/application/GetUserUseCase/GetUserUseCase';
+import { WALK_REPOSITORY } from './infra/IWalkRepository';
+import { MysqlWalkRepository } from './infra/mysql/MysqlWalkRepository';
+import { USER_REPOSITORY } from '../user/infra/IUserRepository';
+import { MysqlUserRepository } from '../user/infra/mysql/MysqlUserRepository';
+import { UserEntity } from '../user/entity/User.entity';
 
 @Module({
     imports: [
@@ -28,6 +35,7 @@ import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCa
             WalkEntity,
             PinEntity,
             ReviewEntity,
+            UserEntity,
         ])
     ],
     controllers: [
@@ -42,6 +50,8 @@ import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCa
         GetAllPinUseCase,
         GetAllReviewUseCase,
         GetAllNearWalkwayUseCase,
+        CreateWalkUseCase,
+        GetUserUseCase,
         {
             provide: WALKWAY_REPOSITORY,
             useClass: MysqlWalkwayRepository
@@ -53,6 +63,14 @@ import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCa
         {
             provide: REVIEW_REPOSITORY,
             useClass: MysqlReviewRepository
+        },
+        {
+            provide: WALK_REPOSITORY,
+            useClass: MysqlWalkRepository
+        },
+        {
+            provide: USER_REPOSITORY,
+            useClass: MysqlUserRepository
         }
     ],
 })
