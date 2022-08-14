@@ -68,7 +68,7 @@ export class MysqlPinRepository implements IPinRepository {
         if (walkway) {
             query.andWhere('walkway.id = :walkwayId', { walkwayId: walkway.id })
             .setParameter('standardPoint', MysqlWalkwayRepositoryMapper.pointToString(walkway.startPoint.value))
-            .orderBy(('ST_Distance_Sphere(ST_GeomFromText(:standardPoint, 4326), pin.location)'));
+            .orderBy(('st_distance_sphere_1(ST_GeomFromText(:standardPoint, 4326), pin.location)'));
         }
 
         if (user) {
