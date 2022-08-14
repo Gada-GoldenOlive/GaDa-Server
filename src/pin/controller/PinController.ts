@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreatePinRequest, UpdatePinRequest } from './dto/PinRequest';
@@ -11,7 +11,7 @@ import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUse
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 
-@Controller('pin')
+@Controller('pins')
 @ApiTags('핀')
 export class PinController {
     constructor(
@@ -36,6 +36,12 @@ export class PinController {
     }
 
     @Get()
+    @ApiOperation({
+        description: 'walkwayId, userId 중에 최대 하나만 보낼 수 있음. '
+        + 'walkwayId만 보낼 경우: 해당하는 walkway의 핀 리스트 반환 / '
+        + 'userId만 보낼 경우: 해당하는 user의 핀 리스트 반환 / '
+        + '둘 다 보내지 않을 경우: 전체 핀 리스트 반환 (둘 다 보내는 건 구현X)'
+    })
     @ApiOkResponse({
         type: GetAllPinResponse,
     })
