@@ -6,7 +6,7 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
 import { GetAllUserResponse } from './dto/UserResponse';
 
-@Controller('user')
+@Controller('users')
 @ApiTags('사용자')
 export class UserController {
     constructor() {}

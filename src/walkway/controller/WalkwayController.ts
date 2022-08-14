@@ -13,7 +13,7 @@ import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/appl
 import { GetAllNearWalkwayUseCase, GetAllNearWalkwayUseCaseCodes } from '../application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 
-@Controller('walkway')
+@Controller('walkways')
 @ApiTags('산책로')
 export class WalkwayController {
     constructor(
