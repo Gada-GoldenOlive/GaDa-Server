@@ -7,9 +7,10 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreatePinRequest, UpdatePinRequest } from './dto/PinRequest';
 import { GetAllPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
-import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
-import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
+import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
+import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
+import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -18,6 +19,7 @@ export class PinController {
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
+        private readonly createPinUseCase: CreatePinUseCase,
     ) {}
 
     @Post()
@@ -28,7 +30,36 @@ export class PinController {
     async create(
         @Body() request: CreatePinRequest,
     ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
+        const [ walkwayResponse, userResponse ] = await Promise.all([
+            this.getWalkwayUseCase.execute({
+                id: request.walkwayId,
+            }),
+            this.getUserUseCase.execute({
+                id: request.userId,
+            }),
+        ]);
+
+        if (walkwayResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE PIN BY WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE PIN BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const createPinUseCaseResponse = await this.createPinUseCase.execute({
+            title: request.title,
+            content: request.content,
+            image: request.image,
+            location: request.location,
+            walkway: walkwayResponse.walkway,
+            user: userResponse.user,
+        });
+
+        if (createPinUseCaseResponse.code !== CreatePinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE PIN',

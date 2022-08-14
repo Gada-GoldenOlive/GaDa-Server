@@ -28,8 +28,12 @@ export class MysqlPinRepository implements IPinRepository {
         throw new Error('Method not implemented.');
     }
 
-    save(pin: Pin): Promise<boolean> {
-        throw new Error('Method not implemented.');
+    async save(pin: Pin): Promise<boolean> {
+        await this.pinRepository.save(
+            MysqlPinRepositoryMapper.toEntity(pin),
+        );
+
+        return true;
     }
 
     async findAll(options: GetAllPinOptions): Promise<Pin[]> {

@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import _ from 'lodash';
 
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
@@ -43,9 +44,9 @@ export class MysqlPinRepositoryMapper {
         const entity: PinEntity = {
             id: pin.id,
             title: pin.title.value,
-            content: pin.content.value,
-            image: pin.image.value,
-            location: this.pointToString(pin.location.value),
+            content: pin.content ? pin.content.value : null,
+            image: pin.image ? pin.image.value : null,
+            location: MysqlPinRepositoryMapper.pointToString(pin.location.value),
             status: pin.status,
             walkway: MysqlWalkwayRepositoryMapper.toEntity(pin.walkway),
             user: MysqlUserRepositoryMapper.toEntity(pin.user),
