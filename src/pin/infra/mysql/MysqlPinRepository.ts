@@ -7,7 +7,6 @@ import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayStatus } from '../../../walkway/domain/Walkway/WalkwayStatus';
 import { MysqlWalkwayRepositoryMapper } from '../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin } from '../../domain/Pin';
-import { Point } from '../../domain/PinLocation';
 import { PinStatus } from '../../domain/PinStatus';
 import { PinEntity } from '../../entity/Pin.entity';
 import { IPinRepository } from '../IPinRepository';
@@ -24,8 +23,25 @@ export class MysqlPinRepository implements IPinRepository {
         private readonly pinRepository: Repository<PinEntity>,
     ) {}
 
-    findOne(id: string): Promise<Pin> {
-        throw new Error('Method not implemented.');
+    async findOne(id: string): Promise<Pin> {
+        const pin = await this.pinRepository.findOne({
+            where: {
+                id,
+                status: PinStatus.NORMAL,
+                user: {
+                    status: UserStatus.NORMAL,
+                },
+                walkway: {
+                    status: WalkwayStatus.NORMAL,
+                },
+            },
+            relations: [
+                'user',
+                'walkway',
+            ],
+        });
+
+        return MysqlPinRepositoryMapper.toDomain(pin);
     }
 
     async save(pin: Pin): Promise<boolean> {
