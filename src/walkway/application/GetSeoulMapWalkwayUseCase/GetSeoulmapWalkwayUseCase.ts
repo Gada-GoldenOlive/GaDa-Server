@@ -12,7 +12,7 @@ export class GetSeoulmapWalkwayUseCase {
 
         let response = await firstValueFrom(httpService.get(URL));
         let values = response.data.body.filter((walkwayData) => {
-            if (this.isBadWalkway(walkwayData) || this.getDistance(walkwayData['COT_COORD_DATA']) < 0.5)
+            if (this.isBadWalkway(walkwayData) || this.getDistance(walkwayData['COT_COORD_DATA']) < 500)
                 return false;
             return true;
         }).map((walkwayData) => {
