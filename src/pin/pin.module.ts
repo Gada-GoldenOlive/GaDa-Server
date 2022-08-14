@@ -11,6 +11,7 @@ import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
 import { CreatePinUseCase } from './application/CreatePinUseCase/CreatePinUseCase';
 import { GetAllPinUseCase } from './application/GetAllPinUseCase/GetAllPinUseCase';
+import { GetPinUseCase } from './application/GetPinUseCase/GetPinUseCase';
 import { PinController } from './controller/PinController';
 import { PinEntity } from './entity/Pin.entity';
 import { PIN_REPOSITORY } from './infra/IPinRepository';
@@ -28,6 +29,7 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
   providers: [
     GetAllPinUseCase,
     CreatePinUseCase,
+    GetPinUseCase,
     {
       provide: PIN_REPOSITORY,
       useClass: MysqlPinRepository,

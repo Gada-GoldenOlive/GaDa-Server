@@ -5,12 +5,13 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreatePinRequest, UpdatePinRequest } from './dto/PinRequest';
-import { GetAllPinResponse } from './dto/PinResponse';
+import { GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
+import { GetPinUseCase, GetPinUseCaseCodes } from '../application/GetPinUseCase/GetPinUseCase';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -20,6 +21,7 @@ export class PinController {
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly createPinUseCase: CreatePinUseCase,
+        private readonly getPinUseCase: GetPinUseCase,
     ) {}
 
     @Post()
@@ -123,6 +125,40 @@ export class PinController {
 
         return {
             pins,
+        }
+    }
+
+    @Get('/:pinId')
+    @ApiOkResponse({
+        type: GetPinResponse,
+    })
+    async getOne(
+        @Param('pinId') pinId: string,
+    ): Promise<GetPinResponse> {
+        const getPinUseCaseResponse = await this.getPinUseCase.execute({
+            id: pinId,
+        });
+
+        if (getPinUseCaseResponse.code === GetPinUseCaseCodes.NO_PIN_FOUND_ERROR) {
+            throw new HttpException(GetPinUseCaseCodes.NO_PIN_FOUND_ERROR, StatusCodes.NOT_FOUND);
+        }
+
+        if (getPinUseCaseResponse.code !== GetPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const pin = {
+            id: getPinUseCaseResponse.pin.id,
+            title: getPinUseCaseResponse.pin.title.value,
+            content: getPinUseCaseResponse.pin.content.value,
+            image: getPinUseCaseResponse.pin.image ? getPinUseCaseResponse.pin.image.value : null,
+            location: getPinUseCaseResponse.pin.location.value,
+            userId: getPinUseCaseResponse.pin.user.id,
+            walkwayId: getPinUseCaseResponse.pin.walkway.id,
+        };
+
+        return {
+            pin,
         }
     }
 
