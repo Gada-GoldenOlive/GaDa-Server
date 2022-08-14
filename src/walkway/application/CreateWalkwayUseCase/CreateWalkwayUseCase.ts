@@ -4,6 +4,7 @@ import { UseCase } from "../../../common/application/UseCase";
 import { Walkway } from "../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../domain/Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../../domain/Walkway/WalkwayDistance";
+import { WalkwayEndPoint } from "../../domain/Walkway/WalkwayEndPoint";
 import { WalkwayPath } from "../../domain/Walkway/WalkwayPath";
 import { WalkwayStartPoint } from "../../domain/Walkway/WalkwayStartPoint";
 import { WalkwayTime } from "../../domain/Walkway/WalkwayTime";
@@ -32,6 +33,7 @@ export class CreateWalkwayUseCase implements UseCase<ICreateWalkwayUseCaseReques
                 time: WalkwayTime.create(request.time).value,
                 path: WalkwayPath.create(request.path).value,
                 startPoint: WalkwayStartPoint.create(request.path[0]).value,
+                endPoint: WalkwayEndPoint.create(request.path[request.path.length - 1]).value,
                 user: request.user,
             }).value;
             await this.walkwayRespository.save(walkway);

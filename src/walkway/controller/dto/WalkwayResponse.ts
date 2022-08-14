@@ -36,6 +36,11 @@ export class WalkwayDto {
     })
     path: PointDto[];
 
+    @ApiProperty({
+        type: PointDto,
+    })
+    startPoint: PointDto;
+
     @ApiProperty()
     creator: string;
 

@@ -7,6 +7,7 @@ import { UserTotalTime } from "../../../user/domain/UserTotalTime";
 import { Walkway } from "../Walkway/Walkway";
 import { WalkwayAddress } from "../Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../Walkway/WalkwayDistance";
+import { WalkwayEndPoint } from "../Walkway/WalkwayEndPoint";
 import { WalkwayPath } from "../Walkway/WalkwayPath";
 import { WalkwayStartPoint } from "../Walkway/WalkwayStartPoint";
 import { WalkwayStatus } from "../Walkway/WalkwayStatus";
@@ -50,6 +51,10 @@ describe ('Walk', () => {
         lat: 100,
         lng: 40
     }).value;
+    const walkwayEndtPoint = WalkwayEndPoint.create({
+        lat: 100,
+        lng: 40
+    }).value;
     const walkway = Walkway.create({
         title: walkwayTitle,
         address: walkwayAddress,
@@ -58,6 +63,7 @@ describe ('Walk', () => {
         path: walkwayPath,
         status: WalkwayStatus.NORMAL,
         startPoint: walkwayStartPoint,
+        endPoint: walkwayEndtPoint,
         user,
         createdAt,
         updatedAt,
