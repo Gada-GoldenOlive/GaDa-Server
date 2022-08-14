@@ -22,7 +22,7 @@ export class GetSeoulmapWalkwayUseCase {
     }
 
     createValue(response: any): ICreateWalkwayUseCaseRequest{
-        const DEFAULT_SPEED = 3 / 60;
+        const DEFAULT_SPEED = 1;    // 1m/s  = 3.6km/h
         let address = this.getAddress(response);
         let distance = this.getDistance(response['COT_COORD_DATA']);
 
@@ -30,7 +30,7 @@ export class GetSeoulmapWalkwayUseCase {
             title: this.getTitle(response['COT_CONTS_NAME'], address),
             address: address,
             distance: distance ,
-            time: +(distance / DEFAULT_SPEED).toFixed(0),
+            time: +(distance / DEFAULT_SPEED).toFixed(0),   // s
             path: this.getPath(response['COT_COORD_DATA']),
             user: null,
         };
@@ -43,7 +43,7 @@ export class GetSeoulmapWalkwayUseCase {
             'type': 'LineString',
             'coordinates': coordinates,
         }
-        return +(geojsonLength(line) / 1000) ;
+        return +(geojsonLength(line)).toFixed(0);   //m
     }
 
     getPath(coordinates: number[][]): Point[] {
@@ -51,8 +51,8 @@ export class GetSeoulmapWalkwayUseCase {
 
         coordinates.forEach(point => {
             newPath.push({
-                lat: point[0],
-                lng: point[1],
+                lat: point[1],
+                lng: point[0],
             });
         })
         return newPath;
