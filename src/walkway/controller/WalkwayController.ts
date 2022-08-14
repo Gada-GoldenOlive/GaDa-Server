@@ -12,6 +12,17 @@ import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/G
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { GetAllNearWalkwayUseCase, GetAllNearWalkwayUseCaseCodes } from '../application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
+import { LineString } from 'geojson';
+import { Point } from '../domain/Walkway/WalkwayEndPoint';
+
+const getDistance = (p1: Point, p2: Point) => {
+    const geojsonLength = require('geojson-length');
+    const line: LineString = {
+        'type': 'LineString',
+        'coordinates': [[p1.lat, p1.lng], [p2.lat, p2.lng]],
+    }
+    return +(geojsonLength(line)) ;
+}
 
 @Controller('walkways')
 @ApiTags('산책로')
@@ -106,14 +117,14 @@ export class WalkwayController {
                 pinCount: getAllPinUseCaseResponse.pins.length,
                 averageStar: getAllReviewUseCaseResponse.averageStar,
                 path: walkway.path.value,
+                creater: walkway.user ? walkway.user.name.value : '스마트서울맵',
+                creatorId: walkway.user ? walkway.user.id : null,
             }
-            if (_.isNil(walkway.user)) {
-                tmp['creator'] = '스마트서울맵';
-                tmp['creatorId'] = null;
+            if (getDistance(walkway.startPoint.value, {lat, lng}) < getDistance(walkway.endPoint.value, {lat, lng})) {
+                tmp['startPoint'] = walkway.startPoint.value;
             }
             else {
-                tmp['creator'] = walkway.user.name.value;
-                tmp['creatorId'] = walkway.user.id;
+                tmp['startPoint'] = walkway.endPoint.value;
             }
             walkways.push(tmp);
         }
@@ -126,13 +137,23 @@ export class WalkwayController {
     @ApiOkResponse({
         type: GetWalkwayResponse,
     })
-    async getWalkway(@Param('walkwayId') walkwayId: string): Promise<GetWalkwayResponse> {
+    @ApiOperation({
+        summary: '개별 산책로 정보 가져오기',
+        description: '경로의 양 끝점 중 현 위치에서 가까운 점을 startPoint로 설정하기 위해 현 위치를 query로 받음.'
+    })
+    async getWalkway(
+        @Param('walkwayId') walkwayId: string,
+        @Query('lat') lat: number,
+        @Query('lng') lng: number
+    ): Promise<GetWalkwayResponse> {
         const getWalkwayUseCaseResponse = await this.getWalkwayUseCase.execute({
             id: walkwayId,
         });
         if (getWalkwayUseCaseResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
+        if (_.isNil(getWalkwayUseCaseResponse.walkway))
+            return {};
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             walkway: getWalkwayUseCaseResponse.walkway,
@@ -148,13 +169,19 @@ export class WalkwayController {
             throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        let creator = '스마트서울맵';
-        let creatorId = null;
-        if (!_.isNil(getWalkwayUseCaseResponse.walkway.user)) {
-            creator = getWalkwayUseCaseResponse.walkway.user.name.value;
-            creatorId = getWalkwayUseCaseResponse.walkway.user.id;
+        let startPoint = {
+            lat: getWalkwayUseCaseResponse.walkway.startPoint.value.lat,
+            lng: getWalkwayUseCaseResponse.walkway.startPoint.value.lng,
         }
-        const walkway : WalkwayDto = {
+        if (getDistance(getWalkwayUseCaseResponse.walkway.startPoint.value, {lat, lng})
+            > getDistance(getWalkwayUseCaseResponse.walkway.endPoint.value, {lat, lng})) {
+            startPoint = {
+                lat: getWalkwayUseCaseResponse.walkway.endPoint.value.lat,
+                lng: getWalkwayUseCaseResponse.walkway.endPoint.value.lng,
+            }
+        }
+
+        const walkway: WalkwayDto = {
             id: getWalkwayUseCaseResponse.walkway.id,
             title: getWalkwayUseCaseResponse.walkway.title.value,
             address: getWalkwayUseCaseResponse.walkway.address.value,
@@ -163,8 +190,9 @@ export class WalkwayController {
             pinCount: getAllPinUseCaseResponse.pins.length,
             averageStar: getAllReviewUseCaseResponse.averageStar,
             path: getWalkwayUseCaseResponse.walkway.path.value,
-            creator,
-            creatorId,
+            creator: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.name.value : '스마트서울맵',
+            creatorId: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.id : null,
+            startPoint,
         };
 
         return {

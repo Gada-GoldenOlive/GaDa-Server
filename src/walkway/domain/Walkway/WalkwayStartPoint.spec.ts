@@ -1,15 +1,15 @@
 import { Point, WalkwayStartPoint } from './WalkwayStartPoint';
 
 describe('WalkwayStartPoint', () => {
-    const walkwayPathLineString: Point = {
+    const walkwayStartPoint: Point = {
         lat: 100,
         lng: 40,
     }
 
     it('WalkwayStartPoint create 성공', () => {
-        const WalkwayStartPointOrError = WalkwayStartPoint.create(walkwayPathLineString);
+        const WalkwayStartPointOrError = WalkwayStartPoint.create(walkwayStartPoint);
 
         expect(WalkwayStartPointOrError.isSuccess).toBeTruthy();
-        expect(WalkwayStartPointOrError.value.value).toBe(walkwayPathLineString);
+        expect(WalkwayStartPointOrError.value.value).toBe(walkwayStartPoint);
     })
 })

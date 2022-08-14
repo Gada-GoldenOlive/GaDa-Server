@@ -49,6 +49,15 @@ export class WalkwayEntity extends CoreEntity {
     }) 
     startPoint: string;
 
+    @Index({ spatial: true })
+    @Column({
+        type: 'geometry',
+        spatialFeatureType: 'point', 
+        srid: 4326,
+        nullable: false,
+    }) 
+    endPoint: string;
+
     @Column({
         nullable: false,
         type: 'enum',

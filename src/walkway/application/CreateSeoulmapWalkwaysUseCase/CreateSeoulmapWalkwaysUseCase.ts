@@ -5,6 +5,7 @@ import { UseCase } from "../../../common/application/UseCase";
 import { Walkway } from "../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../domain/Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../../domain/Walkway/WalkwayDistance";
+import { WalkwayEndPoint } from "../../domain/Walkway/WalkwayEndPoint";
 import { WalkwayPath } from "../../domain/Walkway/WalkwayPath";
 import { WalkwayStartPoint } from "../../domain/Walkway/WalkwayStartPoint";
 import { WalkwayTime } from "../../domain/Walkway/WalkwayTime";
@@ -34,6 +35,7 @@ export class CreateSeoulmapWalkwaysUseCase implements UseCase<ICreateSeoulmapWal
                     time: WalkwayTime.create(walkway.time).value,
                     path: WalkwayPath.create(walkway.path).value,
                     startPoint: WalkwayStartPoint.create(walkway.path[0]).value,
+                    endPoint: WalkwayEndPoint.create(walkway.path[walkway.path.length - 1]).value,
                     user: walkway.user,
                 }).value;
             }));

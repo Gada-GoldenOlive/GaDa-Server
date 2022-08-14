@@ -4,6 +4,7 @@ import { MysqlUserRepositoryMapper } from "../../../../user/infra/mysql/mapper/M
 import { Walkway } from "../../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../../domain/Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../../../domain/Walkway/WalkwayDistance";
+import { WalkwayEndPoint } from "../../../domain/Walkway/WalkwayEndPoint";
 import { WalkwayPath } from "../../../domain/Walkway/WalkwayPath";
 import { Point, WalkwayStartPoint } from "../../../domain/Walkway/WalkwayStartPoint";
 import { WalkwayTime } from "../../../domain/Walkway/WalkwayTime";
@@ -24,6 +25,7 @@ export class MysqlWalkwayRepositoryMapper {
                 time: WalkwayTime.create(entity.time).value,
                 path: WalkwayPath.create(this.convertToPath(entity.path)).value,
                 startPoint: WalkwayStartPoint.create(this.convertToPoint(entity.startPoint)).value,
+                endPoint: WalkwayEndPoint.create(this.convertToPoint(entity.endPoint)).value,
                 user: MysqlUserRepositoryMapper.toDomain(entity.user),
                 createdAt: entity.createdAt,
                 updatedAt: entity.updatedAt,
@@ -49,6 +51,7 @@ export class MysqlWalkwayRepositoryMapper {
             time: walkway.time.value,
             path: this.pathToString(walkway.path.value),
             startPoint: this.pointToString(walkway.startPoint.value),
+            endPoint: this.pointToString(walkway.endPoint.value),
             status: walkway.status,
             createdAt: walkway.createdAt,
             updatedAt: walkway.updatedAt,
@@ -75,8 +78,13 @@ export class MysqlWalkwayRepositoryMapper {
     }
 
     static convertToPoint(startPoint: any): Point {
-        // startPoint : {x: lat, y: lng}
-
+        if (typeof(startPoint) == 'string') {
+            let startPointArray = startPoint.split(' ');
+            return {
+                lat: +startPointArray[0].slice(6),
+                lng: +startPointArray[1].slice(0, -1),
+            };
+        }
         return {
             lat: startPoint['x'],
             lng: startPoint['y'],
@@ -88,7 +96,7 @@ export class MysqlWalkwayRepositoryMapper {
     }
 
     static pointToString(point: Point): string {
-        let pointString = 'POINT(' + point.lng + ' ' + point.lat + ')';
+        let pointString = 'POINT(' + point.lat + ' ' + point.lng + ')';
 
         return pointString;
     }
