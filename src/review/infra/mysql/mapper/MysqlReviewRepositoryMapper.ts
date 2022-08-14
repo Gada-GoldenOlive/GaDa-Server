@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
 import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 import { MysqlWalkwayRepositoryMapper } from '../../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
@@ -19,7 +20,7 @@ export class MysqlReviewRepositoryMapper {
             vehicle: entity.vehicle,
             star: ReviewStar.create(entity.star).value,
             content: ReviewContent.create(entity.content).value,
-            image: ImageUrl.create(entity.image).value,
+            image: entity.image ? ImageUrl.create(entity.image).value : null,
             status: entity.status,
             walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
             user: MysqlUserRepositoryMapper.toDomain(entity.user),
