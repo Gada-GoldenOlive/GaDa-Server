@@ -12,6 +12,20 @@ export class UserEntity extends CoreEntity {
     @Column({
         nullable: false,
         type: 'varchar',
+        length: 20,
+    })
+    userId: string;
+
+    @Column({
+        nullable: false,
+        type: 'varchar',
+        length: 20,
+    })
+    password: string;
+    
+    @Column({
+        nullable: false,
+        type: 'varchar',
         length: 17,
     })
     name: string;

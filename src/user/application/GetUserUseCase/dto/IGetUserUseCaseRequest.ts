@@ -1,3 +1,4 @@
 export interface IGetUserUseCaseRequest {
-    id: string;
+    id?: string;
+    userId?: string;
 }

@@ -1,5 +1,6 @@
-import { Inject, Logger } from '@nestjs/common';
 import _ from 'lodash';
+import { Inject, Logger } from '@nestjs/common';
+
 import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Pin } from '../../domain/Pin';
@@ -23,16 +24,10 @@ export class CreatePinUseCase implements UseCase<ICreatePinUseCaseRequest, ICrea
 
 	async execute(request: ICreatePinUseCaseRequest): Promise<ICreatePinUseCaseResponse> {
 		try {
-			let content: string = request.content;
-			if (_.isNil(request.content)) content = '';
-
-			let image: string = request.image;
-			if (_.isNil(request.image)) image = '';
-			
 			const pin = Pin.createNew({
 				title: PinTitle.create(request.title).value,
-				content: PinContent.create(content).value,
-				image: ImageUrl.create(request.image).value,
+				content: request.content ? PinContent.create(request.content).value : PinContent.create(' ').value,
+				image: request.image ? ImageUrl.create(request.image).value : null,
 				location: PinLocation.create(request.location).value,
 				walkway: request.walkway,
 				user: request.user,
@@ -44,7 +39,6 @@ export class CreatePinUseCase implements UseCase<ICreatePinUseCaseRequest, ICrea
 				code: CreatePinUseCaseCodes.SUCCESS,
 			}
 		} catch (e) {
-			Logger.error(e);
 			return {
 				code: CreatePinUseCaseCodes.FAILURE,
 			};
