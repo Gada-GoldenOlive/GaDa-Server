@@ -3,12 +3,16 @@ import _ from 'lodash';
 import { AggregateRoot } from '../../common/domain/AggregateRoot';
 import { ImageUrl } from '../../common/domain/Image/ImageUrl';
 import { Result } from '../../common/presentationals/Result';
+import { UserId } from './UserId';
 import { UserName } from './UserName';
+import { UserPassword } from './UserPassword';
 import { UserStatus, USER_STATUS } from './UserStatus';
 import { UserTotalDistance } from './UserTotalDistance';
 import { UserTotalTime } from './UserTotalTime';
 
 export interface UserNewProps {
+    userId: UserId;
+    password: UserPassword;
     name: UserName;
     image?: ImageUrl;
     totalDistance?: UserTotalDistance;
@@ -31,7 +35,7 @@ export class User extends AggregateRoot<UserProps> {
     }
 
     static createNew(props: UserNewProps): Result<User> {
-        if (_.isNil(props.name)) {
+        if (_.isNil(props.name) || _.isNil(props.userId) || _.isNil(props.password)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 
@@ -48,6 +52,14 @@ export class User extends AggregateRoot<UserProps> {
 
     static create(props: UserProps, id: string): Result<User> {
         return Result.ok(new User(props, id));
+    }
+
+    get userId(): UserId {
+        return this.props.userId;
+    }
+
+    get password(): UserPassword {
+        return this.props.password;
     }
 
     get name(): UserName {

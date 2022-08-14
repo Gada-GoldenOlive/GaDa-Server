@@ -1,9 +1,10 @@
 import { User } from '../domain/User';
+import { FindOneUserOptions } from './mysql/MysqlUserRepository';
 
 export const USER_REPOSITORY = 'USER_REPOSITORY';
 
 export interface IUserRepository {
-    findOne(id: string): Promise<User>;
+    findOne(options: FindOneUserOptions): Promise<User>;
     save(user: User): Promise<boolean>;
     findAll(): Promise<User[]>;
 }

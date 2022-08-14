@@ -2,7 +2,9 @@ import _ from 'lodash';
 
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
 import { User } from '../../../domain/User';
+import { UserId } from '../../../domain/UserId';
 import { UserName } from '../../../domain/UserName';
+import { UserPassword } from '../../../domain/UserPassword';
 import { UserTotalDistance } from '../../../domain/UserTotalDistance';
 import { UserTotalTime } from '../../../domain/UserTotalTime';
 import { UserEntity } from '../../../entity/User.entity';
@@ -13,8 +15,10 @@ export class MysqlUserRepositoryMapper {
             return null;
         }
 
-        return User.create(
+        const user= User.create(
             {
+                userId: UserId.create(entity.userId).value,
+                password: UserPassword.create(entity.password).value,
                 name: UserName.create(entity.name).value,
                 image: entity.image ? ImageUrl.create(entity.image).value : null,
                 totalDistance: UserTotalDistance.create(entity.totalDistance).value,
@@ -25,6 +29,8 @@ export class MysqlUserRepositoryMapper {
             },
             entity.id,
         ).value;
+
+        return user;
     }
 
     static toDomains(entities: UserEntity[]): User[] {
@@ -38,6 +44,8 @@ export class MysqlUserRepositoryMapper {
 
         const entity: UserEntity = {
             id: user.id,
+            userId: user.userId.value,
+            password: user.password.value,
             name: user.name.value,
             image: user.image ? user.image.value : null,
             totalDistance: user.totalDistance.value,
