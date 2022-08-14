@@ -61,19 +61,24 @@ export class MysqlPinRepositoryMapper {
         return _.map(pins, (pin) => this.toEntity(pin));
     }
 
-    static convertToPoint(location: string): Point {
-        let locationArray = location.split(' ');
+    static convertToPoint(location: any): Point {
+        if (typeof(location) == 'string') {
+            let locationArray = location.split(' ');
         
-        const point = {
-            lat: +locationArray[0].slice(6),
-            lng: +locationArray[1].slice(0, -1),
+            return {
+                lat: +locationArray[0].slice(6),
+                lng: +locationArray[1].slice(0, -1),
+            };
+        }
+        
+        return {
+            lat: location['x'],
+            lng: location['y'],
         };
-
-        return point;
     }
 
     static pointToString(point: Point): string {
-        let poinString = `POINT(${point.lng} ${point.lat})`;
+        let poinString = `POINT(${point.lat} ${point.lng})`;
 
         return poinString;
     }
