@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkwayRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllNearWalkwayResponse, GetWalkwayResponse, WalkwayDto } from './dto/WalkwayResponse';
+import { GetAllNearWalkwayResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -125,6 +125,7 @@ export class WalkwayController {
             }
             else {
                 tmp['startPoint'] = walkway.endPoint.value;
+                tmp.path = tmp.path.reverse();
             }
             walkways.push(tmp);
         }
@@ -173,12 +174,14 @@ export class WalkwayController {
             lat: getWalkwayUseCaseResponse.walkway.startPoint.value.lat,
             lng: getWalkwayUseCaseResponse.walkway.startPoint.value.lng,
         }
+        let path: PointDto[] = getWalkwayUseCaseResponse.walkway.path.value;
         if (getDistance(getWalkwayUseCaseResponse.walkway.startPoint.value, {lat, lng})
             > getDistance(getWalkwayUseCaseResponse.walkway.endPoint.value, {lat, lng})) {
             startPoint = {
                 lat: getWalkwayUseCaseResponse.walkway.endPoint.value.lat,
                 lng: getWalkwayUseCaseResponse.walkway.endPoint.value.lng,
             }
+            path = path.reverse();
         }
 
         const walkway: WalkwayDto = {
@@ -189,7 +192,7 @@ export class WalkwayController {
             time: getWalkwayUseCaseResponse.walkway.time.value,
             pinCount: getAllPinUseCaseResponse.pins.length,
             averageStar: getAllReviewUseCaseResponse.averageStar,
-            path: getWalkwayUseCaseResponse.walkway.path.value,
+            path,
             creator: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.name.value : '스마트서울맵',
             creatorId: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.id : null,
             startPoint,
