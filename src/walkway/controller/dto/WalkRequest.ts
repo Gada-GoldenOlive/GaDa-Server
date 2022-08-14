@@ -12,6 +12,12 @@ export class CreateWalkRequest {
         enum: WalkFinishStatus
     })
     finishStatus: WALK_FINISH_STATUS;
+
+    @ApiProperty()
+    walkwayId: string;
+
+    @ApiProperty()
+    userId: string;
 }
 
 export class UpdateWalkRequest {
