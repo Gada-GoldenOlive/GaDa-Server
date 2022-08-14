@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
@@ -21,16 +21,17 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
         try {
             if (_.isNil(request.id)) return null;
 
-            const user = await this.userRepository.findOne(request.id);
-
+            const user = await this.userRepository.findOne(request);
+        
             return {
                 code: GetUserUseCaseCodes.SUCCESS,
                 user,
             };
-        } catch {
+        } catch (e) {
+            Logger.log(e);
             return {
                 code: GetUserUseCaseCodes.FAILURE,
-            }
+            };
         }
     }
 }

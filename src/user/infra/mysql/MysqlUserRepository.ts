@@ -1,10 +1,17 @@
+import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { User } from '../../domain/User';
 import { UserStatus } from '../../domain/UserStatus';
 import { UserEntity } from '../../entity/User.entity';
 import { IUserRepository } from '../IUserRepository';
 import { MysqlUserRepositoryMapper } from './mapper/MysqlUserRepositoryMapper';
+
+export interface FindOneUserOptions {
+    id?: string;
+    userId?: string;
+}
 
 export class MysqlUserRepository implements IUserRepository {
     constructor(
@@ -12,19 +19,25 @@ export class MysqlUserRepository implements IUserRepository {
         private readonly userRepository: Repository<UserEntity>,
     ) {}
 
-    async findOne(id: string): Promise<User> {
-        const user = await this.userRepository.findOne({
-            where: {
-                id,
-                status: UserStatus.NORMAL,
-            }
-        });
+    async findOne(options: FindOneUserOptions): Promise<User> {
+        const query = this.userRepository
+        .createQueryBuilder('user')
+        .where('user.status = :normal', { normal: UserStatus.NORMAL })
+
+        if (options.id) query.andWhere('user.id = :id', { id: options.id });
+        if (options.userId) query.andWhere('user.userId = :userId', { userId: options.userId });
+
+        const user = await query.getOne();
 
         return MysqlUserRepositoryMapper.toDomain(user);
     }
 
-    save(user: User): Promise<boolean> {
-        throw new Error('Method not implemented.');
+    async save(user: User): Promise<boolean> {
+        await this.userRepository.save(
+            MysqlUserRepositoryMapper.toEntity(user),
+        );
+
+        return true;
     }
     
     findAll(): Promise<User[]> {

@@ -2,6 +2,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserRequest {
     @ApiProperty()
+    userId: string;
+
+    @ApiProperty()
+    password: string;
+    
+    @ApiProperty()
     name: string;
 
     @ApiPropertyOptional()

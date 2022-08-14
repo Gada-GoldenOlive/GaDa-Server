@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import _ from 'lodash';
 
 import { Result } from '../../presentationals/Result';
@@ -16,7 +17,7 @@ export class ImageUrl extends ValueObject<ImageUrlProps> {
         if (_.isEmpty(url)) {
             return null;
         }
-
+        
         return Result.ok(new ImageUrl({ value: url }));
     }
 
