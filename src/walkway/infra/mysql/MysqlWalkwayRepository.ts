@@ -29,9 +29,9 @@ export class MysqlWalkwayRepository implements IWalkwayRepository {
             .createQueryBuilder('walkway')
             .leftJoinAndSelect('walkway.user', 'user')
             .setParameter('curPoint', MysqlWalkwayRepositoryMapper.pointToString(coordinates))
-            .where(('st_distance_sphere(ST_GeomFromText(:curPoint, 4326), walkway.startPoint) <= 2000'))
+            .where(('st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint) <= 2000'))
             .andWhere('walkway.status = :normalStatus', { normalStatus: WalkwayStatus.NORMAL })
-            .orderBy('st_distance_sphere(ST_GeomFromText(:curPoint, 4326), walkway.startPoint)')
+            .orderBy('st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint)')
             .getMany();
 
         return MysqlWalkwayRepositoryMapper.toDomains(foundWalkways);
