@@ -74,6 +74,7 @@ export class PinController {
         + 'walkwayId만 보낼 경우: 해당하는 walkway의 핀 리스트 반환 / '
         + 'userId만 보낼 경우: 해당하는 user의 핀 리스트 반환 / '
         + '둘 다 보내지 않을 경우: 전체 핀 리스트 반환 (둘 다 보내는 건 구현X)'
+        + '핀 목록을 시작점(산책로 경로 양 끝점 중 현 위치에 더 가까운 점)에서 가까운 순서로 정렬하기 위해 lat, lng을 받음.'
     })
     @ApiOkResponse({
         type: GetAllPinResponse,
@@ -81,6 +82,8 @@ export class PinController {
     async getAll(
         @Query('walkwayId') walkwayId?: string,
         @Query('userId') userId?: string,
+        @Query('lat') lat?: number,
+        @Query('lng') lng?: number
     ): Promise<GetAllPinResponse> {
         const [ walkwayResponse, userResponse ] = await Promise.all([
             this.getWalkwayUseCase.execute({
@@ -96,6 +99,10 @@ export class PinController {
         if (walkwayResponse) {
             getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 walkway: walkwayResponse.walkway,
+                curLocation: {
+                    lat,
+                    lng,
+                },
             });
         };
 

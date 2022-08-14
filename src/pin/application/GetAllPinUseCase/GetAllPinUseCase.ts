@@ -24,8 +24,7 @@ export class GetAllPinUseCase implements UseCase<IGetAllPinUseCaseRequest, IGetA
                 code: GetAllPinUseCaseCodes.SUCCESS,
                 pins,
             };
-        } catch (e) {
-            Logger.error(e);
+        } catch {
             return {
                 code: GetAllPinUseCaseCodes.FAILURE,
             };

@@ -96,6 +96,10 @@ export class WalkwayController {
         for (const walkway of getAllNearWalkwayResponse.walkways) {
             const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 walkway: walkway,
+                curLocation: {
+                    lat,
+                    lng,
+                }
             })
             if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
@@ -158,6 +162,10 @@ export class WalkwayController {
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             walkway: getWalkwayUseCaseResponse.walkway,
+            curLocation: {
+                lat,
+                lng,
+            }
         })
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);

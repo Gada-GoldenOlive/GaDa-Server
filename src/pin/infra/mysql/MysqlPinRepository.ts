@@ -1,4 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
+import { LineString } from 'geojson';
 import { Repository } from 'typeorm';
 
 import { User } from '../../../user/domain/User';
@@ -7,6 +8,7 @@ import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayStatus } from '../../../walkway/domain/Walkway/WalkwayStatus';
 import { MysqlWalkwayRepositoryMapper } from '../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
 import { Pin } from '../../domain/Pin';
+import { Point } from '../../domain/PinLocation';
 import { PinStatus } from '../../domain/PinStatus';
 import { PinEntity } from '../../entity/Pin.entity';
 import { IPinRepository } from '../IPinRepository';
@@ -15,6 +17,7 @@ import { MysqlPinRepositoryMapper } from './mapper/MysqlPinRepositoryMapper';
 export interface GetAllPinOptions {
     walkway?: Walkway;
     user?: User;
+    curLocation?: Point;
 }
 
 export class MysqlPinRepository implements IPinRepository {
@@ -55,6 +58,7 @@ export class MysqlPinRepository implements IPinRepository {
     async findAll(options: GetAllPinOptions): Promise<Pin[]> {
         const walkway = options.walkway;
         const user = options.user;
+        const curLocation = options.curLocation;
 
         const query = this.pinRepository
         .createQueryBuilder('pin')
@@ -66,8 +70,22 @@ export class MysqlPinRepository implements IPinRepository {
         .andWhere('user.status = :normal', { normal: UserStatus.NORMAL });
 
         if (walkway) {
+            const getDistanceFromCurLocation = (p: Point) => {
+                const geojsonLength = require('geojson-length');
+                const line: LineString = {
+                    'type': 'LineString',
+                    'coordinates': [[p.lat, p.lng], [curLocation.lat, curLocation.lng]],
+                }
+                return +(geojsonLength(line)) ;
+            }
+
+            let standardPoint = walkway.startPoint.value;
+            if (getDistanceFromCurLocation(walkway.startPoint.value) > getDistanceFromCurLocation(walkway.endPoint.value)) {
+                standardPoint = walkway.endPoint.value;
+            }
+
             query.andWhere('walkway.id = :walkwayId', { walkwayId: walkway.id })
-            .setParameter('standardPoint', MysqlWalkwayRepositoryMapper.pointToString(walkway.startPoint.value))
+            .setParameter('standardPoint', MysqlWalkwayRepositoryMapper.pointToString(standardPoint))
             .orderBy(('st_distance_sphere_1(ST_GeomFromText(:standardPoint, 4326), pin.location)'));
         }
 
