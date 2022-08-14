@@ -1,13 +1,15 @@
 import _ from 'lodash';
+import { StatusCodes } from 'http-status-codes';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
 import { GetAllReviewResponse } from './dto/ReviewResponse';
+import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
+import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 
 @Controller('review')
 @ApiTags('리뷰')
@@ -15,6 +17,7 @@ export class ReviewController {
     constructor(
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
         private readonly getUserUseCase: GetUserUseCase,
+        private readonly getWalkwayUseCase: GetWalkwayUseCase,
     ) {}
 
     @Post()
@@ -42,20 +45,31 @@ export class ReviewController {
         @Query('userId') userId?: string,
     ): Promise<GetAllReviewResponse> {
         const [ walkwayResponse, userResponse ] = await Promise.all([
-            // TODO: find walkyway usecase, find user usecase 만든 다음 여기에 추가
-            this.getUserUseCase.execute({
+            this.getWalkwayUseCase.execute({
                 id: walkwayId,
             }),
-            // NOTE: 위에 건 진짜 아님
             this.getUserUseCase.execute({
                 id: userId,
             }),
         ]);
 
-        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-            // walkway: walkwayResponse.walkway,
-            user: userResponse.user,
-        });
+        let getAllReviewUseCaseResponse: IGetAllReviewUseCaseResponse;
+
+        if (walkwayResponse) {
+            getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+                walkway: walkwayResponse.walkway,
+            });
+        }
+
+        if (userResponse) {
+            getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+                user: userResponse.user,
+            });
+        }
+
+        if (!walkwayResponse && !userResponse) {
+            getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({});
+        }
 
         if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR)
@@ -69,12 +83,11 @@ export class ReviewController {
                     vehicle: review.vehicle,
                     star: review.star.value,
                     content: review.content.value,
-                    image: review.image.value,
+                    image: review.image ? review.image.value : null,
                     userId: review.user.id,
                     userName: review.user.name.value,
                     walkwayId: review.walkway.id,
                     walkwayTitle: review.walkway.title.value,
-                    averageStar: review,
                 })
             )
         );

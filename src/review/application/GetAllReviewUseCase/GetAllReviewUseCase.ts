@@ -19,19 +19,18 @@ export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAll
 
     async execute(request: GetAllReviewOptions): Promise<IGetAllReviewUseCaseResponse> {
         try {
-            const reviews = await this.pinRepository.getAll({
-                walkway: request.walkway,
-            });
+            const reviews = await this.pinRepository.getAll(request);
             
             let averageStar = 0;
             if (!_.isEmpty(reviews)) {
-                let sumStar: number;
+                let sumStar: number = 0;
 
                 for (let i in reviews) {
                     sumStar += reviews[i].star.value;
                 }
 
-                averageStar = sumStar / reviews.length;
+                averageStar = +(sumStar / reviews.length).toFixed(1);
+                
             }
 
             return {

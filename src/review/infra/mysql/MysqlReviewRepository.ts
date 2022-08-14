@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -36,15 +37,17 @@ export class MysqlReviewRepository implements IReviewRepository {
 
         const query = this.reviewRepository
         .createQueryBuilder('review')
-        .where('review.status = :status', { status: ReviewStatus.NORMAL })
         .leftJoinAndSelect('review.walkway', 'walkway')
+        .leftJoinAndSelect('walkway.user', 'user_walkway')
         .leftJoinAndSelect('review.user', 'user')
-        .andWhere('walkway.status = :status', { status: WalkwayStatus.NORMAL })
-        .andWhere('user.status = :status', { status: UserStatus.NORMAL });
+        .where('review.status = :normal', { normal: ReviewStatus.NORMAL })
+        .andWhere('walkway.status = :normal', { normal: WalkwayStatus.NORMAL })
+        .andWhere('user.status = :normal', { normal: UserStatus.NORMAL });
 
         if (walkway) query.andWhere('walkway.id = :walkwayId', { walkwayId: walkway.id });
         if (user) query.andWhere('user.id = :userId', { userId: user.id });
 
+        query.orderBy('review.createdAt', 'DESC');
         const reviews = await query.getMany();
 
         return MysqlReviewRepositoryMapper.toDomains(reviews);
