@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Put, Query } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
@@ -11,7 +11,7 @@ import { GetAllReviewResponse } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 
-@Controller('review')
+@Controller('reviews')
 @ApiTags('리뷰')
 export class ReviewController {
     constructor(
@@ -36,6 +36,12 @@ export class ReviewController {
     }
 
     @Get()
+    @ApiOperation({
+        description: 'walkwayId, userId 중에 최대 하나만 보낼 수 있음. '
+        + 'walkwayId만 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 / '
+        + 'userId만 보낼 경우: 해당하는 user의 리뷰 리스트 반환 / '
+        + '둘 다 보내지 않을 경우: 전체 리뷰 리스트 반환 (둘 다 보내는 건 구현X)'
+    })
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllReviewResponse,

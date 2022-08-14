@@ -1,11 +1,12 @@
 import { Body, Controller, Delete, Get, Patch, Post } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StatusCodes } from "http-status-codes";
+
 import { CommonResponse } from "../../common/controller/dto/CommonResponse";
 import { CreateWalkRequest, UpdateWalkRequest } from "./dto/WalkRequest";
 import { GetAllWalkResponse } from "./dto/WalkResponse";
 
-@Controller('walk')
+@Controller('walks')
 @ApiTags('산책')
 export class WalkController {
     constructor() {}
