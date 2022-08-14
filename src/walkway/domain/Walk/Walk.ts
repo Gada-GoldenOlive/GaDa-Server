@@ -1,4 +1,5 @@
 import _ from "lodash";
+
 import { AggregateRoot } from "../../../common/domain/AggregateRoot";
 import { PROPS_VALUES_ARE_REQUIRED } from "../../../common/domain/Image/Image";
 import { Result } from "../../../common/presentationals/Result";

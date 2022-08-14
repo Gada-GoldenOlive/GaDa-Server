@@ -23,6 +23,7 @@ IGetWalkwayUseCaseRequest, IGetWalkwayUseCaseResponse> {
             if (_.isNil(request.id)) return null;
             
             const walkway = await this.walkwayRepository.findOne(request.id);
+            
             return {
                 code: GetWalkwayUseCaseCodes.SUCCESS,
                 walkway,

@@ -1,6 +1,7 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import _ from "lodash";
 import { Repository } from "typeorm";
+
 import { Walk } from "../../domain/Walk/Walk";
 import { WalkEntity } from "../../entity/Walk.entity";
 import { IWalkRepository } from "../IWalkRepository";
