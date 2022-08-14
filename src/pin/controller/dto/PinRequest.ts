@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { LocationDto } from './PinResponse';
 
 export class CreatePinRequest {
     @ApiProperty()
@@ -9,6 +10,15 @@ export class CreatePinRequest {
 
     @ApiPropertyOptional()
     image?: string;
+
+    @ApiProperty()
+    location: LocationDto;
+
+    @ApiProperty()
+    walkwayId: string;
+
+    @ApiProperty()
+    userId: string;
 }
 
 export class UpdatePinRequest {

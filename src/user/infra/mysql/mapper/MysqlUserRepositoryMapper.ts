@@ -39,7 +39,7 @@ export class MysqlUserRepositoryMapper {
         const entity: UserEntity = {
             id: user.id,
             name: user.name.value,
-            image: user.image.value,
+            image: user.image ? user.image.value : null,
             totalDistance: user.totalDistance.value,
             totalTime: user.totalTime.value,
             status: user.status,
