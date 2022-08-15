@@ -30,6 +30,12 @@ export class PinDto {
 
     @ApiProperty()
     walkwayId: string;
+
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
 }
 
 export class GetAllPinResponse {
