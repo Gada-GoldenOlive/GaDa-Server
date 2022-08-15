@@ -42,6 +42,9 @@ export class WalkwayDto {
     startPoint: PointDto;
 
     @ApiProperty()
+    image: string;
+
+    @ApiProperty()
     creator: string;
 
     @ApiProperty()

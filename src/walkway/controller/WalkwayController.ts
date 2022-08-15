@@ -24,6 +24,11 @@ const getDistance = (p1: Point, p2: Point) => {
     return +(geojsonLength(line)) ;
 }
 
+const getRandomImage = () => {
+    const randomNum = Math.floor(Math.random() * 1085);
+    return 'https://picsum.photos/150/150/?image=' + randomNum;
+}
+
 @Controller('walkways')
 @ApiTags('산책로')
 export class WalkwayController {
@@ -121,6 +126,7 @@ export class WalkwayController {
                 pinCount: getAllPinUseCaseResponse.pins.length,
                 averageStar: getAllReviewUseCaseResponse.averageStar,
                 path: walkway.path.value,
+                image: getRandomImage(),
                 creater: walkway.user ? walkway.user.name.value : '스마트서울맵',
                 creatorId: walkway.user ? walkway.user.id : null,
             }
@@ -201,6 +207,7 @@ export class WalkwayController {
             pinCount: getAllPinUseCaseResponse.pins.length,
             averageStar: getAllReviewUseCaseResponse.averageStar,
             path,
+            image: getRandomImage(),
             creator: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.name.value : '스마트서울맵',
             creatorId: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.id : null,
             startPoint,
