@@ -128,6 +128,8 @@ export class PinController {
             location: pin.location.value,
             userId: pin.user.id,
             walkwayId: pin.walkway.id,
+            createdAt: pin.createdAt,
+            updatedAt: pin.updatedAt,
         }));
 
         return {
@@ -162,6 +164,8 @@ export class PinController {
             location: getPinUseCaseResponse.pin.location.value,
             userId: getPinUseCaseResponse.pin.user.id,
             walkwayId: getPinUseCaseResponse.pin.walkway.id,
+            createdAt: getPinUseCaseResponse.pin.createdAt,
+            updatedAt: getPinUseCaseResponse.pin.updatedAt,
         };
 
         return {

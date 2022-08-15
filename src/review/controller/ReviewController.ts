@@ -94,6 +94,8 @@ export class ReviewController {
                     userName: review.user.name.value,
                     walkwayId: review.walkway.id,
                     walkwayTitle: review.walkway.title.value,
+                    createdAt: review.createdAt,
+                    updatedAt: review.updatedAt,
                 })
             )
         );
