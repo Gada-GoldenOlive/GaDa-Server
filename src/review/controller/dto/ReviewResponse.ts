@@ -34,6 +34,12 @@ export class ReviewDto {
 
     @ApiProperty()
     walkwayTitle: string;
+
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
 }
 
 export class GetAllReviewResponse {
