@@ -31,3 +31,8 @@ export class GetUserResponse {
     @ApiProperty()
     user?: UserDto;
 }
+
+export class LoginUserResponse {
+    @ApiProperty()
+    id: string;
+}
