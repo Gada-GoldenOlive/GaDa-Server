@@ -4,9 +4,10 @@ import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
+import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase, LoginUseCaseCodes } from '../application/LoginUseCase/LoginUseCase';
 import { CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
-import { LoginUserResponse, GetAllUserResponse } from './dto/UserResponse';
+import { LoginOrSignUpUserResponse, GetAllUserResponse } from './dto/UserResponse';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -14,16 +15,17 @@ export class UserController {
     constructor(
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly loginUseCase: LoginUseCase,
+        private readonly getUserUseCase: GetUserUseCase,
     ) {}
 
     @Post()
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
-        type: LoginUserResponse,
+        type: LoginOrSignUpUserResponse,
     })
     async create(
         @Body() request: CreateUserRequest,
-    ): Promise<LoginUserResponse> {
+    ): Promise<LoginOrSignUpUserResponse> {
         const createUserUseCaseResponse = await this.createUserUseCase.execute({
             userId: request.userId,
             password: request.password,
@@ -55,15 +57,46 @@ export class UserController {
         // TODO: 차후 Usecase 생성시 추가
     }
 
+    @Get('checked-id')
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: CommonResponse
+    })
+    async checkId(
+        @Query('userId') userId: string,
+    ): Promise<CommonResponse> {
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            userId,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+            return {
+                code: StatusCodes.CONFLICT,
+                responseMessage: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
+                isValid: false,
+            }
+        }
+
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER ID', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.OK,
+            responseMessage: 'Available User ID.',
+            isValid: true,
+        }
+    }
+
     @Get('/login')
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
-        type: LoginUserResponse,
+        type: LoginOrSignUpUserResponse,
     })
     async login(
         @Query('userId') userId: string,
         @Query('password') password: string,
-    ): Promise<LoginUserResponse> {
+    ): Promise<LoginOrSignUpUserResponse> {
         const loginUsecaseResponse = await this.loginUseCase.execute({
             userId,
             password,

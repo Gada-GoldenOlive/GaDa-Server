@@ -4,11 +4,11 @@ export class CreateUserRequest {
     @ApiProperty()
     userId: string;
 
-    @ApiProperty()
-    password: string;
+    @ApiPropertyOptional()
+    password?: string;
     
-    @ApiProperty()
-    name: string;
+    @ApiPropertyOptional()
+    name?: string;
 
     @ApiPropertyOptional()
     image?: string;
