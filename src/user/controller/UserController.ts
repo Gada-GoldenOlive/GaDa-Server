@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
+import _ from 'lodash';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
@@ -101,6 +102,12 @@ export class UserController {
             userId,
             password,
         })
+
+        if (_.isNil(loginUsecaseResponse.user)) {
+            return {
+                id: null,
+            };
+        }
 
         if (loginUsecaseResponse.code === LoginUseCaseCodes.NO_MATCH_USER_ERROR) {
             throw new HttpException(LoginUseCaseCodes.NO_MATCH_USER_ERROR, StatusCodes.NOT_FOUND);

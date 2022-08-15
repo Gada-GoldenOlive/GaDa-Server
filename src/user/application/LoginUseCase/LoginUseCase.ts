@@ -1,4 +1,5 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
+import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
@@ -19,12 +20,20 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 
 	async execute(request: ILoginUseCaseRequest): Promise<ILoginUseCaseResponse> {
 		try {
+			if (_.isEmpty(request.userId) || _.isEmpty(request.password)) {
+				return {
+					code: LoginUseCaseCodes.FAILURE,
+					user: null,
+				}
+			}
+
 			const user = await this.userRepository.findOne(request);
 
 			if (!user) {
 				return {
-					code: LoginUseCaseCodes.NO_MATCH_USER_ERROR,
-				};
+					code: LoginUseCaseCodes.FAILURE,
+					user: null,
+				}
 			}
 
 			return {
