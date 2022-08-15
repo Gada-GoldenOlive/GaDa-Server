@@ -2,6 +2,7 @@ import { Inject, Logger } from '@nestjs/common';
 import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
+import { User } from '../../domain/User';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
 import { IGetUserUseCaseRequest } from './dto/IGetUserUseCaseRequest';
 import { IGetUserUseCaseResponse } from './dto/IGetUserUseCaseResponse';
@@ -9,6 +10,7 @@ import { IGetUserUseCaseResponse } from './dto/IGetUserUseCaseResponse';
 export enum GetUserUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
+    DUPLICATE_USER_ID_ERROR = 'Request user id is duplicated.',
 }
 
 export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserUseCaseResponse> {
@@ -19,10 +21,29 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
     async execute(request: IGetUserUseCaseRequest): Promise<IGetUserUseCaseResponse> {
         try {
-            if (_.isNil(request.id)) return null;
+            if (_.isNil(request.id) && _.isNil(request.userId)) return null;
 
-            const user = await this.userRepository.findOne(request);
-        
+            let user: User;
+
+            if (request.id && !request.userId) {
+                const foundUser = await this.userRepository.findOne(request);
+
+                user = foundUser;
+            }
+
+            // NOTE: user id만 들어왔을 때 (중복 검사)
+            if (request.userId && !request.id) {
+                const foundUser = await this.userRepository.findOne(request);
+
+                if(foundUser) {
+                    return {
+                        code: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
+                    };
+                }
+
+                user = foundUser;
+            }
+
             return {
                 code: GetUserUseCaseCodes.SUCCESS,
                 user,
