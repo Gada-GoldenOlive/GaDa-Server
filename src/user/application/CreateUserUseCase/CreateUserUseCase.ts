@@ -45,6 +45,7 @@ export class CreateUserUseCase implements UseCase<ICreateUserUseCaseRequest, ICr
 
 			return {
 				code: CreateUserUseCaseCodes.SUCCESS,
+				user,
 			};
 		} catch (e) {
 			Logger.log(e);

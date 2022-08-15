@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CreateUserUseCase } from './application/CreateUserUseCase/CreateUserUseCase';
+import { GetUserUseCase } from './application/GetUserUseCase/GetUserUseCase';
+import { LoginUseCase } from './application/LoginUseCase/LoginUseCase';
 import { UserController } from './controller/UserController';
 import { UserEntity } from './entity/User.entity';
 import { USER_REPOSITORY } from './infra/IUserRepository';
@@ -16,6 +18,8 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
     controllers: [ UserController ],
     providers: [
         CreateUserUseCase,
+        GetUserUseCase,
+        LoginUseCase,
         {
             provide: USER_REPOSITORY,
             useClass: MysqlUserRepository,
