@@ -11,6 +11,7 @@ import { MysqlUserRepositoryMapper } from './mapper/MysqlUserRepositoryMapper';
 export interface FindOneUserOptions {
     id?: string;
     userId?: string;
+    password?: string;
 }
 
 export class MysqlUserRepository implements IUserRepository {
@@ -26,6 +27,7 @@ export class MysqlUserRepository implements IUserRepository {
 
         if (options.id) query.andWhere('user.id = :id', { id: options.id });
         if (options.userId) query.andWhere('user.userId = :userId', { userId: options.userId });
+        if (options.password) query.andWhere('user.password = :password', { password: options.password });
 
         const user = await query.getOne();
 

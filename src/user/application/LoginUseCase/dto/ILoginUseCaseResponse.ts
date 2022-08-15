@@ -1,6 +1,6 @@
 import { CoreResponse } from '../../../../common/application/dto/CoreResponse';
 import { User } from '../../../domain/User';
 
-export interface ICreateUserUseCaseResponse extends CoreResponse {
+export interface ILoginUseCaseResponse extends CoreResponse {
 	user?: User;
 }
