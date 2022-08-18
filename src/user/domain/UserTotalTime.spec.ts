@@ -18,4 +18,4 @@ describe('UserTotalTime', () => {
         expect(UserTotalTimeOrErrorWithNegative.isFailure).toBeTruthy();
         expect(UserTotalTimeOrErrorWithNegative.errorValue()).toBe(USER_TOTAL_TIME_CANNOT_BE_NEGATIVE);
     });
-})
+});

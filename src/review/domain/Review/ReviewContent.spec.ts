@@ -9,4 +9,4 @@ describe('ReviewContent', () => {
         expect(reviewContentOrError.isSuccess).toBeTruthy();
         expect(reviewContentOrError.value.value).toBe(reviewContentString);
     });
-})
+});

@@ -20,4 +20,4 @@ describe('WalkwayPath', () => {
         expect(walkwayPathOrErrorWithEmptyCoordinates.isFailure).toBeTruthy();
         expect(walkwayPathOrErrorWithEmptyCoordinates.errorValue()).toBe(WALKWAY_PATH_SHOULD_NOT_BE_EMPTY);
     })
-})
+});

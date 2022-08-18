@@ -16,4 +16,4 @@ describe('WalkwayAddress', () => {
         expect(walkwayAddressOrError.isFailure).toBeTruthy();
         expect(walkwayAddressOrError.errorValue()).toBe(WALKWAY_ADDRESS_SHOULD_NOT_BE_EMPTY);
     });
-})
+});

@@ -1,5 +1,5 @@
-import { Inject, Logger } from '@nestjs/common';
 import _ from 'lodash';
+import { Inject, Logger } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { User } from '../../domain/User';

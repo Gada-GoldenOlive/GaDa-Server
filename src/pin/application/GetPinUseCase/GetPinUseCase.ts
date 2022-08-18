@@ -24,17 +24,17 @@ export class GetPinUseCase implements UseCase<IGetPinUseCaseRequest, IGetPinUseC
 			if (!pin) {
 				return {
 					code: GetPinUseCaseCodes.NO_PIN_FOUND_ERROR,
-				}
+				};
 			}
 
 			return {
 				code: GetPinUseCaseCodes.SUCCESS,
 				pin,
-			}
-		} catch (e) {
+			};
+		} catch {
 			return {
 				code: GetPinUseCaseCodes.FAILURE,
-			}
+			};
 		}
 	}
 }

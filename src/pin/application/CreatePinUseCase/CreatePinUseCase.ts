@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
@@ -37,8 +37,8 @@ export class CreatePinUseCase implements UseCase<ICreatePinUseCaseRequest, ICrea
 
 			return {
 				code: CreatePinUseCaseCodes.SUCCESS,
-			}
-		} catch (e) {
+			};
+		} catch {
 			return {
 				code: CreatePinUseCaseCodes.FAILURE,
 			};

@@ -18,4 +18,4 @@ describe('UserTotalDistance', () => {
         expect(UserTotalDistanceOrErrorWithNegative.isFailure).toBeTruthy();
         expect(UserTotalDistanceOrErrorWithNegative.errorValue()).toBe(USER_TOTAL_DISTANCE_CANNOT_BE_NEGATIVE);
     });
-})
+});
