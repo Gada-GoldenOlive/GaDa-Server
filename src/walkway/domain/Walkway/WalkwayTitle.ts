@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { ValueObject } from '../../../common/domain/ValueObject';
 import { Result } from '../../../common/presentationals/Result';
 

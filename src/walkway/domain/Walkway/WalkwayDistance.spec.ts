@@ -18,4 +18,4 @@ describe('WalkwayDistance', () => {
         expect(WalkwayDistanceOrErrorWithNegative.isFailure).toBeTruthy();
         expect(WalkwayDistanceOrErrorWithNegative.errorValue()).toBe(WALKWAY_DISTANCE_CANNOT_BE_NEGATIVE);
     })
-})
+});

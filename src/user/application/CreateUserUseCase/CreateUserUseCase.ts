@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
@@ -47,8 +47,7 @@ export class CreateUserUseCase implements UseCase<ICreateUserUseCaseRequest, ICr
 				code: CreateUserUseCaseCodes.SUCCESS,
 				user,
 			};
-		} catch (e) {
-			Logger.log(e);
+		} catch {
 			return {
 				code: CreateUserUseCaseCodes.FAILURE,
 			};

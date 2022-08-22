@@ -16,4 +16,4 @@ describe('ReviewTitle', () => {
         expect(reviewTitleOrError.isFailure).toBeTruthy();
         expect(reviewTitleOrError.errorValue()).toBe(REVIEW_TITLE_SHOULD_NOT_BE_EMPTY);
     });
-})
+});

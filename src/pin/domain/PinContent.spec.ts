@@ -9,4 +9,4 @@ describe('PinContent', () => {
         expect(pinContentOrError.isSuccess).toBeTruthy();
         expect(pinContentOrError.value.value).toBe(pinContentString);
     });
-})
+});

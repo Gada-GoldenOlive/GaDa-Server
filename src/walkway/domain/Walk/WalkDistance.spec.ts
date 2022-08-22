@@ -18,4 +18,4 @@ describe('WalkDistance', () => {
         expect(WalkDistanceOrErrorWithNegative.isFailure).toBeTruthy();
         expect(WalkDistanceOrErrorWithNegative.errorValue()).toBe(WALK_DISTANCE_CANNOT_BE_NEGATIVE);
     });
-})
+});

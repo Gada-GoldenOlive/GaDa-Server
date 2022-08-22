@@ -18,4 +18,4 @@ describe('WalkwayTime', () => {
         expect(WalkwayTimeOrErrorWithNegative.isFailure).toBeTruthy();
         expect(WalkwayTimeOrErrorWithNegative.errorValue()).toBe(WALKWAY_TIME_CANNOT_BE_NEGATIVE);
     })
-})
+});

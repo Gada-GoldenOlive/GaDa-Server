@@ -12,4 +12,4 @@ describe('PinLocation', () => {
 		expect(pinLocationOrError.isSuccess).toBeTruthy();
 		expect(pinLocationOrError.value.value).toBe(pinLocationPoint);
 	});
-})
+});

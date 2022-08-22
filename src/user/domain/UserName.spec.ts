@@ -16,4 +16,4 @@ describe('UserName', () => {
         expect(userNameOrError.isFailure).toBeTruthy();
         expect(userNameOrError.errorValue()).toBe(USER_NAME_SHOULD_NOT_BE_EMPTY);
     });
-})
+});

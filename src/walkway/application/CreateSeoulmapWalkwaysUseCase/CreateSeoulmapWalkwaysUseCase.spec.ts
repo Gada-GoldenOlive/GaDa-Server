@@ -1,10 +1,10 @@
 import { mock, MockProxy } from 'jest-mock-extended';
+
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { User } from '../../../user/domain/User';
 import { UserName } from '../../../user/domain/UserName';
 import { UserTotalDistance } from '../../../user/domain/UserTotalDistance';
 import { UserTotalTime } from '../../../user/domain/UserTotalTime';
-
 import { IWalkwayRepository } from "../../infra/IWalkwayRepository";
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from "./CreateSeoulmapWalkwaysUseCase";
 

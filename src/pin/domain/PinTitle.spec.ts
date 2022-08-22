@@ -16,4 +16,4 @@ describe('PinTitle', () => {
         expect(pinTitleOrError.isFailure).toBeTruthy();
         expect(pinTitleOrError.errorValue()).toBe(PIN_TITLE_SHOULD_NOT_BE_EMPTY);
     });
-})
+});
