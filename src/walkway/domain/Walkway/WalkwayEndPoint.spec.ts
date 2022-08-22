@@ -12,4 +12,4 @@ describe('WalkwayEndPoint', () => {
         expect(WalkwayEndPointOrError.isSuccess).toBeTruthy();
         expect(WalkwayEndPointOrError.value.value).toBe(walkwayEndPoint);
     })
-})
+});

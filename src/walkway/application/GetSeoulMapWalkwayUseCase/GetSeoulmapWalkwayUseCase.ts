@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import { HttpService } from '@nestjs/axios';
 import { LineString } from 'geojson';
-import _ from 'lodash';
 import { firstValueFrom } from 'rxjs';
+
 import { Point } from '../../domain/Walkway/WalkwayStartPoint';
 import { ICreateWalkwayUseCaseRequest } from '../CreateWalkwayUseCase/dto/CreateWalkwayUseCaseRequest';
 

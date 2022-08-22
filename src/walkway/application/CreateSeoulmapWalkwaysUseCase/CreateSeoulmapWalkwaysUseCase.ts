@@ -1,5 +1,5 @@
-import { Inject } from "@nestjs/common";
 import _ from "lodash";
+import { Inject } from "@nestjs/common";
 
 import { UseCase } from "../../../common/application/UseCase";
 import { Walkway } from "../../domain/Walkway/Walkway";

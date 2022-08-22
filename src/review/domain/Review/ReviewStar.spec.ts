@@ -19,4 +19,4 @@ describe('ReviewStar', () => {
         expect(reviewStarOrErrorUnderMinimum.errorValue()).toBe(REVIEW_STAR_SHOULD_BE_WITHIN_RANGE);
         expect(reviewStarOrErrorOverMaximum.errorValue()).toBe(REVIEW_STAR_SHOULD_BE_WITHIN_RANGE);
     });
-})
+});

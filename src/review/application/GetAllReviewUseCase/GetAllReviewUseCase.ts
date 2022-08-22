@@ -1,5 +1,5 @@
-import { Inject } from '@nestjs/common';
 import _ from 'lodash';
+import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IReviewRepository, REVIEW_REPOSITORY } from '../../infra/IReviewRepository';
@@ -30,7 +30,6 @@ export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAll
                 }
 
                 averageStar = +(sumStar / reviews.length).toFixed(1);
-                
             }
 
             return {

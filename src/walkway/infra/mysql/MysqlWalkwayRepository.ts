@@ -1,5 +1,5 @@
-import { InjectRepository } from "@nestjs/typeorm";
 import _ from "lodash";
+import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { Walkway } from "../../domain/Walkway/Walkway";

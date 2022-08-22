@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import _ from 'lodash';
 
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
@@ -29,8 +28,6 @@ export class MysqlPinRepositoryMapper {
 
         return pin;
     }
-
-
 
     static toDomains(entities: PinEntity[]): Pin[] {
         return _.map(entities, this.toDomain);

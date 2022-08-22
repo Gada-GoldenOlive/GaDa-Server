@@ -16,4 +16,4 @@ describe('WalkwayTitle', () => {
         expect(walkwayTitleOrError.isFailure).toBeTruthy();
         expect(walkwayTitleOrError.errorValue()).toBe(WALKWAY_TITLE_SHOULD_NOT_BE_EMPTY);
     });
-})
+});

@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
@@ -24,7 +24,7 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 				return {
 					code: LoginUseCaseCodes.FAILURE,
 					user: null,
-				}
+				};
 			}
 
 			const user = await this.userRepository.findOne(request);
@@ -33,7 +33,7 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 				return {
 					code: LoginUseCaseCodes.FAILURE,
 					user: null,
-				}
+				};
 			}
 
 			return {
@@ -43,7 +43,7 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 		} catch {
 			return {
 				code: LoginUseCaseCodes.FAILURE,
-			}
+			};
 		}
 	}
 }

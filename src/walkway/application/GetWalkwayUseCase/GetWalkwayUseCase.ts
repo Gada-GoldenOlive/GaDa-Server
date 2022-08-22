@@ -1,5 +1,5 @@
-import { Inject } from "@nestjs/common";
 import _ from "lodash";
+import { Inject } from "@nestjs/common";
 
 import { UseCase } from "../../../common/application/UseCase";
 import { IWalkwayRepository, WALKWAY_REPOSITORY } from "../../infra/IWalkwayRepository";
@@ -27,7 +27,6 @@ IGetWalkwayUseCaseRequest, IGetWalkwayUseCaseResponse> {
             return {
                 code: GetWalkwayUseCaseCodes.SUCCESS,
                 walkway,
-                
             };
         } catch {
             return {
