@@ -6,7 +6,7 @@ import { CoreEntity } from '../../common/entity/Core.entity';
 import { ReviewEntity } from '../../review/entity/Review.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
 import { UserStatus, USER_STATUS } from '../domain/UserStatus';
-import { LikeEntity } from '../../like/entity/LikeEntity';
+import { LikeEntity } from '../../review/entity/Like.entity';
 
 @Entity('user')
 export class UserEntity extends CoreEntity {
