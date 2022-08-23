@@ -14,6 +14,8 @@ import { UserModule } from './user/user.module';
 import { WalkEntity } from './walkway/entity/Walk.entity';
 import { WalkwayEntity } from './walkway/entity/Walkway.entity';
 import { WalkwayModule } from './walkway/walkway.module';
+import { LikeEntity } from './like/entity/Like.entity';
+import { LikeModule } from './like/like.module';
 
 @Module({
     imports: [
@@ -44,12 +46,14 @@ import { WalkwayModule } from './walkway/walkway.module';
                 WalkwayEntity,
                 WalkEntity,
                 ReviewEntity,
+                LikeEntity,
             ],
         }),
         UserModule,
         PinModule,
         WalkwayModule,
         ReviewModule,
+        LikeModule,
     ],
     controllers: [AppController],
     providers: [AppService],

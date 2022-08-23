@@ -1,6 +1,7 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 
 import { CoreEntity } from '../../common/entity/Core.entity';
+import { LikeEntity } from '../../like/entity/LikeEntity';
 import { UserEntity } from '../../user/entity/User.entity';
 import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
 import { ReviewStatus, REVIEW_STATUS } from '../domain/Review/ReviewStatus';
@@ -57,4 +58,7 @@ export class ReviewEntity extends CoreEntity {
 
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.reviews)
     user: UserEntity;
+
+    @OneToMany(() => LikeEntity, (likeEntity) => likeEntity.user)
+    likes: LikeEntity[];
 }

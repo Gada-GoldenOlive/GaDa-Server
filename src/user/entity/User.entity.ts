@@ -6,6 +6,7 @@ import { CoreEntity } from '../../common/entity/Core.entity';
 import { ReviewEntity } from '../../review/entity/Review.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
 import { UserStatus, USER_STATUS } from '../domain/UserStatus';
+import { LikeEntity } from '../../like/entity/LikeEntity';
 
 @Entity('user')
 export class UserEntity extends CoreEntity {
@@ -68,4 +69,7 @@ export class UserEntity extends CoreEntity {
 
     @OneToMany(() => PinEntity, (pinEntity) => pinEntity.user)
     pins: PinEntity[];
+
+    @OneToMany(() => LikeEntity, (likeEntity) => likeEntity.user)
+    likes: LikeEntity[];
 }
