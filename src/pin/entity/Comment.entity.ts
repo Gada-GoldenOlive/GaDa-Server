@@ -1,9 +1,9 @@
 import { Column, Entity, Index, ManyToOne } from "typeorm";
 
 import { CoreEntity } from "../../common/entity/Core.entity";
-import { PinEntity } from "../../pin/entity/Pin.entity";
+import { PinEntity } from "./Pin.entity";
 import { UserEntity } from "../../user/entity/User.entity";
-import { CommentStatus, COMMENT_STATUS } from '../domain/CommentStatus';
+import { CommentStatus, COMMENT_STATUS } from '../domain/Comment/CommentStatus';
 
 @Entity('comment')
 export class CommentEntity extends CoreEntity {

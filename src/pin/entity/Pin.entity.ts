@@ -4,7 +4,7 @@ import { CoreEntity } from '../../common/entity/Core.entity';
 import { UserEntity } from '../../user/entity/User.entity';
 import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
 import { PinStatus, PIN_STATUS } from '../domain/PinStatus';
-import { CommentEntity } from '../../comment/entity/Comment.entity';
+import { CommentEntity } from './Comment.entity';
 
 @Entity('pin')
 export class PinEntity extends CoreEntity {
