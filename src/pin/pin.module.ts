@@ -13,6 +13,7 @@ import { CreatePinUseCase } from './application/CreatePinUseCase/CreatePinUseCas
 import { GetAllPinUseCase } from './application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetPinUseCase } from './application/GetPinUseCase/GetPinUseCase';
 import { PinController } from './controller/PinController';
+import { CommentEntity } from './entity/Comment.entity';
 import { PinEntity } from './entity/Pin.entity';
 import { PIN_REPOSITORY } from './infra/IPinRepository';
 import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
@@ -23,6 +24,7 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
         PinEntity,
         UserEntity,
         WalkwayEntity,
+        CommentEntity,
     ])
   ],
   controllers: [ PinController ],

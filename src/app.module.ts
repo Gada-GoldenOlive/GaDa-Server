@@ -15,6 +15,7 @@ import { WalkEntity } from './walkway/entity/Walk.entity';
 import { WalkwayEntity } from './walkway/entity/Walkway.entity';
 import { WalkwayModule } from './walkway/walkway.module';
 import { LikeEntity } from './review/entity/Like.entity';
+import { CommentEntity } from './pin/entity/Comment.entity';
 
 @Module({
     imports: [
@@ -46,6 +47,7 @@ import { LikeEntity } from './review/entity/Like.entity';
                 WalkEntity,
                 ReviewEntity,
                 LikeEntity,
+                CommentEntity,
             ],
         }),
         UserModule,
