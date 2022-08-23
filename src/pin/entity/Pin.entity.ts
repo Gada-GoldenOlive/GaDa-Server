@@ -1,9 +1,10 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { UserEntity } from '../../user/entity/User.entity';
 import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
 import { PinStatus, PIN_STATUS } from '../domain/PinStatus';
+import { CommentEntity } from '../../comment/entity/Comment.entity';
 
 @Entity('pin')
 export class PinEntity extends CoreEntity {
@@ -50,4 +51,7 @@ export class PinEntity extends CoreEntity {
 
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.pins, { nullable: false })
     user: UserEntity;
+
+    @OneToMany(() => CommentEntity, (commentEntity) => commentEntity.pin)
+    comments: CommentEntity[];
 }
