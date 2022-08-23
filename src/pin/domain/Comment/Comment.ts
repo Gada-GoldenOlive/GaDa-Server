@@ -1,7 +1,7 @@
 import _ from "lodash";
+
 import { AggregateRoot } from "../../../common/domain/AggregateRoot";
 import { Result } from "../../../common/presentationals/Result";
-
 import { User } from "../../../user/domain/User";
 import { Pin } from "../Pin/Pin";
 import { CommentContent } from "./CommentContent";
