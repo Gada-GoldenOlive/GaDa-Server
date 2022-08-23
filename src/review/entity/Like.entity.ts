@@ -9,13 +9,6 @@ import { LikeStatus, LIKE_STATUS } from '../domain/Like/LikeStatus';
 export class LikeEntity extends CoreEntity {
     @Column({
         nullable: false,
-        type: 'varchar',
-        length: 300,
-    })
-    content: string;
-
-    @Column({
-        nullable: false,
         type: 'enum',
         enum: LikeStatus,
         default: LikeStatus.NORMAL,
