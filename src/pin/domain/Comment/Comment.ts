@@ -1,9 +1,9 @@
 import _ from "lodash";
-import { AggregateRoot } from "../../common/domain/AggregateRoot";
-import { Result } from "../../common/presentationals/Result";
+import { AggregateRoot } from "../../../common/domain/AggregateRoot";
+import { Result } from "../../../common/presentationals/Result";
 
-import { Pin } from "../../pin/domain/Pin";
-import { User } from "../../user/domain/User";
+import { User } from "../../../user/domain/User";
+import { Pin } from "../Pin/Pin";
 import { CommentContent } from "./CommentContent";
 import { CommentStatus, COMMENT_STATUS } from "./CommentStatus";
 
