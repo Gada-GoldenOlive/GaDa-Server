@@ -7,6 +7,7 @@ import { ReviewEntity } from '../../review/entity/Review.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
 import { UserStatus, USER_STATUS } from '../domain/UserStatus';
 import { CommentEntity } from '../../pin/entity/Comment.entity';
+import { FriendEntity } from './Friend.entity';
 
 @Entity('user')
 export class UserEntity extends CoreEntity {
@@ -72,4 +73,7 @@ export class UserEntity extends CoreEntity {
 
     @OneToMany(() => CommentEntity, (commentEntity) => commentEntity.user)
     comments: CommentEntity[];
+
+    @OneToMany(() => FriendEntity, (friendEntity) => friendEntity.user)
+    friends: FriendEntity[];
 }
