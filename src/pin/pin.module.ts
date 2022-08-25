@@ -12,7 +12,6 @@ import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepos
 import { CreatePinUseCase } from './application/CreatePinUseCase/CreatePinUseCase';
 import { GetAllPinUseCase } from './application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetPinUseCase } from './application/GetPinUseCase/GetPinUseCase';
-import { CommentController } from './controller/CommentController';
 import { PinController } from './controller/PinController';
 import { CommentEntity } from './entity/Comment.entity';
 import { PinEntity } from './entity/Pin.entity';
@@ -28,10 +27,7 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
         CommentEntity,
     ])
   ],
-  controllers: [
-    PinController,
-    CommentController,
-  ],
+  controllers: [ PinController ],
   providers: [
     GetAllPinUseCase,
     CreatePinUseCase,
