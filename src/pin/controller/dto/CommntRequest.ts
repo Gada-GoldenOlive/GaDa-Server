@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateBadgeRequest {
+export class CreateCommentRequest {
     @ApiProperty()
     content: string;
 
@@ -11,7 +11,10 @@ export class CreateBadgeRequest {
     userId: string;
 }
 
-export class UpdateBadgeReqeust {
+export class UpdateCommentReqeust {
+    @ApiProperty()
+    commentId: string;
+
     @ApiPropertyOptional()
     content?: string;
 }

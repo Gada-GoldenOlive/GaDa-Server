@@ -12,6 +12,8 @@ import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/applica
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
 import { GetPinUseCase, GetPinUseCaseCodes } from '../application/GetPinUseCase/GetPinUseCase';
+import { CreateCommentRequest, UpdateCommentReqeust } from './dto/CommntRequest';
+import { GetAllCommentResponse } from './dto/CommentResponse';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -66,6 +68,18 @@ export class PinController {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE PIN',
         }
+    }
+
+    @Post('/comment')
+    @HttpCode(StatusCodes.CREATED)
+    @ApiCreatedResponse({
+        type: CommonResponse,
+    })
+    async createComment(
+        @Body() request: CreateCommentRequest,
+    ): Promise<CommonResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
     }
 
     @Get()
@@ -137,6 +151,22 @@ export class PinController {
         }
     }
 
+    @Get('/comment')
+    @ApiOperation({
+        description: "query parameter로 userId만 보낼 경우: 해당하는 유저의 모든 댓글 리턴. || pinId만 보낼 경우: 해당하는 핀의 모든 댓글 리턴."
+    })
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: GetAllCommentResponse,
+    })
+    async getAllComment(
+        @Query('userId') userId?: string, // NOTE: 해당하는 유저의 모든 댓글 불러오기
+        @Query('pinId') pinId?: string, // NOTE: 해당하는 핀의 모든 댓글 불러오기
+    ): Promise<GetAllCommentResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
+    }
+
     @Get('/:pinId')
     @ApiOkResponse({
         type: GetPinResponse,
@@ -173,6 +203,18 @@ export class PinController {
         }
     }
 
+    @Patch('/comment')
+    @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiResponse({
+        type: CommonResponse,
+    })
+    async updateComment(
+        @Body() request: UpdateCommentReqeust,
+    ): Promise<CommonResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
+    }
+
     @Patch('/:pinId')
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
@@ -186,7 +228,19 @@ export class PinController {
         return {
             code: StatusCodes.NO_CONTENT,
             responseMessage: 'SUCCESS TO UPDATE PIN',
-        }        
+        }
+    }
+
+    @Delete('/comment')
+    @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiResponse({
+        type: CommonResponse
+    })
+    async deleteComment(
+        @Query('commentId') commentId: string,
+    ): Promise<CommonResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
     }
 
     @Delete('/:pinId')
