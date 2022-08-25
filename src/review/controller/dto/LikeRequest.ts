@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateLikeRequest {
     @ApiProperty()
-    userId: string;
+    id: string;
 
     @ApiProperty()
     reviewId: string;

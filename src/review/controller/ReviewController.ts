@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -10,6 +10,7 @@ import { CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
 import { GetAllReviewResponse } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
+import { CreateLikeRequest } from './dto/LikeRequest';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -33,6 +34,18 @@ export class ReviewController {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE REVIEW',
         }
+    }
+
+    @Post('/like')
+    @HttpCode(StatusCodes.CREATED)
+    @ApiCreatedResponse({
+        type: CommonResponse,
+    })
+    async createLike(
+        @Body() request: CreateLikeRequest,
+    ): Promise<CommonResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
     }
 
     @Get()
@@ -108,6 +121,21 @@ export class ReviewController {
         }
     }
 
+    @Get('/like')
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: GetAllReviewResponse,
+    })
+    @ApiOperation({
+        description: 'userId에 해당하는 유저가 좋아요 한 리뷰 목록 리턴'
+    })
+    async getAllLikeReview(
+        @Query('userId') userId: string,
+    ) {
+        // TODO: 차후 Usecase 생성시 추가
+        throw new Error('Method not implemented');
+
+    }
 
     @Patch('/:reviewId')
     @HttpCode(StatusCodes.NO_CONTENT)
@@ -139,4 +167,17 @@ export class ReviewController {
             responseMessage: 'SUCCESS TO DELETE REVIEW',
         }
     }
+
+    @Delete('/like')
+	@HttpCode(StatusCodes.NO_CONTENT)
+	@ApiResponse({
+		type: CommonResponse
+	})
+	async deleteLike(
+		@Query('userId') userId: string,
+        @Query('reviewId') reviewId: string
+	): Promise<CommonResponse> {
+		// TODO: 차후 UseCase 생성 시 추가
+		throw new Error('Method not implemented');
+	}
 }
