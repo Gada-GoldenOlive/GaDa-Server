@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CreateUserUseCase } from './application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase } from './application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase } from './application/LoginUseCase/LoginUseCase';
-import { FriendController } from './controller/FriendController';
 import { UserController } from './controller/UserController';
 import { FriendEntity } from './entity/Friend.entity';
 import { UserEntity } from './entity/User.entity';
@@ -18,10 +17,7 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
             FriendEntity,
         ])
     ],
-    controllers: [
-        UserController,
-        FriendController,
-    ],
+    controllers: [ UserController ],
     providers: [
         CreateUserUseCase,
         GetUserUseCase,
