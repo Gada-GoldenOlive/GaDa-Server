@@ -3,10 +3,10 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
-import { CreateBadgeRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
+import { CreateAchieveRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
 import { GetAllBadgeResponse } from './dto/BadgeResponse';
 
-@Controller('badge')
+@Controller('badges')
 @ApiTags('배지')
 export class BadgeController {
 	constructor() {}
@@ -21,6 +21,22 @@ export class BadgeController {
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');
+		
+	}
+
+	@Post('/achievement')
+	@HttpCode(StatusCodes.CREATED)
+	@ApiCreatedResponse({
+		type: CommonResponse,
+	})
+	async achieve(
+		@Body() request: CreateAchieveRequest,
+	): Promise<CommonResponse> {
+		// TODO: 차후 UseCase 생성 시 추가
+		return {
+			code: StatusCodes.CREATED,
+			responseMessage: 'SUCCESS TO LINK USER AND BADGE'
+		}
 	}
 
 	@Get()
@@ -51,6 +67,19 @@ export class BadgeController {
 		throw new Error('Method not implemented');
 	}
 
+	@Patch('/:achieveId')
+	@HttpCode(StatusCodes.NO_CONTENT)
+	@ApiResponse({
+		type: CommonResponse,
+	})
+	async updateAchievement(
+		@Body() request: UpdateAchieveRequest,
+		@Param('achieveId') achieveId: string,
+	): Promise<CommonResponse> {
+		// TODO: 차후 UseCase 생성 시 추가
+		throw new Error('Method not implemented');
+	}
+
 	@Delete('/:badgeId')
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
@@ -58,6 +87,18 @@ export class BadgeController {
 	})
 	async delete(
 		@Param('badgeId') badgeId: string,
+	): Promise<CommonResponse> {
+		// TODO: 차후 UseCase 생성 시 추가
+		throw new Error('Method not implemented');
+	}
+
+	@Delete('/:achieveId')
+	@HttpCode(StatusCodes.NO_CONTENT)
+	@ApiResponse({
+		type: CommonResponse
+	})
+	async deleteAchivement(
+		@Param('achieveId') achieveId: string,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');
