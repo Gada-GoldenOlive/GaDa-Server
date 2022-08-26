@@ -16,8 +16,8 @@ export class FriendEntity extends CoreEntity {
     status: FRIEND_STATUS;
 
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.friends, { nullable: false })
-    user: UserEntity;
+    user1: UserEntity;
 
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.friends, { nullable: false })
-    friend: UserEntity;
+    user2: UserEntity;
 }

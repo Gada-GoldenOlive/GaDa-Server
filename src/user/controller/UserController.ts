@@ -186,8 +186,8 @@ export class UserController {
 		type: CommonResponse
 	})
 	async deleteFriend(
-		@Query('userId') userId: string,
-        @Query('friendId') friendId: string
+		@Query('user1Id') user1Id: string,
+        @Query('user2Id') user2Id: string
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');

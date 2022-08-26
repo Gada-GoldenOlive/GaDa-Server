@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateFriendRequest {
     @ApiProperty()
-    userId: string;
+    user1Id: string;
 
     @ApiProperty()
-    friendId: string;
+    user2Id: string;
 }
