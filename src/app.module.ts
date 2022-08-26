@@ -16,6 +16,8 @@ import { WalkwayEntity } from './walkway/entity/Walkway.entity';
 import { WalkwayModule } from './walkway/walkway.module';
 import { BadgeEntity } from './badge/entity/Badge.entity';
 import { BadgeModule } from './badge/badge.module';
+import { CommentEntity } from './pin/entity/Comment.entity';
+
 
 @Module({
     imports: [
@@ -47,6 +49,7 @@ import { BadgeModule } from './badge/badge.module';
                 WalkEntity,
                 ReviewEntity,
                 BadgeEntity,
+                CommentEntity,
             ],
         }),
         UserModule,
