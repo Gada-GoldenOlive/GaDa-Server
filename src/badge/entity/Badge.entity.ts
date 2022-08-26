@@ -22,7 +22,7 @@ export class BadgeEntity extends CoreEntity {
         nullable: false,
         type: 'enum',
         enum: BadgeStatus,
-        default: BadgeStatus.LOCKED,
+        default: BadgeStatus.NORMAL,
     })
     @Index()
     status: BADGE_STATUS;
