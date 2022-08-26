@@ -11,6 +11,7 @@ import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
 import { GetAllReviewUseCase } from './application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { ReviewController } from './controller/ReviewController';
+import { LikeEntity } from './entity/Like.entity';
 import { ReviewEntity } from './entity/Review.entity';
 import { REVIEW_REPOSITORY } from './infra/IReviewRepository';
 import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
@@ -21,6 +22,7 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
         ReviewEntity,
         UserEntity,
         WalkwayEntity,
+        LikeEntity,
     ])
   ],
   controllers: [ ReviewController ],
