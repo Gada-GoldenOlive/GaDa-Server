@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
-import { AggregateRoot } from '../../common/domain/AggregateRoot';
-import { ImageUrl } from '../../common/domain/Image/ImageUrl';
-import { Result } from '../../common/presentationals/Result';
+import { AggregateRoot } from '../../../common/domain/AggregateRoot';
+import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
+import { Result } from '../../../common/presentationals/Result';
 import { UserId } from './UserId';
 import { UserName } from './UserName';
 import { UserPassword } from './UserPassword';
