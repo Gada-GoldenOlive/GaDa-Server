@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Point } from '../../domain/PinLocation';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Point } from '../../domain/Pin/PinLocation';
 
 export class LocationDto implements Point {
     @ApiProperty()
@@ -48,4 +48,36 @@ export class GetAllPinResponse {
 export class GetPinResponse {
     @ApiProperty()
     pin?: PinDto;
+}
+
+export class CommentDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    content: string;
+
+    @ApiProperty()
+    creator: string;
+
+    @ApiProperty()
+    creatorId: string;
+
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
+}
+
+export class GetAllCommentResponse {
+    @ApiProperty({
+        type: [CommentDto],
+    })
+    comments?: CommentDto[];
+}
+
+export class GetCommentResponse {
+    @ApiPropertyOptional()
+    comment?: CommentDto;
 }

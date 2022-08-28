@@ -4,16 +4,14 @@ import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, 
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
-import { CreatePinRequest, UpdatePinRequest } from './dto/PinRequest';
-import { GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
+import { CreateCommentRequest, CreatePinRequest, UpdateCommentReqeust, UpdatePinRequest } from './dto/PinRequest';
+import { GetAllCommentResponse, GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
 import { GetPinUseCase, GetPinUseCaseCodes } from '../application/GetPinUseCase/GetPinUseCase';
-import { CreateCommentRequest, UpdateCommentReqeust } from './dto/CommntRequest';
-import { GetAllCommentResponse } from './dto/CommentResponse';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -70,7 +68,7 @@ export class PinController {
         }
     }
 
-    @Post('/comment')
+    @Post('/comments')
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -151,7 +149,7 @@ export class PinController {
         }
     }
 
-    @Get('/comment')
+    @Get('/comments')
     @ApiOperation({
         description: "query parameter로 userId만 보낼 경우: 해당하는 유저의 모든 댓글 리턴. || pinId만 보낼 경우: 해당하는 핀의 모든 댓글 리턴."
     })
@@ -203,7 +201,7 @@ export class PinController {
         }
     }
 
-    @Patch('/comment')
+    @Patch('/comments/:commentId')
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -231,7 +229,7 @@ export class PinController {
         }
     }
 
-    @Delete('/comment')
+    @Delete('/comments/:commentId')
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
