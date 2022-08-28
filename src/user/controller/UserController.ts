@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
@@ -7,9 +7,8 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase, LoginUseCaseCodes } from '../application/LoginUseCase/LoginUseCase';
-import { CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
+import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse } from './dto/UserResponse';
-import { CreateFriendRequest } from './dto/FriendRequest';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -50,7 +49,7 @@ export class UserController {
         };
     }
 
-    @Post('/friend')
+    @Post('/friends')
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -71,7 +70,7 @@ export class UserController {
         // TODO: 차후 Usecase 생성시 추가
     }
 
-    @Get('/friend')
+    @Get('/friends')
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllUserResponse,
@@ -180,14 +179,13 @@ export class UserController {
         }
     }
 
-    @Delete('/friend')
+    @Delete('/friends/:friendId')
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
 	})
 	async deleteFriend(
-		@Query('user1Id') user1Id: string,
-        @Query('user2Id') user2Id: string
+		@Param('friendId') friendId: string,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');
