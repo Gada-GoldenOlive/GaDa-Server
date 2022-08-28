@@ -180,14 +180,14 @@ export class UserController {
     }
 
     @Delete('/friends/:friendId')
-	@HttpCode(StatusCodes.NO_CONTENT)
-	@ApiResponse({
-		type: CommonResponse
-	})
-	async deleteFriend(
-		@Param('friendId') friendId: string,
-	): Promise<CommonResponse> {
-		// TODO: 차후 UseCase 생성 시 추가
-		throw new Error('Method not implemented');
-	}
+    @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiResponse({
+        type: CommonResponse
+    })
+    async deleteFriend(
+        @Param('friendId') friendId: string,
+    ): Promise<CommonResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
+    }
 }
