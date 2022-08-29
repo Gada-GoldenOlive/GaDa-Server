@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
+
 import { Point } from "../../domain/Walkway/WalkwayStartPoint";
+import { WalkFinishStatus, WALK_FINISH_STATUS } from "../../domain/Walk/WalkFinishStatus";
 
 export class PointDto implements Point {
     @ApiProperty()
@@ -51,7 +53,7 @@ export class WalkwayDto {
     creatorId: string;
 }
 
-export class GetAllNearWalkwayResponse {
+export class GetAllWalkwayResponse {
     @ApiProperty({
         type: [WalkwayDto],
     })
@@ -61,4 +63,50 @@ export class GetAllNearWalkwayResponse {
 export class GetWalkwayResponse {
     @ApiProperty()
     walkway?: WalkwayDto;
+}
+
+export class WalkDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    time: number;
+
+    @ApiProperty()
+    distance: number;
+
+    @ApiProperty()
+    rate: number;
+
+    @ApiProperty({
+        enum: WalkFinishStatus
+    })
+    finishStatus: WALK_FINISH_STATUS;
+
+    @ApiProperty()
+    title: string;
+
+    @ApiProperty()
+    image: string;
+
+    @ApiProperty()
+    walkwayId: string;
+
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
+}
+
+export class GetAllWalkResponse {
+    @ApiProperty({
+        type: [WalkDto],
+    })
+    walks?: WalkDto[];
+}
+
+export class GetWalkResponse {
+    @ApiProperty()
+    walk?: WalkDto;
 }
