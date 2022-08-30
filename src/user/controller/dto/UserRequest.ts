@@ -15,12 +15,17 @@ export class CreateUserRequest {
 }
 
 export class UpdateUserRequest {
-    @ApiProperty()
-    id: string;
-
     @ApiPropertyOptional()
     name?: string;
 
     @ApiPropertyOptional()
     image?: string;
+}
+
+export class CreateFriendRequest {
+    @ApiProperty()
+    userId: string;
+
+    @ApiProperty()
+    friendLoginId: string;
 }
