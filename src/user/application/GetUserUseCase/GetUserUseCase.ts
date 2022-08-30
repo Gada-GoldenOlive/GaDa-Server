@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { Inject, Logger } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
-import { User } from '../../domain/User';
+import { User } from '../../domain/User/User';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
 import { IGetUserUseCaseRequest } from './dto/IGetUserUseCaseRequest';
 import { IGetUserUseCaseResponse } from './dto/IGetUserUseCaseResponse';

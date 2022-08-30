@@ -1,12 +1,12 @@
-import { Inject } from "@nestjs/common";
+import { Inject } from '@nestjs/common';
 
-import { UseCase } from "../../../common/application/UseCase";
-import { Walk } from "../../domain/Walk/Walk";
-import { WalkDistance } from "../../domain/Walk/WalkDistance";
-import { WalkTime } from "../../domain/Walk/WalkTime";
-import { IWalkRepository, WALK_REPOSITORY } from "../../infra/IWalkRepository";
-import { ICreateWalkUseCaseRequest } from "./dto/CreateWalkUseCaseRequest";
-import { ICreateWalkUseCaseResponse } from "./dto/CreateWalkUseCaseResponse";
+import { UseCase } from '../../../common/application/UseCase';
+import { Walk } from '../../domain/Walk/Walk';
+import { WalkDistance } from '../../domain/Walk/WalkDistance';
+import { WalkTime } from '../../domain/Walk/WalkTime';
+import { IWalkRepository, WALK_REPOSITORY } from '../../infra/IWalkRepository';
+import { ICreateWalkUseCaseRequest } from './dto/CreateWalkUseCaseRequest';
+import { ICreateWalkUseCaseResponse } from './dto/CreateWalkUseCaseResponse';
 
 export enum CreateWalkUseCaseCodes {
     SUCCESS = 'SUCCESS',

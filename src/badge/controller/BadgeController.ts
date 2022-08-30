@@ -41,7 +41,7 @@ export class BadgeController {
 
 	@Get()
 	@ApiOperation({
-		description: "userId query parameter로 보낼 경우: 해당하는 유저의 모든 배지 리턴. || 안 보낼 경우: 모든 배지 리턴."
+		description: 'userId query parameter로 보낼 경우: 해당하는 유저의 모든 배지 리턴. || 안 보낼 경우: 모든 배지 리턴.'
 	})
 	@HttpCode(StatusCodes.OK)
 	@ApiOkResponse({

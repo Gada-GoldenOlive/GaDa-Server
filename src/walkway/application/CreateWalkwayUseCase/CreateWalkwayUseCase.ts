@@ -1,17 +1,17 @@
-import { Inject } from "@nestjs/common";
+import { Inject } from '@nestjs/common';
 
-import { UseCase } from "../../../common/application/UseCase";
-import { Walkway } from "../../domain/Walkway/Walkway";
-import { WalkwayAddress } from "../../domain/Walkway/WalkwayAddress";
-import { WalkwayDistance } from "../../domain/Walkway/WalkwayDistance";
-import { WalkwayEndPoint } from "../../domain/Walkway/WalkwayEndPoint";
-import { WalkwayPath } from "../../domain/Walkway/WalkwayPath";
-import { WalkwayStartPoint } from "../../domain/Walkway/WalkwayStartPoint";
-import { WalkwayTime } from "../../domain/Walkway/WalkwayTime";
-import { WalkwayTitle } from "../../domain/Walkway/WalkwayTitle";
-import { IWalkwayRepository, WALKWAY_REPOSITORY } from "../../infra/IWalkwayRepository";
-import { ICreateWalkwayUseCaseResponse } from "./dto/CreateWalkwaysUseCaseResponse";
-import { ICreateWalkwayUseCaseRequest } from "./dto/CreateWalkwayUseCaseRequest";
+import { UseCase } from '../../../common/application/UseCase';
+import { Walkway } from '../../domain/Walkway/Walkway';
+import { WalkwayAddress } from '../../domain/Walkway/WalkwayAddress';
+import { WalkwayDistance } from '../../domain/Walkway/WalkwayDistance';
+import { WalkwayEndPoint } from '../../domain/Walkway/WalkwayEndPoint';
+import { WalkwayPath } from '../../domain/Walkway/WalkwayPath';
+import { WalkwayStartPoint } from '../../domain/Walkway/WalkwayStartPoint';
+import { WalkwayTime } from '../../domain/Walkway/WalkwayTime';
+import { WalkwayTitle } from '../../domain/Walkway/WalkwayTitle';
+import { IWalkwayRepository, WALKWAY_REPOSITORY } from '../../infra/IWalkwayRepository';
+import { ICreateWalkwayUseCaseResponse } from './dto/CreateWalkwaysUseCaseResponse';
+import { ICreateWalkwayUseCaseRequest } from './dto/CreateWalkwayUseCaseRequest';
 
 export enum CreateWalkwayUseCaseCodes {
     SUCCESS = 'SUCCESS',

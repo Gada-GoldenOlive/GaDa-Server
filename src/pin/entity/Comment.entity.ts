@@ -1,8 +1,8 @@
-import { Column, Entity, Index, ManyToOne } from "typeorm";
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 
-import { CoreEntity } from "../../common/entity/Core.entity";
-import { PinEntity } from "./Pin.entity";
-import { UserEntity } from "../../user/entity/User.entity";
+import { CoreEntity } from '../../common/entity/Core.entity';
+import { PinEntity } from './Pin.entity';
+import { UserEntity } from '../../user/entity/User.entity';
 import { CommentStatus, COMMENT_STATUS } from '../domain/Comment/CommentStatus';
 
 @Entity('comment')

@@ -1,5 +1,5 @@
-import { Walkway } from "../domain/Walkway/Walkway";
-import { Point } from "../domain/Walkway/WalkwayStartPoint";
+import { Walkway } from '../domain/Walkway/Walkway';
+import { Point } from '../domain/Walkway/WalkwayStartPoint';
 
 export const WALKWAY_REPOSITORY = Symbol('WALKWAY_REPOSITORY');
 

@@ -1,9 +1,9 @@
-import _ from "lodash";
+import _ from 'lodash';
 
-import { AggregateRoot } from "../../../common/domain/AggregateRoot";
-import { Result } from "../../../common/presentationals/Result";
-import { User } from "../User/User";
-import { FriendStatus, FRIEND_STATUS } from "./FriendStatus";
+import { AggregateRoot } from '../../../common/domain/AggregateRoot';
+import { Result } from '../../../common/presentationals/Result';
+import { User } from '../User/User';
+import { FriendStatus, FRIEND_STATUS } from './FriendStatus';
 
 
 export interface FriendNewProps {

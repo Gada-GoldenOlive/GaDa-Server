@@ -1,8 +1,8 @@
-import { Column, Entity, Index, ManyToOne } from "typeorm";
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 
-import { CoreEntity } from "../../common/entity/Core.entity";
-import { ReviewEntity } from "./Review.entity";
-import { UserEntity } from "../../user/entity/User.entity";
+import { CoreEntity } from '../../common/entity/Core.entity';
+import { ReviewEntity } from './Review.entity';
+import { UserEntity } from '../../user/entity/User.entity';
 import { LikeStatus, LIKE_STATUS } from '../domain/Like/LikeStatus';
 
 @Entity('like')

@@ -5,7 +5,7 @@ import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { ReviewEntity } from '../../review/entity/Review.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
-import { UserStatus, USER_STATUS } from '../domain/UserStatus';
+import { UserStatus, USER_STATUS } from '../domain/User/UserStatus';
 import { LikeEntity } from '../../review/entity/Like.entity';
 import { CommentEntity } from '../../pin/entity/Comment.entity';
 import { FriendEntity } from './Friend.entity';
