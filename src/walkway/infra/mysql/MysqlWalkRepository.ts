@@ -6,12 +6,31 @@ import { Walk } from "../../domain/Walk/Walk";
 import { WalkEntity } from "../../entity/Walk.entity";
 import { IWalkRepository } from "../IWalkRepository";
 import { MysqlWalkRepositoryMapper } from "./mapper/MysqlWalkRepository.mapper";
+import { WalkStatus } from "../../domain/Walk/WalkStatus";
+import { WalkwayStatus } from "../../domain/Walkway/WalkwayStatus";
+import { UserStatus } from "../../../user/domain/User/UserStatus";
 
 export class MysqlWalkRepository implements IWalkRepository {
     constructor(
         @InjectRepository(WalkEntity)
         private readonly walkRepository: Repository<WalkEntity>,
     ) {}
+
+    async findAll(userId: string): Promise<Walk[]> {
+        const walks = await this.walkRepository
+        .createQueryBuilder('walk')
+        .leftJoinAndSelect('walk.walkway', 'walkway')
+        .leftJoinAndSelect('walkway.user', 'user_walkway')
+        .leftJoinAndSelect('walk.user', 'user')
+        .where('user.id = :userId', { userId: userId })
+        .andWhere('walk.status = :normal', { normal: WalkStatus.NORMAL })
+        .andWhere('walkway.status = :normal', { normal: WalkwayStatus.NORMAL })
+        .andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
+        .orderBy('walk.createdAt', 'DESC')
+        .getMany();
+
+        return MysqlWalkRepositoryMapper.toDomains(walks);
+    }
 
     async save(walk: Walk): Promise<boolean> {
         await this.walkRepository.save(

@@ -1,6 +1,7 @@
 import { Inject } from "@nestjs/common";
 
 import { UseCase } from "../../../common/application/UseCase";
+import { ImageUrl } from "../../../common/domain/Image/ImageUrl";
 import { Walkway } from "../../domain/Walkway/Walkway";
 import { WalkwayAddress } from "../../domain/Walkway/WalkwayAddress";
 import { WalkwayDistance } from "../../domain/Walkway/WalkwayDistance";
@@ -35,6 +36,7 @@ export class CreateWalkwayUseCase implements UseCase<ICreateWalkwayUseCaseReques
                 startPoint: WalkwayStartPoint.create(request.path[0]).value,
                 endPoint: WalkwayEndPoint.create(request.path[request.path.length - 1]).value,
                 user: request.user,
+                image: ImageUrl.create(request.image).value,
             }).value;
             await this.walkwayRespository.save(walkway);
 

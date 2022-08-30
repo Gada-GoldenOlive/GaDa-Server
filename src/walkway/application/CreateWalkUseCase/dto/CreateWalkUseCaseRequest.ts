@@ -1,4 +1,4 @@
-import { User } from "../../../../user/domain/User";
+import { User } from "../../../../user/domain/User/User";
 import { WALK_FINISH_STATUS } from "../../../domain/Walk/WalkFinishStatus";
 import { Walkway } from "../../../domain/Walkway/Walkway";
 

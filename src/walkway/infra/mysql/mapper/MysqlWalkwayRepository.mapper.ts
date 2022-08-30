@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { ImageUrl } from "../../../../common/domain/Image/ImageUrl";
 
 import { MysqlUserRepositoryMapper } from "../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper";
 import { Walkway } from "../../../domain/Walkway/Walkway";
@@ -29,6 +30,7 @@ export class MysqlWalkwayRepositoryMapper {
                 user: MysqlUserRepositoryMapper.toDomain(entity.user),
                 createdAt: entity.createdAt,
                 updatedAt: entity.updatedAt,
+                image: ImageUrl.create(entity.image).value,
             },
             entity.id
         ).value;
@@ -55,6 +57,7 @@ export class MysqlWalkwayRepositoryMapper {
             status: walkway.status,
             createdAt: walkway.createdAt,
             updatedAt: walkway.updatedAt,
+            image: walkway.image.value,
             user: undefined,
             walks: undefined,
             pins: undefined,

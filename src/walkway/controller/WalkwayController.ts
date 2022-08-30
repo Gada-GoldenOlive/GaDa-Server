@@ -10,12 +10,13 @@ import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkwayResponse, PointDto
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
-import { GetAllNearWalkwayUseCase, GetAllNearWalkwayUseCaseCodes } from '../application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
+import { GetAllWalkwayUseCase, GetAllWalkwayUseCaseCodes } from '../application/GetAllWalkwayUseCase/GetAllWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 import { LineString } from 'geojson';
 import { Point } from '../domain/Walkway/WalkwayEndPoint';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
+import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -40,9 +41,10 @@ export class WalkwayController {
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
-        private readonly getAllNearWalkwayUseCase: GetAllNearWalkwayUseCase,
+        private readonly getAllWalkwayUseCase: GetAllWalkwayUseCase,
         private readonly createWalkUseCase: CreateWalkUseCase,
         private readonly getUserUseCase: GetUserUseCase,
+        private readonly getAllWalkUseCase: GetAllWalkUseCase,
     ) {}
 
     @Post()
@@ -137,15 +139,15 @@ export class WalkwayController {
         @Query('lat') lat: number,
         @Query('lng') lng: number
     ) {
-        const getAllNearWalkwayResponse = await this.getAllNearWalkwayUseCase.execute({
+        const getAllWalkwayResponse = await this.getAllWalkwayUseCase.execute({
             coordinates: { lat, lng },
         });
-        if (getAllNearWalkwayResponse.code != GetAllNearWalkwayUseCaseCodes.SUCCESS) {
+        if (getAllWalkwayResponse.code != GetAllWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND NEAR WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         let walkways = []
-        for (const walkway of getAllNearWalkwayResponse.walkways) {
+        for (const walkway of getAllWalkwayResponse.walkways) {
             const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 walkway: walkway,
                 curLocation: {
@@ -189,6 +191,44 @@ export class WalkwayController {
         return {
             walkways,
         }
+    }
+
+    @Get('/walks')
+    @ApiOkResponse({
+        type: GetAllWalkResponse,
+    })
+    @ApiOperation({
+        summary: '산책기록을 최신순으로 가져오기',
+        description: 'qeury로 받은 유저가 산책한 산책로의 title, distance, time, image 정보와 완주여부 등의 정보 포함'
+        + ' rate는 (실제 이동한 거리/산책로의 거리) * 100'
+    })
+    async getAllWalk(
+        @Query('userId') userId: string
+    ) {
+        const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
+            userId: userId,
+        });
+
+        if (getAllWalkUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const walks = _.map(getAllWalkUseCaseResponse.walks, (walk) => ({
+            id: walk.id,
+            time: walk.time.value,
+            distance: walk.distance.value,
+            finishStatus: walk.finishStatus,
+            rate: (+(walk.distance.value / walk.walkway.distance.value) * 100).toFixed(1),
+            walkwayTime: walk.walkway.time.value,
+            walkwayDistance: walk.walkway.distance.value,
+            title: walk.walkway.title.value,
+            image: walk.walkway.image.value,
+            walkwayId: walk.walkway.id,
+            createAt: walk.createdAt,
+            updatedAt: walk.updatedAt,
+        }));
+
+        return walks;
     }
 
     @Get('/:walkwayId')
@@ -264,12 +304,6 @@ export class WalkwayController {
             walkway,
         };
     }
-
-    @Get('/walks')
-    @ApiOkResponse({
-        type: GetAllWalkResponse,
-    })
-    async getAllWalk() {}
 
     @Patch('/:walkwayId')
     @ApiResponse({

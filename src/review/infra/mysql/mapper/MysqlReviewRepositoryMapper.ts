@@ -51,6 +51,7 @@ export class MysqlReviewRepositoryMapper {
             user: MysqlUserRepositoryMapper.toEntity(review.user),
             createdAt: review.createdAt,
             updatedAt: review.updatedAt,
+            likes: undefined,
         }
 
         return entity;

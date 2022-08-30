@@ -3,7 +3,7 @@ import _ from "lodash";
 import { AggregateRoot } from "../../../common/domain/AggregateRoot";
 import { PROPS_VALUES_ARE_REQUIRED } from "../../../common/domain/Image/Image";
 import { Result } from "../../../common/presentationals/Result";
-import { User } from "../../../user/domain/User";
+import { User } from "../../../user/domain/User/User";
 import { Walkway } from "../Walkway/Walkway";
 import { WalkDistance } from "./WalkDistance";
 import { WALK_FINISH_STATUS } from "./WalkFinishStatus";

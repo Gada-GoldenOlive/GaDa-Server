@@ -2,12 +2,12 @@ import _ from 'lodash';
 
 import { PinTitle } from './PinTitle';
 import { PinContent } from './PinContent';
-import { AggregateRoot } from '../../common/domain/AggregateRoot';
-import { Result } from '../../common/presentationals/Result';
-import { ImageUrl } from '../../common/domain/Image/ImageUrl';
+import { AggregateRoot } from '../../../common/domain/AggregateRoot';
+import { Result } from '../../../common/presentationals/Result';
+import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { PinStatus, PIN_STATUS } from './PinStatus';
-import { Walkway } from '../../walkway/domain/Walkway/Walkway';
-import { User } from '../../user/domain/User';
+import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
+import { User } from '../../../user/domain/User/User';
 import { PinLocation } from './PinLocation';
 
 export interface PinNewProps {

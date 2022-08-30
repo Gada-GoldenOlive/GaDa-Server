@@ -1,8 +1,8 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from '../../../user/domain/User';
-import { UserStatus } from '../../../user/domain/UserStatus';
+import { User } from '../../../user/domain/User/User';
+import { UserStatus } from '../../../user/domain/User/UserStatus';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayStatus } from '../../../walkway/domain/Walkway/WalkwayStatus';
 import { Review } from '../../domain/Review/Review';
