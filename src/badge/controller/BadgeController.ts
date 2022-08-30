@@ -92,7 +92,7 @@ export class BadgeController {
 		throw new Error('Method not implemented');
 	}
 
-	@Delete('/:achieveId')
+	@Delete('/achievement/:achieveId')
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
