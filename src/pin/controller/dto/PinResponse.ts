@@ -74,10 +74,10 @@ export class GetAllCommentResponse {
     @ApiProperty({
         type: [CommentDto],
     })
-    comments?: CommentDto[];
+    comments: CommentDto[];
 }
 
 export class GetCommentResponse {
-    @ApiPropertyOptional()
-    comment?: CommentDto;
+    @ApiProperty()
+    comment: CommentDto;
 }
