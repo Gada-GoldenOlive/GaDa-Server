@@ -1,13 +1,13 @@
 import _ from 'lodash';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Patch, Post, Query } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase, LoginUseCaseCodes } from '../application/LoginUseCase/LoginUseCase';
-import { CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
+import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse } from './dto/UserResponse';
 
 @Controller('users')
@@ -49,6 +49,18 @@ export class UserController {
         };
     }
 
+    @Post('/friends')
+    @HttpCode(StatusCodes.CREATED)
+    @ApiCreatedResponse({
+        type: CommonResponse,
+    })
+    async createFriend(
+        @Body() request: CreateFriendRequest,
+    ): Promise<CommonResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
+    }
+
     @Get()
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
@@ -56,6 +68,21 @@ export class UserController {
     })
     async getAll() {
         // TODO: 차후 Usecase 생성시 추가
+    }
+
+    @Get('/friends')
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: GetAllUserResponse,
+    })
+    @ApiOperation({
+        description: 'userId에 해당하는 유저의 친구 목록 리턴'
+    })
+    async getAllFriends(
+        @Query('userId') userId: string,
+    ) {
+        // TODO: 차후 Usecase 생성시 추가
+        throw new Error('Method not implemented');
     }
 
     @Get('checked-id')
@@ -150,5 +177,17 @@ export class UserController {
             code: StatusCodes.NO_CONTENT,
             responseMessage: 'SUCCESS TO DELETE USER',
         }
+    }
+
+    @Delete('/friends/:friendId')
+    @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiResponse({
+        type: CommonResponse
+    })
+    async deleteFriend(
+        @Param('friendId') friendId: string,
+    ): Promise<CommonResponse> {
+        // TODO: 차후 UseCase 생성 시 추가
+        throw new Error('Method not implemented');
     }
 }
