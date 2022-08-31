@@ -1,8 +1,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from '../../domain/User';
-import { UserStatus } from '../../domain/UserStatus';
+
+import { User } from '../../domain/User/User';
+import { UserStatus } from '../../domain/User/UserStatus';
 import { UserEntity } from '../../entity/User.entity';
 import { IUserRepository } from '../IUserRepository';
 import { MysqlUserRepositoryMapper } from './mapper/MysqlUserRepositoryMapper';

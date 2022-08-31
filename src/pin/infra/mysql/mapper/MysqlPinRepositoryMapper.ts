@@ -3,10 +3,10 @@ import _ from 'lodash';
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
 import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 import { MysqlWalkwayRepositoryMapper } from '../../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
-import { Pin } from '../../../domain/Pin';
-import { PinContent } from '../../../domain/PinContent';
-import { PinLocation, Point } from '../../../domain/PinLocation';
-import { PinTitle } from '../../../domain/PinTitle';
+import { Pin } from '../../../domain/Pin/Pin';
+import { PinContent } from '../../../domain/Pin/PinContent';
+import { PinLocation, Point } from '../../../domain/Pin/PinLocation';
+import { PinTitle } from '../../../domain/Pin/PinTitle';
 import { PinEntity } from '../../../entity/Pin.entity';
 
 export class MysqlPinRepositoryMapper {
@@ -47,6 +47,7 @@ export class MysqlPinRepositoryMapper {
             status: pin.status,
             walkway: MysqlWalkwayRepositoryMapper.toEntity(pin.walkway),
             user: MysqlUserRepositoryMapper.toEntity(pin.user),
+            comments: undefined,
             createdAt: pin.createdAt,
             updatedAt: pin.updatedAt,
         };

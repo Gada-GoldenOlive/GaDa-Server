@@ -1,9 +1,9 @@
-import _ from "lodash";
+import _ from 'lodash';
 
-import { MysqlUserRepositoryMapper } from "../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper";
-import { Walk } from "../../../domain/Walk/Walk";
-import { WalkEntity } from "../../../entity/Walk.entity";
-import { MysqlWalkwayRepositoryMapper } from "./MysqlWalkwayRepository.mapper";
+import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
+import { Walk } from '../../../domain/Walk/Walk';
+import { WalkEntity } from '../../../entity/Walk.entity';
+import { MysqlWalkwayRepositoryMapper } from './MysqlWalkwayRepository.mapper';
 
 export class MysqlWalkRepositoryMapper {
     static toEntity(walk: Walk): WalkEntity {

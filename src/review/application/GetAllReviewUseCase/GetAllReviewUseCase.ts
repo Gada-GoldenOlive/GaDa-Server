@@ -14,12 +14,12 @@ export enum GetAllReviewUseCaseCodes {
 export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAllReviewUseCaseResponse> {
     constructor(
         @Inject(REVIEW_REPOSITORY)
-        private readonly pinRepository: IReviewRepository,
+        private readonly reviewRepository: IReviewRepository,
     ) {}
 
     async execute(request: GetAllReviewOptions): Promise<IGetAllReviewUseCaseResponse> {
         try {
-            const reviews = await this.pinRepository.getAll(request);
+            const reviews = await this.reviewRepository.getAll(request);
             
             let averageStar = 0;
             if (!_.isEmpty(reviews)) {

@@ -1,7 +1,8 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { BadgeStatus, BADGE_STATUS } from '../domain/Badge/BadgeStatus';
+import { AchieveEntity } from './AchieveEntity';
 
 @Entity('badge')
 export class BadgeEntity extends CoreEntity {
@@ -26,4 +27,7 @@ export class BadgeEntity extends CoreEntity {
     })
     @Index()
     status: BADGE_STATUS;
+
+	@OneToMany(() => AchieveEntity, (achieveEntity) => achieveEntity.badge)
+	achieves: AchieveEntity[];
 }

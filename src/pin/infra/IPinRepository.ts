@@ -1,4 +1,4 @@
-import { Pin } from '../domain/Pin';
+import { Pin } from '../domain/Pin/Pin';
 import { GetAllPinOptions } from './mysql/MysqlPinRepository';
 
 export const PIN_REPOSITORY = Symbol('PIN_REPOSITORY');

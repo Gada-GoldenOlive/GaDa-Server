@@ -19,6 +19,7 @@ import { BadgeEntity } from './badge/entity/Badge.entity';
 import { BadgeModule } from './badge/badge.module';
 import { CommentEntity } from './pin/entity/Comment.entity';
 import { FriendEntity } from './user/entity/Friend.entity';
+import { AchieveEntity } from './badge/entity/AchieveEntity';
 
 
 @Module({
@@ -54,6 +55,7 @@ import { FriendEntity } from './user/entity/Friend.entity';
                 BadgeEntity,
                 CommentEntity,
                 FriendEntity,
+                AchieveEntity,
             ],
         }),
         UserModule,

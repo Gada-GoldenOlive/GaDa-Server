@@ -3,10 +3,10 @@ import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
-import { User } from '../../domain/User';
-import { UserId } from '../../domain/UserId';
-import { UserName } from '../../domain/UserName';
-import { UserPassword } from '../../domain/UserPassword';
+import { User } from '../../domain/User/User';
+import { UserId } from '../../domain/User/UserId';
+import { UserName } from '../../domain/User/UserName';
+import { UserPassword } from '../../domain/User/UserPassword';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
 import { ICreateUserUseCaseRequest } from './dto/ICreateUserUseCaseRequest';
 import { ICreateUserUseCaseResponse } from './dto/ICreateUserUseCaseResponse';

@@ -1,4 +1,4 @@
-import { User } from '../../../../user/domain/User';
+import { User } from '../../../../user/domain/User/User';
 import { Point } from '../../../domain/Walkway/WalkwayStartPoint';
 
 export interface ICreateWalkwayUseCaseRequest {

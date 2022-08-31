@@ -1,5 +1,5 @@
-import { ValueObject } from "../../../common/domain/ValueObject";
-import { Result } from "../../../common/presentationals/Result";
+import { ValueObject } from '../../../common/domain/ValueObject';
+import { Result } from '../../../common/presentationals/Result';
 
 interface WalkTimeProps {
     value: number;
