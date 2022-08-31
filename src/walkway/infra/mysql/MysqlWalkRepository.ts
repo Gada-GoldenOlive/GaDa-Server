@@ -1,11 +1,11 @@
-import _ from "lodash";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import _ from 'lodash';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { Walk } from "../../domain/Walk/Walk";
-import { WalkEntity } from "../../entity/Walk.entity";
-import { IWalkRepository } from "../IWalkRepository";
-import { MysqlWalkRepositoryMapper } from "./mapper/MysqlWalkRepository.mapper";
+import { Walk } from '../../domain/Walk/Walk';
+import { WalkEntity } from '../../entity/Walk.entity';
+import { IWalkRepository } from '../IWalkRepository';
+import { MysqlWalkRepositoryMapper } from './mapper/MysqlWalkRepository.mapper';
 
 export class MysqlWalkRepository implements IWalkRepository {
     constructor(

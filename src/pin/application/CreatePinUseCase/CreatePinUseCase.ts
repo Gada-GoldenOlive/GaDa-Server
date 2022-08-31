@@ -3,10 +3,10 @@ import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
-import { Pin } from '../../domain/Pin';
-import { PinContent } from '../../domain/PinContent';
-import { PinLocation } from '../../domain/PinLocation';
-import { PinTitle } from '../../domain/PinTitle';
+import { Pin } from '../../domain/Pin/Pin';
+import { PinContent } from '../../domain/Pin/PinContent';
+import { PinLocation } from '../../domain/Pin/PinLocation';
+import { PinTitle } from '../../domain/Pin/PinTitle';
 import { IPinRepository, PIN_REPOSITORY } from '../../infra/IPinRepository';
 import { ICreatePinUseCaseRequest } from './dto/ICreatePinUseCaseRequest';
 import { ICreatePinUseCaseResponse } from './dto/ICreatePinUseCaseResponse';

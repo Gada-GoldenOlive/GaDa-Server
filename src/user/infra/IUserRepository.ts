@@ -1,4 +1,4 @@
-import { User } from '../domain/User';
+import { User } from '../domain/User/User';
 import { FindOneUserOptions } from './mysql/MysqlUserRepository';
 
 export const USER_REPOSITORY = 'USER_REPOSITORY';

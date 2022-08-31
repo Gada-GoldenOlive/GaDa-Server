@@ -1,4 +1,4 @@
-import { WalkTime, WALK_TIME_CANNOT_BE_NEGATIVE } from "./WalkTime";
+import { WalkTime, WALK_TIME_CANNOT_BE_NEGATIVE } from './WalkTime';
 
 describe('WalkTime', () => {
     const walkTimeNumber = 30;

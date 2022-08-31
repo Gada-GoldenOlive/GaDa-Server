@@ -1,10 +1,10 @@
-import _ from "lodash";
-import { Inject } from "@nestjs/common";
+import _ from 'lodash';
+import { Inject } from '@nestjs/common';
 
-import { UseCase } from "../../../common/application/UseCase";
-import { IWalkwayRepository, WALKWAY_REPOSITORY } from "../../infra/IWalkwayRepository";
-import { IGetWalkwayUseCaseResponse } from "./dto/GetWalkwayResponse";
-import { IGetWalkwayUseCaseRequest } from "./dto/GetWalkwayUseCaseRequest";
+import { UseCase } from '../../../common/application/UseCase';
+import { IWalkwayRepository, WALKWAY_REPOSITORY } from '../../infra/IWalkwayRepository';
+import { IGetWalkwayUseCaseResponse } from './dto/GetWalkwayResponse';
+import { IGetWalkwayUseCaseRequest } from './dto/GetWalkwayUseCaseRequest';
 
 export enum GetWalkwayUseCaseCodes {
     SUCCESS = 'SUCCESS',

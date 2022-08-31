@@ -1,4 +1,4 @@
-import { Point } from "../../../domain/Walkway/WalkwayStartPoint";
+import { Point } from '../../../domain/Walkway/WalkwayStartPoint';
 
 export interface IGetAllWalkwayUseCaseRequest {
     coordinates: Point,

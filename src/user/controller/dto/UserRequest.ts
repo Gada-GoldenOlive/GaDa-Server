@@ -16,6 +16,9 @@ export class CreateUserRequest {
 
 export class UpdateUserRequest {
     @ApiPropertyOptional()
+    userId?: string;
+
+    @ApiPropertyOptional()
     name?: string;
 
     @ApiPropertyOptional()

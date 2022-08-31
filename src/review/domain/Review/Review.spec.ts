@@ -1,10 +1,10 @@
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
-import { User } from '../../../user/domain/User';
-import { UserName } from '../../../user/domain/UserName';
-import { UserStatus } from '../../../user/domain/UserStatus';
-import { UserTotalDistance } from '../../../user/domain/UserTotalDistance';
-import { UserTotalTime } from '../../../user/domain/UserTotalTime';
+import { User } from '../../../user/domain/User/User';
+import { UserName } from '../../../user/domain/User/UserName';
+import { UserStatus } from '../../../user/domain/User/UserStatus';
+import { UserTotalDistance } from '../../../user/domain/User/UserTotalDistance';
+import { UserTotalTime } from '../../../user/domain/User/UserTotalTime';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayAddress } from '../../../walkway/domain/Walkway/WalkwayAddress';
 import { WalkwayDistance } from '../../../walkway/domain/Walkway/WalkwayDistance';

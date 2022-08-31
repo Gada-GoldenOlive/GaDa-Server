@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { WalkFinishStatus, WALK_FINISH_STATUS } from "../../domain/Walk/WalkFinishStatus";
+import { ApiProperty } from '@nestjs/swagger';
+import { WalkFinishStatus, WALK_FINISH_STATUS } from '../../domain/Walk/WalkFinishStatus';
 
 export class CreateWalkRequest {
     @ApiProperty()

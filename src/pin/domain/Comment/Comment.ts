@@ -1,11 +1,11 @@
-import _ from "lodash";
+import _ from 'lodash';
 
-import { AggregateRoot } from "../../../common/domain/AggregateRoot";
-import { Result } from "../../../common/presentationals/Result";
-import { User } from "../../../user/domain/User";
-import { Pin } from "../Pin/Pin";
-import { CommentContent } from "./CommentContent";
-import { CommentStatus, COMMENT_STATUS } from "./CommentStatus";
+import { AggregateRoot } from '../../../common/domain/AggregateRoot';
+import { Result } from '../../../common/presentationals/Result';
+import { User } from '../../../user/domain/User/User';
+import { Pin } from '../Pin/Pin';
+import { CommentContent } from './CommentContent';
+import { CommentStatus, COMMENT_STATUS } from './CommentStatus';
 
 export interface CommentNewProps {
     content: CommentContent;

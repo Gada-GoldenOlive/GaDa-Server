@@ -1,9 +1,11 @@
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
-import { User } from '../../../user/domain/User';
-import { UserName } from '../../../user/domain/UserName';
-import { UserTotalDistance } from '../../../user/domain/UserTotalDistance';
-import { UserTotalTime } from '../../../user/domain/UserTotalTime';
+import { User } from '../../../user/domain/User/User';
+import { UserId } from '../../../user/domain/User/UserId';
+import { UserName } from '../../../user/domain/User/UserName';
+import { UserPassword } from '../../../user/domain/User/UserPassword';
+import { UserTotalDistance } from '../../../user/domain/User/UserTotalDistance';
+import { UserTotalTime } from '../../../user/domain/User/UserTotalTime';
 import { Walkway } from './Walkway';
 import { WalkwayAddress } from './WalkwayAddress';
 import { WalkwayDistance } from './WalkwayDistance';
@@ -32,6 +34,8 @@ describe('Walkway', () => {
     const TEST_USER_ID = 'test-user-uuid';
     const userName = UserName.create('유저이름').value;
     const userImage = ImageUrl.create('user-image-test.png').value;
+    const userId = UserId.create('user-id').value;
+    const userPassword = UserPassword.create('user-password').value;
     const userTotalDistance = UserTotalDistance.create(20).value;
     const userTotalTime = UserTotalTime.create(1123).value;
     const user = User.create({
@@ -39,6 +43,8 @@ describe('Walkway', () => {
         image: userImage,
         totalDistance: userTotalDistance,
         totalTime: userTotalTime,
+        userId,
+        password: userPassword,
         createdAt,
         updatedAt,
     }, TEST_USER_ID).value;
@@ -50,6 +56,7 @@ describe('Walkway', () => {
             address: walkwayAddress,
             distance: walkwayDistance,
             time: walkwayTime,
+            user,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
             user,

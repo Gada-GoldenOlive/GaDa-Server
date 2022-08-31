@@ -5,10 +5,11 @@ import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { ReviewEntity } from '../../review/entity/Review.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
-import { UserStatus, USER_STATUS } from '../domain/UserStatus';
+import { UserStatus, USER_STATUS } from '../domain/User/UserStatus';
 import { LikeEntity } from '../../review/entity/Like.entity';
 import { CommentEntity } from '../../pin/entity/Comment.entity';
 import { FriendEntity } from './Friend.entity';
+import { AchieveEntity } from '../../badge/entity/AchieveEntity';
 
 @Entity('user')
 export class UserEntity extends CoreEntity {
@@ -78,6 +79,13 @@ export class UserEntity extends CoreEntity {
     @OneToMany(() => CommentEntity, (commentEntity) => commentEntity.user)
     comments: CommentEntity[];
 
-    @OneToMany(() => FriendEntity, (friendEntity) => friendEntity.user)
-    friends: FriendEntity[];
+    @OneToMany(() => FriendEntity, (friendEntity) => friendEntity.user1)
+    friendsOfUser1: FriendEntity[];
+
+    
+    @OneToMany(() => FriendEntity, (friendEntity) => friendEntity.user2)
+    friendsOfUser2: FriendEntity[];
+
+    @OneToMany(() => AchieveEntity, (achieveEntity) => achieveEntity.user)
+    achieves: AchieveEntity[];
 }

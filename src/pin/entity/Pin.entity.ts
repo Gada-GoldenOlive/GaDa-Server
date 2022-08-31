@@ -3,7 +3,7 @@ import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { UserEntity } from '../../user/entity/User.entity';
 import { WalkwayEntity } from '../../walkway/entity/Walkway.entity';
-import { PinStatus, PIN_STATUS } from '../domain/PinStatus';
+import { PinStatus, PIN_STATUS } from '../domain/Pin/PinStatus';
 import { CommentEntity } from './Comment.entity';
 
 @Entity('pin')

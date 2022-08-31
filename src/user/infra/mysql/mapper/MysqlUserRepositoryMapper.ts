@@ -1,12 +1,12 @@
 import _ from 'lodash';
 
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
-import { User } from '../../../domain/User';
-import { UserId } from '../../../domain/UserId';
-import { UserName } from '../../../domain/UserName';
-import { UserPassword } from '../../../domain/UserPassword';
-import { UserTotalDistance } from '../../../domain/UserTotalDistance';
-import { UserTotalTime } from '../../../domain/UserTotalTime';
+import { User } from '../../../domain/User/User';
+import { UserId } from '../../../domain/User/UserId';
+import { UserName } from '../../../domain/User/UserName';
+import { UserPassword } from '../../../domain/User/UserPassword';
+import { UserTotalDistance } from '../../../domain/User/UserTotalDistance';
+import { UserTotalTime } from '../../../domain/User/UserTotalTime';
 import { UserEntity } from '../../../entity/User.entity';
 
 export class MysqlUserRepositoryMapper {
@@ -57,6 +57,11 @@ export class MysqlUserRepositoryMapper {
             walks: undefined,
             reviews: undefined,
             pins: undefined,
+            likes: undefined,
+            comments: undefined,
+            friendsOfUser1: undefined,
+            friendsOfUser2: undefined,
+            achieves: undefined,
         };
 
         return entity;

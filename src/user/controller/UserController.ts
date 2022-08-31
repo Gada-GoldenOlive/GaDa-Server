@@ -68,6 +68,7 @@ export class UserController {
     })
     async getAll() {
         // TODO: 차후 Usecase 생성시 추가
+        throw new Error('Method not implemented');
     }
 
     @Get('/friends')
@@ -160,10 +161,7 @@ export class UserController {
         @Body() request: UpdateUserRequest,
     ): Promise<CommonResponse> {
         // TODO: 차후 Usecase 생성시 추가
-        return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO UPDATE USER',
-        }        
+        throw new Error('Method not implemented');
     }
 
     @Delete('/:userId')
@@ -173,10 +171,7 @@ export class UserController {
     })
     async delete(): Promise<CommonResponse> {
         // TODO: 차후 Usecase 생성시 추가
-        return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO DELETE USER',
-        }
+        throw new Error('Method not implemented');
     }
 
     @Delete('/friends/:friendId')
