@@ -31,3 +31,19 @@ export class UpdatePinRequest {
     @ApiPropertyOptional()
     image?: string;
 }
+
+export class CreateCommentRequest {
+    @ApiProperty()
+    content: string;
+
+    @ApiProperty()
+    pinId: string;
+
+    @ApiProperty()
+    userId: string;
+}
+
+export class UpdateCommentReqeust {
+    @ApiPropertyOptional()
+    content?: string;
+}
