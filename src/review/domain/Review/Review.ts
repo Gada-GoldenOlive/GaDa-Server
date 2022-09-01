@@ -4,8 +4,7 @@ import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Result } from '../../../common/presentationals/Result';
-import { User } from '../../../user/domain/User/User';
-import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
+import { Walk } from '../../../walkway/domain/Walk/Walk';
 import { ReviewContent } from './ReviewContent';
 import { ReviewStar } from './ReviewStar';
 import { ReviewStatus, REVIEW_STATUS } from './ReviewStatus';
@@ -19,8 +18,7 @@ export interface ReviewNewProps {
     content: ReviewContent;
     image?: ImageUrl;
     status?: REVIEW_STATUS;
-    walkway: Walkway;
-    user: User;
+    walk: Walk;
 }
 
 export interface ReviewProps extends ReviewNewProps {
@@ -75,12 +73,8 @@ export class Review extends AggregateRoot<ReviewProps> {
         return this.props.status;
     }
 
-    get walkway(): Walkway {
-        return this.props.walkway;
-    }
-
-    get user(): User {
-        return this.props.user;
+    get walkway(): Walk {
+        return this.props.walk;
     }
 
     get createdAt(): Date {
