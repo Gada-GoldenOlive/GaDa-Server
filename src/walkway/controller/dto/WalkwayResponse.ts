@@ -71,9 +71,6 @@ export class WalkDto {
     id: string;
 
     @ApiProperty()
-    time: number;
-
-    @ApiProperty()
     distance: number;
 
     @ApiProperty({
@@ -83,12 +80,6 @@ export class WalkDto {
 
     @ApiProperty()
     rate: number;
-
-    @ApiProperty()
-    walkwayTime: number;
-
-    @ApiProperty()
-    walkwayDistance: number;
 
     @ApiProperty()
     title: string;

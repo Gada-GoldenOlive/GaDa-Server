@@ -213,14 +213,17 @@ export class WalkwayController {
             throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
+        const getRate = (walkDistance, walkwayDistance) => {
+            let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+
+            return rate > 100 ? 100 : rate;
+        }
+
         const walks = _.map(getAllWalkUseCaseResponse.walks, (walk) => ({
             id: walk.id,
-            time: walk.time.value,
-            distance: walk.distance.value,
             finishStatus: walk.finishStatus,
-            rate: (+(walk.distance.value / walk.walkway.distance.value) * 100).toFixed(1),
-            walkwayTime: walk.walkway.time.value,
-            walkwayDistance: walk.walkway.distance.value,
+            rate: getRate(walk.distance.value, walk.walkway.distance.value),
+            distance: walk.walkway.distance.value,
             title: walk.walkway.title.value,
             image: walk.walkway.image.value,
             walkwayId: walk.walkway.id,

@@ -50,7 +50,6 @@ export class MysqlPinRepositoryMapper {
             comments: undefined,
             createdAt: pin.createdAt,
             updatedAt: pin.updatedAt,
-            comments: undefined,
         };
 
         return entity;

@@ -52,7 +52,6 @@ export class MysqlReviewRepositoryMapper {
             likes: undefined,
             createdAt: review.createdAt,
             updatedAt: review.updatedAt,
-            likes: undefined,
         }
 
         return entity;
