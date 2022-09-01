@@ -73,7 +73,7 @@ export class Review extends AggregateRoot<ReviewProps> {
         return this.props.status;
     }
 
-    get walkway(): Walk {
+    get walk(): Walk {
         return this.props.walk;
     }
 
