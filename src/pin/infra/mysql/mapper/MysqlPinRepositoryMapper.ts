@@ -47,6 +47,7 @@ export class MysqlPinRepositoryMapper {
             status: pin.status,
             walkway: MysqlWalkwayRepositoryMapper.toEntity(pin.walkway),
             user: MysqlUserRepositoryMapper.toEntity(pin.user),
+            comments: undefined,
             createdAt: pin.createdAt,
             updatedAt: pin.updatedAt,
             comments: undefined,

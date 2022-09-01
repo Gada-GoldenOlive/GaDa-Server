@@ -1,22 +1,24 @@
-import { ImageUrl } from "../../../common/domain/Image/ImageUrl";
-import { User } from "../../../user/domain/User";
-import { UserName } from "../../../user/domain/UserName";
-import { UserStatus } from "../../../user/domain/UserStatus";
-import { UserTotalDistance } from "../../../user/domain/UserTotalDistance";
-import { UserTotalTime } from "../../../user/domain/UserTotalTime";
-import { Walkway } from "../Walkway/Walkway";
-import { WalkwayAddress } from "../Walkway/WalkwayAddress";
-import { WalkwayDistance } from "../Walkway/WalkwayDistance";
-import { WalkwayEndPoint } from "../Walkway/WalkwayEndPoint";
-import { WalkwayPath } from "../Walkway/WalkwayPath";
-import { WalkwayStartPoint } from "../Walkway/WalkwayStartPoint";
-import { WalkwayStatus } from "../Walkway/WalkwayStatus";
-import { WalkwayTime } from "../Walkway/WalkwayTime";
-import { WalkwayTitle } from "../Walkway/WalkwayTitle";
-import { Walk } from "./Walk";
-import { WalkDistance } from "./WalkDistance";
-import { WalkFinishStatus } from "./WalkFinishStatus";
-import { WalkTime } from "./WalkTime";
+import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
+import { User } from '../../../user/domain/User/User';
+import { UserId } from '../../../user/domain/User/UserId';
+import { UserName } from '../../../user/domain/User/UserName';
+import { UserPassword } from '../../../user/domain/User/UserPassword';
+import { UserStatus } from '../../../user/domain/User/UserStatus';
+import { UserTotalDistance } from '../../../user/domain/User/UserTotalDistance';
+import { UserTotalTime } from '../../../user/domain/User/UserTotalTime';
+import { Walkway } from '../Walkway/Walkway';
+import { WalkwayAddress } from '../Walkway/WalkwayAddress';
+import { WalkwayDistance } from '../Walkway/WalkwayDistance';
+import { WalkwayEndPoint } from '../Walkway/WalkwayEndPoint';
+import { WalkwayPath } from '../Walkway/WalkwayPath';
+import { WalkwayStartPoint } from '../Walkway/WalkwayStartPoint';
+import { WalkwayStatus } from '../Walkway/WalkwayStatus';
+import { WalkwayTime } from '../Walkway/WalkwayTime';
+import { WalkwayTitle } from '../Walkway/WalkwayTitle';
+import { Walk } from './Walk';
+import { WalkDistance } from './WalkDistance';
+import { WalkFinishStatus } from './WalkFinishStatus';
+import { WalkTime } from './WalkTime';
 
 describe ('Walk', () => {
     const TEST_WALK_ID = 'test-walk-uuid';
@@ -27,6 +29,8 @@ describe ('Walk', () => {
     const TEST_USER_ID = 'test-user-uuid';
     const userName = UserName.create('유저이름').value;
     const userImage = ImageUrl.create('user-image-test.png').value;
+    const userId = UserId.create('user-id').value;
+    const userPassword = UserPassword.create('user-password').value;
     const userTotalDistance = UserTotalDistance.create(20).value;
     const userTotalTime = UserTotalTime.create(1123).value;
     const user = User.create({
@@ -35,6 +39,8 @@ describe ('Walk', () => {
         totalDistance: userTotalDistance,
         totalTime: userTotalTime,
         status: UserStatus.NORMAL,
+        userId,
+        password: userPassword,
         createdAt,
         updatedAt,
     }, TEST_USER_ID).value;

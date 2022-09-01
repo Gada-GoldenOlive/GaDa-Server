@@ -59,6 +59,9 @@ export class MysqlUserRepositoryMapper {
             pins: undefined,
             likes: undefined,
             comments: undefined,
+            friendsOfUser1: undefined,
+            friendsOfUser2: undefined,
+            achieves: undefined,
         };
 
         return entity;

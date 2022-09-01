@@ -1,4 +1,4 @@
-import { Walk } from "../domain/Walk/Walk";
+import { Walk } from '../domain/Walk/Walk';
 
 export const WALK_REPOSITORY = Symbol('WALK_REPOSITORY');
 

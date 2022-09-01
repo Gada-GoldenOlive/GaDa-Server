@@ -1,7 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
-import { Point } from "../../domain/Walkway/WalkwayStartPoint";
-import { WalkFinishStatus, WALK_FINISH_STATUS } from "../../domain/Walk/WalkFinishStatus";
+import { Point } from '../../domain/Walkway/WalkwayStartPoint';
+import { WalkFinishStatus, WALK_FINISH_STATUS } from '../../domain/Walk/WalkFinishStatus';
+
 
 export class PointDto implements Point {
     @ApiProperty()

@@ -49,6 +49,7 @@ export class MysqlReviewRepositoryMapper {
             status: review.status,
             walkway: MysqlWalkwayRepositoryMapper.toEntity(review.walkway),
             user: MysqlUserRepositoryMapper.toEntity(review.user),
+            likes: undefined,
             createdAt: review.createdAt,
             updatedAt: review.updatedAt,
             likes: undefined,

@@ -1,16 +1,16 @@
-import _ from "lodash";
-import { ImageUrl } from "../../../../common/domain/Image/ImageUrl";
+import _ from 'lodash';
 
-import { MysqlUserRepositoryMapper } from "../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper";
-import { Walkway } from "../../../domain/Walkway/Walkway";
-import { WalkwayAddress } from "../../../domain/Walkway/WalkwayAddress";
-import { WalkwayDistance } from "../../../domain/Walkway/WalkwayDistance";
-import { WalkwayEndPoint } from "../../../domain/Walkway/WalkwayEndPoint";
-import { WalkwayPath } from "../../../domain/Walkway/WalkwayPath";
-import { Point, WalkwayStartPoint } from "../../../domain/Walkway/WalkwayStartPoint";
-import { WalkwayTime } from "../../../domain/Walkway/WalkwayTime";
-import { WalkwayTitle } from "../../../domain/Walkway/WalkwayTitle";
-import { WalkwayEntity } from "../../../entity/Walkway.entity";
+import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
+import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
+import { Walkway } from '../../../domain/Walkway/Walkway';
+import { WalkwayAddress } from '../../../domain/Walkway/WalkwayAddress';
+import { WalkwayDistance } from '../../../domain/Walkway/WalkwayDistance';
+import { WalkwayEndPoint } from '../../../domain/Walkway/WalkwayEndPoint';
+import { WalkwayPath } from '../../../domain/Walkway/WalkwayPath';
+import { Point, WalkwayStartPoint } from '../../../domain/Walkway/WalkwayStartPoint';
+import { WalkwayTime } from '../../../domain/Walkway/WalkwayTime';
+import { WalkwayTitle } from '../../../domain/Walkway/WalkwayTitle';
+import { WalkwayEntity } from '../../../entity/Walkway.entity';
 
 export class MysqlWalkwayRepositoryMapper {
     static toDomain(entity: WalkwayEntity): Walkway {

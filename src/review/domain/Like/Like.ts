@@ -1,10 +1,10 @@
-import _ from "lodash";
+import _ from 'lodash';
 
-import { AggregateRoot } from "../../../common/domain/AggregateRoot";
-import { Result } from "../../../common/presentationals/Result";
-import { Review } from "../Review/Review";
-import { User } from "../../../user/domain/User/User";
-import { LikeStatus, LIKE_STATUS } from "./LikeStatus";
+import { AggregateRoot } from '../../../common/domain/AggregateRoot';
+import { Result } from '../../../common/presentationals/Result';
+import { Review } from '../Review/Review';
+import { User } from '../../../user/domain/User/User';
+import { LikeStatus, LIKE_STATUS } from './LikeStatus';
 
 export interface LikeNewProps {
     status?: LIKE_STATUS;

@@ -1,4 +1,4 @@
-import { WalkDistance, WALK_DISTANCE_CANNOT_BE_NEGATIVE } from "./WalkDistance";
+import { WalkDistance, WALK_DISTANCE_CANNOT_BE_NEGATIVE } from './WalkDistance';
 
 describe('WalkDistance', () => {
     const walkDistanceNumber = 300;

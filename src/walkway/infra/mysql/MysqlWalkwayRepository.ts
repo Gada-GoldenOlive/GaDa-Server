@@ -1,13 +1,13 @@
-import _ from "lodash";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import _ from 'lodash';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { Walkway } from "../../domain/Walkway/Walkway";
-import { Point } from "../../domain/Walkway/WalkwayStartPoint";
-import { WalkwayStatus } from "../../domain/Walkway/WalkwayStatus";
-import { WalkwayEntity } from "../../entity/Walkway.entity";
-import { IWalkwayRepository } from "../IWalkwayRepository";
-import { MysqlWalkwayRepositoryMapper } from "./mapper/MysqlWalkwayRepository.mapper";
+import { Walkway } from '../../domain/Walkway/Walkway';
+import { Point } from '../../domain/Walkway/WalkwayStartPoint';
+import { WalkwayStatus } from '../../domain/Walkway/WalkwayStatus';
+import { WalkwayEntity } from '../../entity/Walkway.entity';
+import { IWalkwayRepository } from '../IWalkwayRepository';
+import { MysqlWalkwayRepositoryMapper } from './mapper/MysqlWalkwayRepository.mapper';
 
 export class MysqlWalkwayRepository implements IWalkwayRepository {
     constructor(

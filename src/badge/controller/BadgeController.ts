@@ -3,10 +3,10 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
-import { CreateBadgeRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
+import { CreateAchieveRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
 import { GetAllBadgeResponse } from './dto/BadgeResponse';
 
-@Controller('badge')
+@Controller('badges')
 @ApiTags('배지')
 export class BadgeController {
 	constructor() {}
@@ -21,11 +21,27 @@ export class BadgeController {
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');
+		
+	}
+
+	@Post('/achievement')
+	@HttpCode(StatusCodes.CREATED)
+	@ApiCreatedResponse({
+		type: CommonResponse,
+	})
+	async achieve(
+		@Body() request: CreateAchieveRequest,
+	): Promise<CommonResponse> {
+		// TODO: 차후 UseCase 생성 시 추가
+		return {
+			code: StatusCodes.CREATED,
+			responseMessage: 'SUCCESS TO LINK USER AND BADGE'
+		}
 	}
 
 	@Get()
 	@ApiOperation({
-		description: "userId query parameter로 보낼 경우: 해당하는 유저의 모든 배지 리턴. || 안 보낼 경우: 모든 배지 리턴."
+		description: 'userId query parameter로 보낼 경우: 해당하는 유저의 모든 배지 리턴. || 안 보낼 경우: 모든 배지 리턴.'
 	})
 	@HttpCode(StatusCodes.OK)
 	@ApiOkResponse({
@@ -51,6 +67,19 @@ export class BadgeController {
 		throw new Error('Method not implemented');
 	}
 
+	@Patch('/achievement/:achieveId')
+	@HttpCode(StatusCodes.NO_CONTENT)
+	@ApiResponse({
+		type: CommonResponse,
+	})
+	async updateAchievement(
+		@Body() request: UpdateAchieveRequest,
+		@Param('achieveId') achieveId: string,
+	): Promise<CommonResponse> {
+		// TODO: 차후 UseCase 생성 시 추가
+		throw new Error('Method not implemented');
+	}
+
 	@Delete('/:badgeId')
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
@@ -58,6 +87,18 @@ export class BadgeController {
 	})
 	async delete(
 		@Param('badgeId') badgeId: string,
+	): Promise<CommonResponse> {
+		// TODO: 차후 UseCase 생성 시 추가
+		throw new Error('Method not implemented');
+	}
+
+	@Delete('/achievement/:achieveId')
+	@HttpCode(StatusCodes.NO_CONTENT)
+	@ApiResponse({
+		type: CommonResponse
+	})
+	async deleteAchivement(
+		@Param('achieveId') achieveId: string,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');

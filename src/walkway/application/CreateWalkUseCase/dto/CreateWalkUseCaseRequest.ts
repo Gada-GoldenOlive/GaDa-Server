@@ -1,6 +1,6 @@
-import { User } from "../../../../user/domain/User/User";
-import { WALK_FINISH_STATUS } from "../../../domain/Walk/WalkFinishStatus";
-import { Walkway } from "../../../domain/Walkway/Walkway";
+import { User } from '../../../../user/domain/User/User';
+import { WALK_FINISH_STATUS } from '../../../domain/Walk/WalkFinishStatus';
+import { Walkway } from '../../../domain/Walkway/Walkway';
 
 export interface ICreateWalkUseCaseRequest {
     time: number;

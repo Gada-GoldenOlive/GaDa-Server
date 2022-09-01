@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
+import { LineString } from 'geojson';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
@@ -12,7 +13,6 @@ import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/G
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { GetAllWalkwayUseCase, GetAllWalkwayUseCaseCodes } from '../application/GetAllWalkwayUseCase/GetAllWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
-import { LineString } from 'geojson';
 import { Point } from '../domain/Walkway/WalkwayEndPoint';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';

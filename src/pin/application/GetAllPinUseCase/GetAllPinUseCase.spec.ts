@@ -1,10 +1,10 @@
 import { mock, MockProxy } from 'jest-mock-extended';
 
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
-import { User } from '../../../user/domain/User';
-import { UserName } from '../../../user/domain/UserName';
-import { UserTotalDistance } from '../../../user/domain/UserTotalDistance';
-import { UserTotalTime } from '../../../user/domain/UserTotalTime';
+import { User } from '../../../user/domain/User/User';
+import { UserName } from '../../../user/domain/User/UserName';
+import { UserTotalDistance } from '../../../user/domain/User/UserTotalDistance';
+import { UserTotalTime } from '../../../user/domain/User/UserTotalTime';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayAddress } from '../../../walkway/domain/Walkway/WalkwayAddress';
 import { WalkwayDistance } from '../../../walkway/domain/Walkway/WalkwayDistance';
@@ -12,12 +12,10 @@ import { WalkwayPath } from '../../../walkway/domain/Walkway/WalkwayPath';
 import { WalkwayStartPoint } from '../../../walkway/domain/Walkway/WalkwayStartPoint';
 import { WalkwayTime } from '../../../walkway/domain/Walkway/WalkwayTime';
 import { WalkwayTitle } from '../../../walkway/domain/Walkway/WalkwayTitle';
-import { Pin } from '../../domain/Pin';
-import { PinContent } from '../../domain/PinContent';
-import { PinLatitude } from '../../domain/PinLatitude';
-import { PinLongitude } from '../../domain/PinLongitude';
-import { PinStatus } from '../../domain/PinStatus';
-import { PinTitle } from '../../domain/PinTitle';
+import { Pin } from '../../domain/Pin/Pin';
+import { PinContent } from '../../domain/Pin/PinContent';
+import { PinStatus } from '../../domain/Pin/PinStatus';
+import { PinTitle } from '../../domain/Pin/PinTitle';
 import { IPinRepository } from '../../infra/IPinRepository';
 
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from './GetAllPinUseCase';
@@ -40,7 +38,7 @@ describe('GetAllPinUseCase', () => {
         updatedAt,
     }, 'test-user-uuid').value;
     const testWalkway = Walkway.create({
-        title: WalkwayTitle.create("get walkway title").value,
+        title: WalkwayTitle.create('get walkway title').value,
         address: WalkwayAddress.create('get walkway address').value,
         distance: WalkwayDistance.create(40).value,
         time: WalkwayTime.create(1234).value,
