@@ -24,7 +24,7 @@ export interface WalkwayNewProps {
     endPoint: WalkwayEndPoint;
     user: User;
     status?: WALKWAY_STATUS;
-    image: ImageUrl;
+    image?: ImageUrl;
 }
 
 export interface WalkwayProps extends WalkwayNewProps {
