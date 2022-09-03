@@ -16,7 +16,7 @@ export class CreateReviewRequest {
     content: string;
 
     @ApiPropertyOptional()
-    image?: string;
+    images?: string[];
 
     @ApiProperty()
     walkId: string; // NOTE: 어떤 산책로의 리뷰인지
@@ -36,5 +36,5 @@ export class UpdateReviewRequest {
     content: string;
 
     @ApiPropertyOptional()
-    image?: string;
+    images?: string[];
 }

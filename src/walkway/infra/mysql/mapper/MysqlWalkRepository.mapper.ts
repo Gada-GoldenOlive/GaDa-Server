@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { MysqlReviewRepositoryMapper } from '../../../../review/infra/mysql/mapper/MysqlReviewRepositoryMapper';
 
+import { MysqlReviewRepositoryMapper } from '../../../../review/infra/mysql/mapper/MysqlReviewRepositoryMapper';
 import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 import { Walk } from '../../../domain/Walk/Walk';
 import { WalkDistance } from '../../../domain/Walk/WalkDistance';
