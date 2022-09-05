@@ -55,7 +55,6 @@ export class MysqlUserRepositoryMapper {
             updatedAt: user.updatedAt,
             walkways: undefined,
             walks: undefined,
-            reviews: undefined,
             pins: undefined,
             likes: undefined,
             comments: undefined,
