@@ -3,7 +3,6 @@ import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { WalkEntity } from 'src/walkway/entity/Walk.entity';
 import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
-import { ReviewEntity } from '../../review/entity/Review.entity';
 import { PinEntity } from '../../pin/entity/Pin.entity';
 import { UserStatus, USER_STATUS } from '../domain/User/UserStatus';
 import { LikeEntity } from '../../review/entity/Like.entity';
@@ -67,9 +66,6 @@ export class UserEntity extends CoreEntity {
     @OneToMany(() => WalkEntity, (walkEntity) => walkEntity.user)
     walks: WalkEntity[];
 
-    @OneToMany(() => ReviewEntity, (reviewEntity) => reviewEntity.user)
-    reviews: ReviewEntity[];
-
     @OneToMany(() => PinEntity, (pinEntity) => pinEntity.user)
     pins: PinEntity[];
 
@@ -82,7 +78,6 @@ export class UserEntity extends CoreEntity {
     @OneToMany(() => FriendEntity, (friendEntity) => friendEntity.user1)
     friendsOfUser1: FriendEntity[];
 
-    
     @OneToMany(() => FriendEntity, (friendEntity) => friendEntity.user2)
     friendsOfUser2: FriendEntity[];
 

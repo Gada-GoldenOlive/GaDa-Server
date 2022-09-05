@@ -1,8 +1,7 @@
 import _ from 'lodash';
 
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
-import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
-import { MysqlWalkwayRepositoryMapper } from '../../../../walkway/infra/mysql/mapper/MysqlWalkwayRepository.mapper';
+import { MysqlWalkRepositoryMapper } from '../../../../walkway/infra/mysql/mapper/MysqlWalkRepository.mapper';
 import { Review } from '../../../domain/Review/Review';
 import { ReviewContent } from '../../../domain/Review/ReviewContent';
 import { ReviewStar } from '../../../domain/Review/ReviewStar';
@@ -22,8 +21,7 @@ export class MysqlReviewRepositoryMapper {
             content: ReviewContent.create(entity.content).value,
             image: entity.image ? ImageUrl.create(entity.image).value : null,
             status: entity.status,
-            walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
-            user: MysqlUserRepositoryMapper.toDomain(entity.user),
+            walk: MysqlWalkRepositoryMapper.toDomain(entity.walk),
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
         },
@@ -47,8 +45,7 @@ export class MysqlReviewRepositoryMapper {
             content: review.content.value,
             image: review.image.value,
             status: review.status,
-            walkway: MysqlWalkwayRepositoryMapper.toEntity(review.walkway),
-            user: MysqlUserRepositoryMapper.toEntity(review.user),
+            walk: MysqlWalkRepositoryMapper.toEntity(review.walk),
             likes: undefined,
             createdAt: review.createdAt,
             updatedAt: review.updatedAt,
