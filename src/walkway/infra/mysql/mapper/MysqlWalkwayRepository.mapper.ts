@@ -61,7 +61,6 @@ export class MysqlWalkwayRepositoryMapper {
             user: undefined,
             walks: undefined,
             pins: undefined,
-            reviews: undefined,
         };
 
         return entity;
