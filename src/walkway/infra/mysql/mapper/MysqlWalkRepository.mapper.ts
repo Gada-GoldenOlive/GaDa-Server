@@ -16,14 +16,15 @@ export class MysqlWalkRepositoryMapper {
 
         return Walk.create(
             {
-                time: WalkTime.create(entity.time).value,
                 distance: WalkDistance.create(entity.distance).value,
+                time: WalkTime.create(entity.time).value,
                 finishStatus: entity.finishStatus,
                 walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
                 user: MysqlUserRepositoryMapper.toDomain(entity.user),
+                review: MysqlReviewRepositoryMapper.toDomain(entity.review),
+                status: entity.status,
                 createdAt: entity.createdAt,
                 updatedAt: entity.updatedAt,
-                status: entity.status,
             },
             entity.id
         ).value;
@@ -52,26 +53,5 @@ export class MysqlWalkRepositoryMapper {
         };
 
         return entity;
-    }
-
-    static toDomain(entity: WalkEntity): Walk {
-        if (_.isNil(entity)) {
-            return null;
-        }
-
-        return Walk.create(
-            {
-                distance: WalkDistance.create(entity.distance).value,
-                time: WalkTime.create(entity.time).value,
-                finishStatus: entity.finishStatus,
-                walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
-                user: MysqlUserRepositoryMapper.toDomain(entity.user),
-                review: MysqlReviewRepositoryMapper.toDomain(entity.review),
-                status: entity.status,
-                createdAt: entity.createdAt,
-                updatedAt: entity.updatedAt,
-            },
-            entity.id
-        ).value;
     }
 }

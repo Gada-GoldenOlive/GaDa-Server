@@ -1,4 +1,4 @@
-import { Column, Entity, Index, ManyToOne, OneToOne} from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne} from 'typeorm';
 
 import { UserEntity } from '../../user/entity/User.entity';
 import { CoreEntity } from '../../common/entity/Core.entity';
@@ -46,5 +46,6 @@ export class WalkEntity extends CoreEntity {
     walkway: WalkwayEntity;   
 
     @OneToOne(() => ReviewEntity, (ReviewEntity) => ReviewEntity.walk)
+    @JoinColumn()
     review: ReviewEntity;
 }

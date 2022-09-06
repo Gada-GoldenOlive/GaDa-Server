@@ -18,7 +18,7 @@ export class GetAllWalkUseCase implements UseCase<IGetAllWalkUseCaseRequest, IGe
 
     async execute(request: IGetAllWalkUseCaseRequest): Promise<IGetAllWalkUseCaseResponse> {
         try {
-            const walks = await this.walkwayRepository.findAll(request.userId);
+            const walks = await this.walkwayRepository.findAll(request);
 
             return {
                 code: GetAllWalkUseCaseCodes.SUCCESS,

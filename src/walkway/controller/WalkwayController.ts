@@ -17,6 +17,7 @@ import { Point } from '../domain/Walkway/WalkwayEndPoint';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
 import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
+import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -198,15 +199,19 @@ export class WalkwayController {
         type: GetAllWalkResponse,
     })
     @ApiOperation({
-        summary: '산책기록을 최신순으로 가져오기',
-        description: 'qeury로 받은 유저가 산책한 산책로의 title, distance, time, image 정보와 완주여부 등의 정보 포함'
-        + ' rate는 (실제 이동한 거리/산책로의 거리) * 100'
+        summary: 'qeury로 받은 유저의 산책기록을 최신순으로 가져오기',
+        description: 'rate는 (실제 이동한 거리/산책로의 거리) * 100 / userId는 산책로 작성자가 아닌, 산책기록을 남긴 유저'
+        + ' / option이 0이면 산책로 정보와 함께 전체 walk 목록 리턴(최근활동), 1이면 time, distance에 유저 기록과 함께 아직 리뷰가 없는 walk 목록 리턴(산책로가져오기)'
+        + ' / option을 주지 않으면 최근활동'
     })
     async getAllWalk(
-        @Query('userId') userId: string
+        @Query('userId') userId: string,
+        @Query('option') option?: number,
     ) {
+        option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option
         const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
             userId: userId,
+            option: option,
         });
 
         if (getAllWalkUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
@@ -223,10 +228,12 @@ export class WalkwayController {
             id: walk.id,
             finishStatus: walk.finishStatus,
             rate: getRate(walk.distance.value, walk.walkway.distance.value),
-            distance: walk.walkway.distance.value,
+            distance: option == GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.distance.value : walk.distance.value,
+            time: option == GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.time.value : walk.time.value,
             title: walk.walkway.title.value,
             image: walk.walkway.image.value,
             walkwayId: walk.walkway.id,
+            userId: walk.user.id,
             createAt: walk.createdAt,
             updatedAt: walk.updatedAt,
         }));

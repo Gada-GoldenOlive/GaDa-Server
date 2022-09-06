@@ -73,6 +73,9 @@ export class WalkDto {
     @ApiProperty()
     distance: number;
 
+    @ApiProperty()
+    time: number
+
     @ApiProperty({
         enum: WalkFinishStatus
     })
@@ -89,6 +92,9 @@ export class WalkDto {
 
     @ApiProperty()
     walkwayId: string;
+
+    @ApiProperty()
+    userId: string;
 
     @ApiProperty()
     createdAt: Date;
