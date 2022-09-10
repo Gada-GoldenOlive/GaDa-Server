@@ -33,7 +33,7 @@ export class MysqlWalkRepository implements IWalkRepository {
         .andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
         .orderBy('walk.createdAt', 'DESC')
 
-        if (option == GET_ALL_WALK_OPTION.USER_INFO)
+        if (option === GET_ALL_WALK_OPTION.USER_INFO)
             query.andWhere('walk.reviewId IS NOT NULL')
 
         const walks = await query.getMany();
