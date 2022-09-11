@@ -22,8 +22,13 @@ export class MysqlReviewRepository implements IReviewRepository {
         private readonly reviewRepository: Repository<ReviewEntity>,
     ) {}
 
-    getOne(id: string): Promise<Review> {
-        throw new Error('Method not implemented.');
+    async getOne(id: string): Promise<Review> {
+        const review = await this.reviewRepository.findOne({
+            where : { id },
+            relations: ['walk'],
+        });
+
+        return MysqlReviewRepositoryMapper.toDomain(review);
     }
 
     save(review: Review): Promise<boolean> {
