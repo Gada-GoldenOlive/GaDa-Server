@@ -42,6 +42,26 @@ export class ReviewDto {
     updatedAt: Date;
 }
 
+export class FeedDto {
+    @ApiProperty()
+    review: ReviewDto;
+
+    @ApiProperty()
+    time: number;
+
+    @ApiProperty()
+    distance: number;
+
+    @ApiPropertyOptional()
+    walkwayImage?: string;
+
+    @ApiProperty()
+    address: string;
+
+    @ApiPropertyOptional()
+    images?: string[];
+}
+
 export class GetAllReviewResponse {
     @ApiProperty({
         type: [ReviewDto],
@@ -53,5 +73,5 @@ export class GetAllReviewResponse {
 
 export class GetReviewResponse {
     @ApiProperty()
-    review: ReviewDto;
+    review?: FeedDto;
 }

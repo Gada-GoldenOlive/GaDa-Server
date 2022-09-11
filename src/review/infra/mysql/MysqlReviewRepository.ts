@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 
 import { User } from '../../../user/domain/User/User';
 import { UserStatus } from '../../../user/domain/User/UserStatus';
+import { WalkStatus } from '../../../walkway/domain/Walk/WalkStatus';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { WalkwayStatus } from '../../../walkway/domain/Walkway/WalkwayStatus';
 import { Review } from '../../domain/Review/Review';
@@ -24,9 +25,16 @@ export class MysqlReviewRepository implements IReviewRepository {
 
     async getOne(id: string): Promise<Review> {
         const review = await this.reviewRepository.findOne({
-            where : { id },
-            relations: ['walk'],
-        });
+            where: {
+                id,
+                status: ReviewStatus.NORMAL,
+            },
+            relations: [
+                'walk',
+                'walk.user',
+                'walk.walkway'
+            ],
+        })
 
         return MysqlReviewRepositoryMapper.toDomain(review);
     }
