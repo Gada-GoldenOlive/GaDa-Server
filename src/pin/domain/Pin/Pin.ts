@@ -7,7 +7,6 @@ import { Result } from '../../../common/presentationals/Result';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { PinStatus, PIN_STATUS } from './PinStatus';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
-
 import { PinLocation } from './PinLocation';
 import { User } from '../../../user/domain/User/User';
 

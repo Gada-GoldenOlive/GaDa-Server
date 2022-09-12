@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { WalkwayController } from './controller/WalkwayController';
-import { WalkController } from './controller/WalkController';
 import { WalkEntity } from './entity/Walk.entity';
 import { WalkwayEntity } from './entity/Walkway.entity';
 import { WALKWAY_REPOSITORY } from './infra/IWalkwayRepository';
@@ -18,7 +17,7 @@ import { GetAllReviewUseCase } from '../review/application/GetAllReviewUseCase/G
 import { REVIEW_REPOSITORY } from '../review/infra/IReviewRepository';
 import { MysqlReviewRepository } from '../review/infra/mysql/MysqlReviewRepository';
 import { ReviewEntity } from '../review/entity/Review.entity';
-import { GetAllNearWalkwayUseCase } from './application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
+import { GetAllWalkwayUseCase } from './application/GetAllWalkwayUseCase/GetAllWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from './application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 import { CreateWalkUseCase } from './application/CreateWalkUseCase/CreateWalkUseCase';
 import { GetUserUseCase } from '../user/application/GetUserUseCase/GetUserUseCase';
@@ -27,6 +26,7 @@ import { MysqlWalkRepository } from './infra/mysql/MysqlWalkRepository';
 import { USER_REPOSITORY } from '../user/infra/IUserRepository';
 import { MysqlUserRepository } from '../user/infra/mysql/MysqlUserRepository';
 import { UserEntity } from '../user/entity/User.entity';
+import { GetAllWalkUseCase } from './application/GetAllWalkUseCase/GetAllWalkUseCase';
 
 @Module({
     imports: [
@@ -38,10 +38,7 @@ import { UserEntity } from '../user/entity/User.entity';
             UserEntity,
         ])
     ],
-    controllers: [
-        WalkwayController,
-        WalkController
-    ],
+    controllers: [ WalkwayController ],
     providers: [
         CreateSeoulmapWalkwaysUseCase,
         CreateWalkwayUseCase,
@@ -49,9 +46,10 @@ import { UserEntity } from '../user/entity/User.entity';
         GetWalkwayUseCase,
         GetAllPinUseCase,
         GetAllReviewUseCase,
-        GetAllNearWalkwayUseCase,
+        GetAllWalkwayUseCase,
         CreateWalkUseCase,
         GetUserUseCase,
+        GetAllWalkUseCase,
         {
             provide: WALKWAY_REPOSITORY,
             useClass: MysqlWalkwayRepository

@@ -9,27 +9,6 @@ import { WalkEntity } from '../../../entity/Walk.entity';
 import { MysqlWalkwayRepositoryMapper } from './MysqlWalkwayRepository.mapper';
 
 export class MysqlWalkRepositoryMapper {
-    static toEntity(walk: Walk): WalkEntity {
-        if (_.isNil(walk)) {
-            return null;
-        }
-
-        const entity: WalkEntity = {
-            id: walk.id,
-            distance: walk.distance.value,
-            time: walk.time.value,
-            finishStatus: walk.finishStatus,
-            status: walk.status,
-            user: MysqlUserRepositoryMapper.toEntity(walk.user),
-            walkway: MysqlWalkwayRepositoryMapper.toEntity(walk.walkway),
-            review: MysqlReviewRepositoryMapper.toEntity(walk.review),
-            createdAt: walk.createdAt,
-            updatedAt: walk.updatedAt,
-        };
-
-        return entity;
-    }
-
     static toDomain(entity: WalkEntity): Walk {
         if (_.isNil(entity)) {
             return null;
@@ -49,5 +28,30 @@ export class MysqlWalkRepositoryMapper {
             },
             entity.id
         ).value;
+    }
+
+    static toDomains(entities: WalkEntity[]): Walk[] {
+        return _.map(entities, (entity) => this.toDomain(entity));
+    }
+
+    static toEntity(walk: Walk): WalkEntity {
+        if (_.isNil(walk)) {
+            return null;
+        }
+
+        const entity: WalkEntity = {
+            id: walk.id,
+            distance: walk.distance.value,
+            time: walk.time.value,
+            finishStatus: walk.finishStatus,
+            status: walk.status,
+            user: MysqlUserRepositoryMapper.toEntity(walk.user),
+            walkway: MysqlWalkwayRepositoryMapper.toEntity(walk.walkway),
+            review: MysqlReviewRepositoryMapper.toEntity(walk.review),
+            createdAt: walk.createdAt,
+            updatedAt: walk.updatedAt,
+        };
+
+        return entity;
     }
 }

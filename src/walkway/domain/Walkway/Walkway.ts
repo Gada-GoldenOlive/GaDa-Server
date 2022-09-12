@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
+import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Result } from '../../../common/presentationals/Result';
 import { User } from '../../../user/domain/User/User';
 import { WalkwayAddress } from './WalkwayAddress';
@@ -23,6 +24,7 @@ export interface WalkwayNewProps {
     endPoint: WalkwayEndPoint;
     user: User;
     status?: WALKWAY_STATUS;
+    image?: ImageUrl;
 }
 
 export interface WalkwayProps extends WalkwayNewProps {
@@ -95,6 +97,10 @@ export class Walkway extends AggregateRoot<WalkwayProps> {
 
     get user(): User {
         return this.props.user;
+    }
+
+    get image(): ImageUrl {
+        return this.props.image;
     }
 
     private static getWalkwayStatusAndSetIfStatusIsUndefined(props: WalkwayNewProps) {
