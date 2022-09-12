@@ -73,5 +73,5 @@ export class GetAllReviewResponse {
 
 export class GetReviewResponse {
     @ApiProperty()
-    review?: FeedDto;
+    review: FeedDto;
 }

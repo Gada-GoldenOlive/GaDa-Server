@@ -156,7 +156,7 @@ export class ReviewController {
             throw new HttpException('FAIL TO FIND REVIEW',StatusCodes.INTERNAL_SERVER_ERROR);
         }
         if (_.isNil(getReviewUseCaseResponse.review))
-            return {};
+            return { review: null };
 
         const review: FeedDto = {
             review: {
@@ -178,7 +178,7 @@ export class ReviewController {
             // walkwayImage: getReviewUseCaseResponse.review.walk.walkway.image.value,
             address: getReviewUseCaseResponse.review.walk.walkway.address.value,
             // images: getReviewUseCaseResponse.review.images.value,
-        }
+        };
         return {
             review,
         };
