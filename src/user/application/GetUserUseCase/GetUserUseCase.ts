@@ -11,6 +11,7 @@ export enum GetUserUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
     DUPLICATE_USER_ID_ERROR = 'Request user id is duplicated.',
+    NO_USER_FOUND = 'No corresponding user found.',
 }
 
 export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserUseCaseResponse> {
@@ -31,17 +32,23 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
                 user = foundUser;
             }
 
-            // NOTE: user id만 들어왔을 때 (중복 검사)
-            if (request.userId && !request.id) {
+            // NOTE: user id만 들어왔을 때
+            if (!request.id && request.userId) {
                 const foundUser = await this.userRepository.findOne(request);
 
-                if(foundUser) {
+                if(foundUser && request.isCheckDuplicated) {  // NOTE: 회원가입 때 아이디 중복 검사
                     return {
                         code: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
                     };
                 }
 
                 user = foundUser;
+            }
+
+            if (!user) {
+                return {
+                    code: GetUserUseCaseCodes.NO_USER_FOUND,
+                }
             }
 
             return {

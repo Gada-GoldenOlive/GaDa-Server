@@ -8,7 +8,8 @@ import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/Create
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase, LoginUseCaseCodes } from '../application/LoginUseCase/LoginUseCase';
 import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
-import { LoginOrSignUpUserResponse, GetAllUserResponse } from './dto/UserResponse';
+import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
+import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -17,6 +18,7 @@ export class UserController {
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly loginUseCase: LoginUseCase,
         private readonly getUserUseCase: GetUserUseCase,
+        private readonly getAllPinUseCase: GetAllPinUseCase,
     ) {}
 
     @Post()
@@ -69,6 +71,49 @@ export class UserController {
     async getAll() {
         // TODO: 차후 Usecase 생성시 추가
         throw new Error('Method not implemented');
+    }
+
+    @Get('/:userId')
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: GetUserResponse,
+    })
+    async getOne(
+        @Param('userId') userId: string,
+    ) {
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            userId,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_USER_FOUND) {
+            throw new HttpException(GetUserUseCaseCodes.NO_USER_FOUND, StatusCodes.NOT_FOUND);
+        }
+
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const user = getUserUseCaseResponse.user;
+
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            user,
+        })
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            id: user.id,
+            userId: user.userId.value,
+            image: user.image ? user.image.value : null,
+            name: user.name.value,
+            pinCount: getAllPinUseCaseResponse.pins.length,
+            goalDistance: user.goalDistance.value,
+            goalTime: user.goalTime.value,
+            totalDistnace: user.totalDistance.value,
+            totalTime: user.totalTime.value,
+        }
     }
 
     @Get('/friends')

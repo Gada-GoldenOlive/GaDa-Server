@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Result } from '../../../common/presentationals/Result';
+import { UserGoalDistance } from './UserGoalDistance';
+import { UserGoalTime } from './UserGoalTime';
 import { UserId } from './UserId';
 import { UserName } from './UserName';
 import { UserPassword } from './UserPassword';
@@ -15,6 +17,8 @@ export interface UserNewProps {
     password: UserPassword;
     name: UserName;
     image?: ImageUrl;
+    goalDistance?: UserGoalDistance;
+    goalTime?: UserGoalTime;
     totalDistance?: UserTotalDistance;
     totalTime?: UserTotalTime;
     status?: USER_STATUS;
@@ -40,6 +44,7 @@ export class User extends AggregateRoot<UserProps> {
         }
 
         // TODO: image url이 전달되지 않을 경우에 default를 뭐로 설정해줘야 하나?
+        // NOTE: 목표 시간, 거리는 null 그대로 전달해줘서 null일 경우 설정한 목표 시간/거리가 없습니다. 이런 창 띄워주는 걸 생각했어요
         return Result.ok(new User({
             ...props,
             totalDistance: UserTotalDistance.create(initialNumber).value,
@@ -68,6 +73,14 @@ export class User extends AggregateRoot<UserProps> {
 
     get image(): ImageUrl {
         return this.props.image;
+    }
+
+    get goalDistance(): UserGoalDistance {
+        return this.props.goalDistance;
+    }
+
+    get goalTime(): UserGoalTime {
+        return this.props.goalTime;
     }
     
     get totalDistance(): UserTotalDistance {

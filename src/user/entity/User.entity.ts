@@ -10,6 +10,7 @@ import { CommentEntity } from '../../pin/entity/Comment.entity';
 import { FriendEntity } from './Friend.entity';
 import { AchieveEntity } from '../../badge/entity/AchieveEntity';
 
+
 @Entity('user')
 export class UserEntity extends CoreEntity {
     @Column({
@@ -38,6 +39,18 @@ export class UserEntity extends CoreEntity {
         type: 'varchar',
     })
     image: string;
+
+    @Column({
+        nullable: true,
+        type: 'int',
+    })
+    goalDistance: number;
+
+    @Column({
+        nullable: true,
+        type: 'int',
+    })
+    goalTime: number;
 
     @Column({
         nullable: true,

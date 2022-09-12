@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 import { ImageUrl } from '../../../../common/domain/Image/ImageUrl';
 import { User } from '../../../domain/User/User';
+import { UserGoalDistance } from '../../../domain/User/UserGoalDistance';
+import { UserGoalTime } from '../../../domain/User/UserGoalTime';
 import { UserId } from '../../../domain/User/UserId';
 import { UserName } from '../../../domain/User/UserName';
 import { UserPassword } from '../../../domain/User/UserPassword';
@@ -21,6 +23,8 @@ export class MysqlUserRepositoryMapper {
                 password: UserPassword.create(entity.password).value,
                 name: UserName.create(entity.name).value,
                 image: entity.image ? ImageUrl.create(entity.image).value : null,
+                goalDistance: UserGoalDistance.create(entity.goalDistance).value,
+                goalTime: UserGoalTime.create(entity.goalTime).value,
                 totalDistance: UserTotalDistance.create(entity.totalDistance).value,
                 totalTime: UserTotalTime.create(entity.totalTime).value,
                 status: entity.status,
@@ -48,6 +52,8 @@ export class MysqlUserRepositoryMapper {
             password: user.password.value,
             name: user.name.value,
             image: user.image ? user.image.value : null,
+            goalDistance: user.goalDistance.value,
+            goalTime: user.goalTime.value,
             totalDistance: user.totalDistance.value,
             totalTime: user.totalTime.value,
             status: user.status,

@@ -143,7 +143,11 @@ export class WalkwayController {
         const getAllWalkwayResponse = await this.getAllWalkwayUseCase.execute({
             coordinates: { lat, lng },
         });
+<<<<<<< HEAD
         if (getAllWalkwayResponse.code != GetAllWalkwayUseCaseCodes.SUCCESS) {
+=======
+        if (getAllNearWalkwayResponse.code !== GetAllNearWalkwayUseCaseCodes.SUCCESS) {
+>>>>>>> 50ada95 (마이페이지에 유저 한 명 받아오는 API 완성)
             throw new HttpException('FAIL TO FIND NEAR WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
@@ -155,7 +159,7 @@ export class WalkwayController {
                     lat,
                     lng,
                 }
-            })
+            });
             if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
             }
