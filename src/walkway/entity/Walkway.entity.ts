@@ -66,6 +66,12 @@ export class WalkwayEntity extends CoreEntity {
     @Index()
     status: WALKWAY_STATUS
 
+    @Column({
+        nullable: true,
+        type: 'varchar',
+    })
+    image: string;
+
     @ManyToOne(() => UserEntity, (userEntity) => userEntity.walkways)
     user: UserEntity;
 

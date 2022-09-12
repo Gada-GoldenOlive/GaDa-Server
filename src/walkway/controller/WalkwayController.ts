@@ -2,18 +2,22 @@ import _ from 'lodash';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
+import { LineString } from 'geojson';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
-import { CreateWalkwayRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllNearWalkwayResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
+import { CreateWalkRequest, CreateWalkwayRequest, UpdateWalkRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
+import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
-import { GetAllNearWalkwayUseCase, GetAllNearWalkwayUseCaseCodes } from '../application/GetAllNearWalkwayUseCase/GetAllNaerWalkwayUseCase';
+import { GetAllWalkwayUseCase, GetAllWalkwayUseCaseCodes } from '../application/GetAllWalkwayUseCase/GetAllWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
-import { LineString } from 'geojson';
 import { Point } from '../domain/Walkway/WalkwayEndPoint';
+import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
+import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
+import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
+import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -38,7 +42,10 @@ export class WalkwayController {
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
-        private readonly getAllNearWalkwayUseCase: GetAllNearWalkwayUseCase,
+        private readonly getAllWalkwayUseCase: GetAllWalkwayUseCase,
+        private readonly createWalkUseCase: CreateWalkUseCase,
+        private readonly getUserUseCase: GetUserUseCase,
+        private readonly getAllWalkUseCase: GetAllWalkUseCase,
     ) {}
 
     @Post()
@@ -78,27 +85,70 @@ export class WalkwayController {
         }
     }
 
-    @Get('/list')
+    @Post('/walks')
+    @HttpCode(StatusCodes.CREATED)
+    @ApiCreatedResponse({
+        type: CommonResponse,
+    })
+    async createWalk(
+        @Body() request: CreateWalkRequest,
+    ): Promise<CommonResponse> {
+        const [ walkwayResponse, userResponse ] = await Promise.all([
+            this.getWalkwayUseCase.execute({
+                id: request.walkwayId,
+            }),
+            this.getUserUseCase.execute({
+                id: request.userId,
+            }),
+        ]);
+
+        if (walkwayResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE WALK BY WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE WALK BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const createWalkUseCaseResponse = await this.createWalkUseCase.execute({
+            time: request.time,
+            distance: request.distance,
+            finishStatus: request.finishStatus,
+            user: userResponse.user,
+            walkway: walkwayResponse.walkway,
+        })
+
+        if (createWalkUseCaseResponse.code != CreateWalkUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE WALK',
+        }
+    }
+
+    @Get()
     @ApiOkResponse({
-        type: GetAllNearWalkwayResponse,
+        type: GetAllWalkwayResponse,
     })
     @ApiOperation({
         summary: '추천 산책로 목록 가져오기',
         description: 'query로 받은 좌표에서 반경 2km 이내에 있는 산책로 목록을 리턴함.'
     })
-    async getAllNear(
+    async getAll(
         @Query('lat') lat: number,
         @Query('lng') lng: number
     ) {
-        const getAllNearWalkwayResponse = await this.getAllNearWalkwayUseCase.execute({
+        const getAllWalkwayResponse = await this.getAllWalkwayUseCase.execute({
             coordinates: { lat, lng },
         });
-        if (getAllNearWalkwayResponse.code != GetAllNearWalkwayUseCaseCodes.SUCCESS) {
+        if (getAllWalkwayResponse.code != GetAllWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND NEAR WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         let walkways = []
-        for (const walkway of getAllNearWalkwayResponse.walkways) {
+        for (const walkway of getAllWalkwayResponse.walkways) {
             const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 walkway: walkway,
                 curLocation: {
@@ -142,6 +192,53 @@ export class WalkwayController {
         return {
             walkways,
         }
+    }
+
+    @Get('/walks')
+    @ApiOkResponse({
+        type: GetAllWalkResponse,
+    })
+    @ApiOperation({
+        summary: 'qeury로 받은 유저의 산책기록을 최신순으로 가져오기',
+        description: 'rate는 (실제 이동한 거리/산책로의 거리) * 100 / userId는 산책로 작성자가 아닌, 산책기록을 남긴 유저'
+        + ' / option이 0이면 산책로 정보와 함께 전체 walk 목록 리턴(최근활동), 1이면 time, distance에 유저 기록과 함께 아직 리뷰가 없는 walk 목록 리턴(산책로가져오기)'
+        + ' / option을 주지 않으면 최근활동'
+    })
+    async getAllWalk(
+        @Query('userId') userId: string,
+        @Query('option') option?: number,
+    ) {
+        option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option
+        const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
+            userId: userId,
+            option: option,
+        });
+
+        if (getAllWalkUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const getRate = (walkDistance, walkwayDistance) => {
+            let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+
+            return rate > 100 ? 100 : rate;
+        }
+
+        const walks = _.map(getAllWalkUseCaseResponse.walks, (walk) => ({
+            id: walk.id,
+            finishStatus: walk.finishStatus,
+            rate: getRate(walk.distance.value, walk.walkway.distance.value),
+            distance: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.distance.value : walk.distance.value,
+            time: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.time.value : walk.time.value,
+            title: walk.walkway.title.value,
+            image: walk.walkway.image.value,
+            walkwayId: walk.walkway.id,
+            userId: walk.user.id,
+            createAt: walk.createdAt,
+            updatedAt: walk.updatedAt,
+        }));
+
+        return walks;
     }
 
     @Get('/:walkwayId')
@@ -231,9 +328,28 @@ export class WalkwayController {
         }
     }
 
-    @Delete(':walkwayId')
+    @Patch('/walks/:walkId')
+    @ApiResponse({
+        type: CommonResponse,
+    })
+    async updateWalk(
+        @Body() request: UpdateWalkRequest,
+    ): Promise<CommonResponse> {
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO UPDATE WALK'
+        }
+    }
+
+    @Delete('/:walkwayId')
     @ApiResponse({
         type: CommonResponse,
     })
     async delete() {}
+
+    @Delete('/walks/:walkId')
+    @ApiResponse({
+        type: CommonResponse,
+    })
+    async deleteWalk() {}
 }

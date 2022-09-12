@@ -30,7 +30,8 @@ export class GetSeoulmapWalkwayUseCase {
         let value: ICreateWalkwayUseCaseRequest = {
             title: this.getTitle(response['COT_CONTS_NAME'], address),
             address: address,
-            distance: distance ,
+            distance: distance,
+            image: 'https://picsum.photos/400/250/?image=481',
             time: +(distance / DEFAULT_SPEED).toFixed(0),   // s
             path: this.getPath(response['COT_COORD_DATA']),
             user: null,
