@@ -60,6 +60,9 @@ export class FeedDto {
 
     @ApiPropertyOptional()
     images?: string[];
+
+    @ApiProperty()
+    like: boolean;
 }
 
 export class GetAllReviewResponse {
