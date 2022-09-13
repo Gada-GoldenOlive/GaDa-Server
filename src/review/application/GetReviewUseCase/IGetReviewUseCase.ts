@@ -9,6 +9,7 @@ import { IGetReviewUseCaseRequest } from './dto/GetReviewUseCaseRequest';
 export enum GetReviewUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
+    NO_EXIST_REVIEW = 'NO_EXIST_REVIEW'
 }
 
 export class GetReviewUseCase implements UseCase<
@@ -20,9 +21,18 @@ IGetReviewUseCaseRequest, IGetReviewUseCaseResponse> {
 
     async execute(request?: IGetReviewUseCaseRequest): Promise<IGetReviewUseCaseResponse> {
         try {
-            if (_.isNil(request.id)) return null;
+            if (_.isNil(request.id))
+                return {
+                    code: GetReviewUseCaseCodes.NO_EXIST_REVIEW,
+                };
             
             const review = await this.reviewRepository.getOne(request.id);
+
+            if (!review) {
+                return {
+                    code: GetReviewUseCaseCodes.NO_EXIST_REVIEW,
+                };
+            }
             
             return {
                 code: GetReviewUseCaseCodes.SUCCESS,

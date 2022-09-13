@@ -156,6 +156,9 @@ export class ReviewController {
         const getReviewUseCaseResponse = await this.getReviewUseCase.execute({
             id: reviewId,
         });
+        if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NO_EXIST_REVIEW)
+            throw new HttpException('NO EXIST REVIEW', StatusCodes.NOT_FOUND);
+
         if (getReviewUseCaseResponse.code !== GetReviewUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
@@ -166,7 +169,7 @@ export class ReviewController {
                 id: userId,
             });
 
-            if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            if (!getUserUseCaseResponse || getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO FIND USER',StatusCodes.INTERNAL_SERVER_ERROR);
             }
 
