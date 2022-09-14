@@ -78,3 +78,10 @@ export class GetReviewResponse {
     @ApiProperty()
     review: FeedDto;
 }
+
+export class GetAllFeedReseponse {
+    @ApiProperty({
+        type: [FeedDto],
+    })
+    reviews?: FeedDto[];
+}

@@ -1,7 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-
 import { User } from '../../domain/User/User';
 import { UserStatus } from '../../domain/User/UserStatus';
 import { UserEntity } from '../../entity/User.entity';

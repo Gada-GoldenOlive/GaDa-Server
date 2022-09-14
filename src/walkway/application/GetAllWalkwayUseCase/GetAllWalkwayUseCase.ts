@@ -2,15 +2,15 @@ import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IWalkwayRepository, WALKWAY_REPOSITORY } from '../../infra/IWalkwayRepository';
-import { IGetAllWalkwayUseCaseRequest } from './dto/GetAllNearWalkwayUseCaseRequest';
-import { IGetAllWalkwayUseCaseResponse } from './dto/GetAllNearWalkwayUseCaseResponse';
+import { IGetAllWalkwayUseCaseRequest } from './dto/GetAllWalkwayUseCaseRequest';
+import { IGetAllWalkwayUseCaseResponse } from './dto/GetAllWalkwayUseCaseResponse';
 
-export enum GetAllNearWalkwayUseCaseCodes {
+export enum GetAllWalkwayUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
 }
 
-export class GetAllNearWalkwayUseCase implements UseCase<IGetAllWalkwayUseCaseRequest, IGetAllWalkwayUseCaseResponse> {
+export class GetAllWalkwayUseCase implements UseCase<IGetAllWalkwayUseCaseRequest, IGetAllWalkwayUseCaseResponse> {
     constructor(
         @Inject(WALKWAY_REPOSITORY)
         private readonly walkwayRepository: IWalkwayRepository,
@@ -21,12 +21,12 @@ export class GetAllNearWalkwayUseCase implements UseCase<IGetAllWalkwayUseCaseRe
             const walkways = await this.walkwayRepository.findAll(request.coordinates);
 
             return {
-                code: GetAllNearWalkwayUseCaseCodes.SUCCESS,
+                code: GetAllWalkwayUseCaseCodes.SUCCESS,
                 walkways,
             };
         } catch {
             return {
-                code: GetAllNearWalkwayUseCaseCodes.FAILURE,
+                code: GetAllWalkwayUseCaseCodes.FAILURE,
             };
         }
     }

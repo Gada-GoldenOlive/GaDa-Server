@@ -13,6 +13,7 @@ import { WalkwayTitle } from '../../domain/Walkway/WalkwayTitle';
 import { IWalkwayRepository, WALKWAY_REPOSITORY } from '../../infra/IWalkwayRepository';
 import { ICreateSeoulmapWalkwaysUseCaseRequest } from './dto/CreateSeoulmapWalkwaysUseCaseRequest';
 import { ICreateSeoulmapWalkwaysUseCaseResponse } from './dto/CreateSeoulmapWalkwaysUseCaseResponse';
+import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 
 export enum CreateSeoulmapWalkwaysUseCaseCodes {
     SUCCESS = 'SUCCESS',
@@ -37,6 +38,7 @@ export class CreateSeoulmapWalkwaysUseCase implements UseCase<ICreateSeoulmapWal
                     startPoint: WalkwayStartPoint.create(walkway.path[0]).value,
                     endPoint: WalkwayEndPoint.create(walkway.path[walkway.path.length - 1]).value,
                     user: walkway.user,
+                    image: ImageUrl.create(walkway.image).value,
                 }).value;
             }));
             await this.walkwayRespository.saveAll(walkways);
