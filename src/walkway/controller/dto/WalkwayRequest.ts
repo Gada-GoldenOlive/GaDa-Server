@@ -20,6 +20,12 @@ export class CreateWalkwayRequest {
         type: [PointDto],
     })
     path: PointDto[];
+
+    @ApiPropertyOptional()
+    image?: string;
+
+    @ApiProperty()
+    userId: string;
 }
 
 export class UpdateWalkwayRequest {
@@ -42,6 +48,9 @@ export class UpdateWalkwayRequest {
         type: [PointDto],
     })
     path?: PointDto[];
+
+    @ApiPropertyOptional()
+    image?: string;
 }
 
 export class CreateWalkRequest {

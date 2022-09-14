@@ -18,6 +18,7 @@ import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetU
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
 import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
+import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/CreateWalkwayUseCase/CreateWalkwayUseCase';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -26,11 +27,6 @@ const getDistance = (p1: Point, p2: Point) => {
         'coordinates': [[p1.lat, p1.lng], [p2.lat, p2.lng]],
     }
     return +(geojsonLength(line)) ;
-}
-
-const getRandomImage = () => {
-    const randomNum = Math.floor(Math.random() * 1085);
-    return 'https://picsum.photos/150/150/?image=' + randomNum;
 }
 
 @Controller('walkways')
@@ -46,6 +42,7 @@ export class WalkwayController {
         private readonly createWalkUseCase: CreateWalkUseCase,
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getAllWalkUseCase: GetAllWalkUseCase,
+        private readonly createWalkwayUseCase: CreateWalkwayUseCase,
     ) {}
 
     @Post()
@@ -55,7 +52,34 @@ export class WalkwayController {
     })
     async create(
         @Body() request: CreateWalkwayRequest,
-    ) {}
+    ): Promise<CommonResponse> {
+        const getUserUseCaseResposne = await this.getUserUseCase.execute({
+            id: request.userId,
+        })
+
+        if (getUserUseCaseResposne.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE WALKWAY BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const createWalkwayUseCaseResponse = await this.createWalkwayUseCase.execute({
+            title: request.title,
+            address: request.address,
+            distance: request.distance,
+            time: request.time,
+            path: request.path,
+            image: request.image,
+            user: getUserUseCaseResposne.user,
+        })
+
+        if (createWalkwayUseCaseResponse.code !== CreateWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE WALKWAY'
+        }
+    }
 
     @Post('/seoulmap')
     @HttpCode(StatusCodes.CREATED)
@@ -176,7 +200,7 @@ export class WalkwayController {
                 pinCount: getAllPinUseCaseResponse.pins.length,
                 averageStar: getAllReviewUseCaseResponse.averageStar,
                 path: walkway.path.value,
-                image: getRandomImage(),
+                image: walkway.image.value,
                 creater: walkway.user ? walkway.user.name.value : '스마트서울맵',
                 creatorId: walkway.user ? walkway.user.id : null,
             }
@@ -304,7 +328,7 @@ export class WalkwayController {
             pinCount: getAllPinUseCaseResponse.pins.length,
             averageStar: getAllReviewUseCaseResponse.averageStar,
             path,
-            image: getRandomImage(),
+            image: getWalkwayUseCaseResponse.walkway.image.value,
             creator: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.name.value : '스마트서울맵',
             creatorId: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.id : null,
             startPoint,
