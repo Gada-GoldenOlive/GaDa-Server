@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 
 import { Like } from '../../../domain/Like/Like';
 import { LikeEntity } from '../../../entity/Like.entity';
 import { MysqlReviewRepositoryMapper } from './MysqlReviewRepositoryMapper';
+import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 
 export class MysqlLikeRepositoryMapper {
     static toDomain(entity: LikeEntity): Like {

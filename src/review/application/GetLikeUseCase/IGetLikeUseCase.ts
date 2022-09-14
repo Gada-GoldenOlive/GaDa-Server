@@ -19,9 +19,7 @@ IGetLikeUseCaseRequest, IGetLikeUseCaseResponse> {
     ) {}
 
     async execute(request?: IGetLikeUseCaseRequest): Promise<IGetLikeUseCaseResponse> {
-        try {
-            if (_.isNil(request.user) || _.isNil(request.review)) return null;
-            
+        try {            
             const like = await this.likeRepository.findOne(request.user, request.review);
             
             return {
