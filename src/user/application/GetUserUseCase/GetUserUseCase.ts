@@ -11,6 +11,7 @@ export enum GetUserUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
     DUPLICATE_USER_ID_ERROR = 'Request user id is duplicated.',
+    NO_EXIST_USER = 'NO_EXIST_USER',
 }
 
 export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserUseCaseResponse> {
@@ -21,7 +22,11 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
     async execute(request: IGetUserUseCaseRequest): Promise<IGetUserUseCaseResponse> {
         try {
-            if (_.isNil(request.id) && _.isNil(request.userId)) return null;
+            if (_.isNil(request.id) && _.isNil(request.userId)) {
+                return {
+                    code: GetUserUseCaseCodes.NO_EXIST_USER,
+                };
+            }
 
             let user: User;
 
