@@ -2,6 +2,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { User } from '../../../user/domain/User/User';
+import { UserStatus } from '../../../user/domain/User/UserStatus';
+import { WalkStatus } from '../../../walkway/domain/Walk/WalkStatus';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
 import { Review } from '../../domain/Review/Review';
 import { ReviewStatus } from '../../domain/Review/ReviewStatus';
@@ -20,8 +22,20 @@ export class MysqlReviewRepository implements IReviewRepository {
         private readonly reviewRepository: Repository<ReviewEntity>,
     ) {}
 
-    getOne(id: string): Promise<Review> {
-        throw new Error('Method not implemented.');
+    async getOne(id: string): Promise<Review> {
+        const review = await this.reviewRepository.findOne({
+            where: {
+                id,
+                status: ReviewStatus.NORMAL,
+            },
+            relations: [
+                'walk',
+                'walk.user',
+                'walk.walkway'
+            ],
+        })
+
+        return MysqlReviewRepositoryMapper.toDomain(review);
     }
 
     save(review: Review): Promise<boolean> {
