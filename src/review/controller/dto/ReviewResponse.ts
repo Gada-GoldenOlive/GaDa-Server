@@ -57,6 +57,9 @@ export class FeedDto {
 
     @ApiPropertyOptional()
     images?: string[];
+
+    @ApiProperty()
+    like: boolean;
 }
 
 export class GetAllReviewResponse {
@@ -70,7 +73,7 @@ export class GetAllReviewResponse {
 
 export class GetReviewResponse {
     @ApiProperty()
-    review: ReviewDto;
+    review: FeedDto;
 }
 
 export class GetAllFeedReseponse {

@@ -38,3 +38,11 @@ export class UpdateReviewRequest {
     @ApiPropertyOptional()
     images?: string[];
 }
+
+export class CreateLikeRequest {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    reviewId: string;
+}

@@ -10,10 +10,14 @@ import { WalkwayEntity } from '../walkway/entity/Walkway.entity';
 import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
 import { GetAllReviewUseCase } from './application/GetAllReviewUseCase/GetAllReviewUseCase';
+import { GetLikeUseCase } from './application/GetLikeUseCase/IGetLikeUseCase';
+import { GetReviewUseCase } from './application/GetReviewUseCase/IGetReviewUseCase';
 import { ReviewController } from './controller/ReviewController';
 import { LikeEntity } from './entity/Like.entity';
 import { ReviewEntity } from './entity/Review.entity';
+import { LIKE_REPOSITORY } from './infra/ILikeRepository';
 import { REVIEW_REPOSITORY } from './infra/IReviewRepository';
+import { MysqlLikeRepository } from './infra/mysql/MysqlLikeRepository';
 import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
 
 @Module({
@@ -41,6 +45,12 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
       {
         provide: WALKWAY_REPOSITORY,
         useClass: MysqlWalkwayRepository,
+      },
+      GetReviewUseCase,
+      GetLikeUseCase,
+      {
+        provide: LIKE_REPOSITORY,
+        useClass: MysqlLikeRepository,
       }
   ],
 })

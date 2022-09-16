@@ -4,13 +4,14 @@ import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, P
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
-import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
+import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
-import { CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
-import { GetAllFeedReseponse, GetAllReviewResponse } from './dto/ReviewResponse';
+import { CreateLikeRequest, CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
+import { FeedDto, GetAllReviewResponse, GetReviewResponse, GetAllFeedReseponse } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
-import { CreateLikeRequest } from './dto/LikeRequest';
+import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
+import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -19,6 +20,8 @@ export class ReviewController {
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
+        private readonly getReviewUseCase: GetReviewUseCase,
+        private readonly getLikeUseCase: GetLikeUseCase,
     ) {}
 
     @Post()
@@ -134,6 +137,75 @@ export class ReviewController {
         // TODO: 차후 Usecase 생성시 추가
         throw new Error('Method not implemented');
 
+    }
+
+    @Get('/:reviewId')
+    @ApiOkResponse({
+        type: GetReviewResponse,
+    })
+    @ApiOperation({
+        summary: '개별 리뷰 정보 가져오기',
+        description: '피드>산책로게시물 페이지에 보여질 리뷰 정보 get / userId는 좋아요 여부를 알기 위함. / ' 
+        + 'userId가 주어지지 않으면 like는 false로 리턴'
+    })
+    async getReview(
+        @Param('reviewId') reviewId: string,
+        @Query('userId') userId: string,
+    ): Promise<GetReviewResponse> {
+        const getReviewUseCaseResponse = await this.getReviewUseCase.execute({
+            id: reviewId,
+        });
+        if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NO_EXIST_REVIEW)
+            throw new HttpException('NO EXIST REVIEW', StatusCodes.NOT_FOUND);
+
+        if (getReviewUseCaseResponse.code !== GetReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        let like = false;
+        if (userId) {
+            const getUserUseCaseResponse = await this.getUserUseCase.execute({
+                id: userId,
+            });
+
+            if (!getUserUseCaseResponse || getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO FIND USER',StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+            const getLikeUseCaseResponse = await this.getLikeUseCase.execute({
+                user: getUserUseCaseResponse.user,
+                review: getReviewUseCaseResponse.review,
+            })
+
+            if (getLikeUseCaseResponse.like)
+                like = true;
+        }
+
+        const review: FeedDto = {
+            review: {
+                id: getReviewUseCaseResponse.review.id,
+                title: getReviewUseCaseResponse.review.title.value,
+                vehicle: getReviewUseCaseResponse.review.vehicle,
+                star: getReviewUseCaseResponse.review.star.value,
+                content: getReviewUseCaseResponse.review.content.value,
+                userImage: getReviewUseCaseResponse.review.walk.user.image.value,
+                userId: getReviewUseCaseResponse.review.walk.user.id,
+                userName: getReviewUseCaseResponse.review.walk.user.name.value,
+                walkwayId: getReviewUseCaseResponse.review.walk.walkway.id,
+                walkwayTitle: getReviewUseCaseResponse.review.walk.walkway.title.value,
+                createdAt: getReviewUseCaseResponse.review.createdAt,
+                updatedAt: getReviewUseCaseResponse.review.updatedAt,
+            },
+            time: getReviewUseCaseResponse.review.walk.time.value,
+            distance: getReviewUseCaseResponse.review.walk.distance.value,
+            // walkwayImage: getReviewUseCaseResponse.review.walk.walkway.image.value,
+            address: getReviewUseCaseResponse.review.walk.walkway.address.value,
+            // images: getReviewUseCaseResponse.review.images.value,
+            like,
+        };
+        return {
+            review,
+        };
     }
 
     @Patch('/:reviewId')
