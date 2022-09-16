@@ -1,6 +1,6 @@
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { initialNumber, PROPS_VALUES_ARE_REQUIRED, User } from './User';
-import { UserId } from './UserId';
+import { UserLoginId } from './UserLoginId';
 import { UserName } from './UserName';
 import { UserPassword } from './UserPassword';
 import { UserTotalDistance } from './UserTotalDistance';
@@ -11,7 +11,7 @@ describe('User', () => {
     const TEST_USER_ID = 'test-user-uuid';
     const userName = UserName.create('시어니').value;
     const userImage = ImageUrl.create('test-image-url.png').value;
-    const userId = UserId.create('user-id').value;
+    const userLoginId = UserLoginId.create('user-id').value;
     const userPassword = UserPassword.create('user-password').value;
     const userTotalDistance = UserTotalDistance.create(initialNumber).value;
     const userTotalTime = UserTotalTime.create(initialNumber).value;
@@ -22,7 +22,7 @@ describe('User', () => {
         const userOrError = User.createNew({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: userTotalDistance,
             totalTime: userTotalTime,
@@ -40,7 +40,7 @@ describe('User', () => {
         const userOrError = User.create({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: userTotalDistance,
             totalTime: userTotalTime,
@@ -62,7 +62,7 @@ describe('User', () => {
         const userOrErrorWithNull = User.createNew({
             name: null,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: userTotalDistance,
             totalTime: userTotalTime,
@@ -71,7 +71,7 @@ describe('User', () => {
         const userOrErrorWithUndefined = User.createNew({
             name: undefined,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: userTotalDistance,
             totalTime: userTotalTime,
@@ -87,7 +87,7 @@ describe('User', () => {
         const userTotalDistanceOrError = User.createNew({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalTime: userTotalTime,
         });
@@ -100,7 +100,7 @@ describe('User', () => {
         const userTotalTimeOrError = User.createNew({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: userTotalDistance,
         });
@@ -113,7 +113,7 @@ describe('User', () => {
         const userTotalDistanceOrErrorWithNull = User.createNew({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: null,
             totalTime: userTotalTime,
@@ -122,7 +122,7 @@ describe('User', () => {
         const userTotalDistanceOrErrorWithUndefined = User.createNew({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: undefined,
             totalTime: userTotalTime,
@@ -138,7 +138,7 @@ describe('User', () => {
         const userTotalTimeOrErrorWithNull = User.createNew({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: userTotalDistance,
             totalTime: null,
@@ -147,7 +147,7 @@ describe('User', () => {
         const userTotalTimeOrErrorWithUndefined = User.createNew({
             name: userName,
             image: userImage,
-            userId,
+            loginId: userLoginId,
             password: userPassword,
             totalDistance: userTotalDistance,
             totalTime: undefined,

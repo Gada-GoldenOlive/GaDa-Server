@@ -18,7 +18,7 @@ export class UserEntity extends CoreEntity {
         type: 'varchar',
         length: 20,
     })
-    userId: string;
+    loginId: string; // NOTE: 로그인 시 유저가 입력하는 id
 
     @Column({
         nullable: false,

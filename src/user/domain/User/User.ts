@@ -5,7 +5,7 @@ import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Result } from '../../../common/presentationals/Result';
 import { UserGoalDistance } from './UserGoalDistance';
 import { UserGoalTime } from './UserGoalTime';
-import { UserId } from './UserId';
+import { UserLoginId } from './UserLoginId';
 import { UserName } from './UserName';
 import { UserPassword } from './UserPassword';
 import { UserStatus, USER_STATUS } from './UserStatus';
@@ -13,7 +13,7 @@ import { UserTotalDistance } from './UserTotalDistance';
 import { UserTotalTime } from './UserTotalTime';
 
 export interface UserNewProps {
-    userId: UserId;
+    loginId: UserLoginId;
     password: UserPassword;
     name: UserName;
     image?: ImageUrl;
@@ -39,7 +39,7 @@ export class User extends AggregateRoot<UserProps> {
     }
 
     static createNew(props: UserNewProps): Result<User> {
-        if (_.isNil(props.name) || _.isNil(props.userId) || _.isNil(props.password)) {
+        if (_.isNil(props.name) || _.isNil(props.loginId) || _.isNil(props.password)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 
@@ -59,8 +59,8 @@ export class User extends AggregateRoot<UserProps> {
         return Result.ok(new User(props, id));
     }
 
-    get userId(): UserId {
-        return this.props.userId;
+    get loginId(): UserLoginId {
+        return this.props.loginId;
     }
 
     get password(): UserPassword {

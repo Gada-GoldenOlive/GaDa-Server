@@ -22,18 +22,18 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
     async execute(request: IGetUserUseCaseRequest): Promise<IGetUserUseCaseResponse> {
         try {
-            if (_.isNil(request.id) && _.isNil(request.userId)) return null;
+            if (_.isNil(request.id) && _.isNil(request.loginId)) return null;
 
             let user: User;
 
-            if (request.id && !request.userId) {
+            if (request.id && !request.loginId) {
                 const foundUser = await this.userRepository.findOne(request);
 
                 user = foundUser;
             }
 
-            // NOTE: user id만 들어왔을 때
-            if (!request.id && request.userId) {
+            // NOTE: login id만 들어왔을 때
+            if (!request.id && request.loginId) {
                 const foundUser = await this.userRepository.findOne(request);
 
                 if(foundUser && request.isCheckDuplicated) {  // NOTE: 회원가입 때 아이디 중복 검사
@@ -45,6 +45,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
                 user = foundUser;
             }
 
+            
             if (!user) {
                 return {
                     code: GetUserUseCaseCodes.NO_USER_FOUND,
@@ -55,8 +56,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
                 code: GetUserUseCaseCodes.SUCCESS,
                 user,
             };
-        } catch (e) {
-            Logger.log(e);
+        } catch {
             return {
                 code: GetUserUseCaseCodes.FAILURE,
             };

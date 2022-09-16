@@ -5,7 +5,7 @@ export class UserDto {
     id: string;
 
     @ApiProperty()
-    userId: string;
+    loginId: string;
     
     @ApiProperty()
     image: string;
