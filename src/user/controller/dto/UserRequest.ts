@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserRequest {
     @ApiProperty()
-    userId: string;
+    loginId: string;
 
     @ApiPropertyOptional()
     password?: string;
@@ -16,7 +16,10 @@ export class CreateUserRequest {
 
 export class UpdateUserRequest {
     @ApiPropertyOptional()
-    userId?: string;
+    loginId?: string;
+
+    @ApiPropertyOptional()
+    password?: string;
 
     @ApiPropertyOptional()
     name?: string;
@@ -26,7 +29,7 @@ export class UpdateUserRequest {
 }
 
 export class CreateFriendRequest {
-    @ApiProperty()
+    @ApiProperty() 
     userId: string;
 
     @ApiProperty()

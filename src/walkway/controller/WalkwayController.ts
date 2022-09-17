@@ -143,7 +143,7 @@ export class WalkwayController {
         const getAllWalkwayResponse = await this.getAllWalkwayUseCase.execute({
             coordinates: { lat, lng },
         });
-        if (getAllWalkwayResponse.code != GetAllWalkwayUseCaseCodes.SUCCESS) {
+        if (getAllWalkwayResponse.code !== GetAllWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND NEAR WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
@@ -155,7 +155,7 @@ export class WalkwayController {
                     lat,
                     lng,
                 }
-            })
+            });
             if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
             }

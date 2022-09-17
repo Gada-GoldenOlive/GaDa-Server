@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { User } from '../../domain/User/User';
-import { UserId } from '../../domain/User/UserId';
+import { UserLoginId } from '../../domain/User/UserLoginId';
 import { UserName } from '../../domain/User/UserName';
 import { UserPassword } from '../../domain/User/UserPassword';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
@@ -35,7 +35,7 @@ export class CreateUserUseCase implements UseCase<ICreateUserUseCaseRequest, ICr
 			}
 
 			const user = User.createNew({
-				userId: UserId.create(request.userId).value,
+				loginId: UserLoginId.create(request.loginId).value,
 				password: UserPassword.create(request.password).value,
 				name: UserName.create(request.name).value,
 				image: request.image ? ImageUrl.create(request.image).value : null,

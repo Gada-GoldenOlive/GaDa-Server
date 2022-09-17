@@ -15,9 +15,9 @@ export class MysqlPinRepositoryMapper {
             return null;
         }
 
-        const pin =  Pin.create({
+        const pin = Pin.create({
             title: PinTitle.create(entity.title).value,
-            content: PinContent.create(entity.content).value,
+            content: entity.content ? PinContent.create(entity.content).value : null,
             image: entity.image ? ImageUrl.create(entity.image).value : null,
             location: PinLocation.create(MysqlPinRepositoryMapper.convertToPoint(entity.location)).value,
             walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
