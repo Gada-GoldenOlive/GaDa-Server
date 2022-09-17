@@ -142,7 +142,7 @@ export class UserController {
         }
 
         if (loginUsecaseResponse.code === LoginUseCaseCodes.WRONG_PASSWORD) {
-            throw new HttpException(LoginUseCaseCodes.WRONG_PASSWORD, StatusCodes.NOT_FOUND);
+            throw new HttpException(LoginUseCaseCodes.WRONG_PASSWORD, StatusCodes.BAD_REQUEST);
         }
 
         if (loginUsecaseResponse.code === LoginUseCaseCodes.PROPS_VALUES_ARE_REQUIRED) {
