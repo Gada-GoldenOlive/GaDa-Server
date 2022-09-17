@@ -52,7 +52,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
             
             if (!user) {
                 return {
-                    code: GetUserUseCaseCodes.NO_USER_FOUND,
+                    code: GetUserUseCaseCodes.NO_EXIST_USER,
                 }
             }
 

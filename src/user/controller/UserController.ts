@@ -73,52 +73,6 @@ export class UserController {
         throw new Error('Method not implemented');
     }
 
-    @Get('/user/:userId')
-    @HttpCode(StatusCodes.OK)
-    @ApiOperation({
-        description: 'user의 uuid로 유저를 return해주는 API'
-    })
-    @ApiOkResponse({
-        type: GetUserResponse,
-    })
-    async getOne(
-        @Param('userId') userId: string,
-    ) {
-        const getUserUseCaseResponse = await this.getUserUseCase.execute({
-            id: userId,
-        });
-
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_USER_FOUND) {
-            throw new HttpException(GetUserUseCaseCodes.NO_USER_FOUND, StatusCodes.NOT_FOUND);
-        }
-
-        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
-        const user = getUserUseCaseResponse.user;
-
-        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
-            user,
-        })
-
-        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
-        return {
-            id: user.id,
-            loginId: user.loginId.value,
-            image: user.image ? user.image.value : null,
-            name: user.name.value,
-            pinCount: getAllPinUseCaseResponse.pins.length,
-            goalDistance: user.goalDistance.value,
-            goalTime: user.goalTime.value,
-            totalDistnace: user.totalDistance.value,
-            totalTime: user.totalTime.value,
-        }
-    }
-
     @Get('/friends')
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
@@ -137,7 +91,7 @@ export class UserController {
     @Get('/checked-id')
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
-        description: '회원가입 시 id가 사용 가능한지 체크해주는 API'
+        description: '회원가입 시 id가 사용 가능한지 중복 체크해주는 API'
     })
     @ApiOkResponse({
         type: CommonResponse
@@ -188,7 +142,7 @@ export class UserController {
         }
 
         if (loginUsecaseResponse.code === LoginUseCaseCodes.WRONG_PASSWORD) {
-            throw new HttpException(LoginUseCaseCodes.WRONG_PASSWORD, StatusCodes.BAD_REQUEST);
+            throw new HttpException(LoginUseCaseCodes.WRONG_PASSWORD, StatusCodes.NOT_FOUND);
         }
 
         if (loginUsecaseResponse.code === LoginUseCaseCodes.PROPS_VALUES_ARE_REQUIRED) {
@@ -203,6 +157,52 @@ export class UserController {
 
         return {
             id: user.id,
+        }
+    }
+    
+    @Get('/:userId')
+    @HttpCode(StatusCodes.OK)
+    @ApiOperation({
+        description: 'user의 uuid로 유저를 return해주는 API'
+    })
+    @ApiOkResponse({
+        type: GetUserResponse,
+    })
+    async getOne(
+        @Param('userId') userId: string,
+    ) {
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            id: userId,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+            throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const user = getUserUseCaseResponse.user;
+
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            user,
+        })
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            id: user.id,
+            loginId: user.loginId.value,
+            image: user.image ? user.image.value : null,
+            name: user.name.value,
+            pinCount: getAllPinUseCaseResponse.pins.length,
+            goalDistance: user.goalDistance.value,
+            goalTime: user.goalTime.value,
+            totalDistnace: user.totalDistance.value,
+            totalTime: user.totalTime.value,
         }
     }
 

@@ -30,7 +30,7 @@ export class UpdateUserRequest {
 
 export class CreateFriendRequest {
     @ApiProperty() 
-    userId: string;  // TODO: 이거 uuid인지 loginId인지 확정지어야 함
+    userId: string;
 
     @ApiProperty()
     friendLoginId: string;
