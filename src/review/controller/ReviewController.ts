@@ -99,23 +99,21 @@ export class ReviewController {
             throw new HttpException('FAIL TO GET ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR)
         }
 
-        const reviews = _.filter(
-            _.map(getAllReviewUseCaseResponse.reviews, 
-                (review) => ({
-                    id: review.id,
-                    title: review.title.value,
-                    vehicle: review.vehicle,
-                    star: review.star.value,
-                    content: review.content.value,
-                    image: review.image ? review.image.value : null,
-                    userId: review.walk.user.id,
-                    userName: review.walk.user.name.value,
-                    walkwayId: review.walk.walkway.id,
-                    walkwayTitle: review.walk.walkway.title.value,
-                    createdAt: review.createdAt,
-                    updatedAt: review.updatedAt,
-                })
-            )
+        const reviews = _.map(getAllReviewUseCaseResponse.reviews, 
+            (review) => ({
+                id: review.id,
+                title: review.title.value,
+                vehicle: review.vehicle,
+                star: review.star.value,
+                content: review.content.value,
+                image: review.image ? review.image.value : null,
+                userId: review.walk.user.id,
+                userName: review.walk.user.name.value,
+                walkwayId: review.walk.walkway.id,
+                walkwayTitle: review.walk.walkway.title.value,
+                createdAt: review.createdAt,
+                updatedAt: review.updatedAt,
+            })
         );
 
         const averageStar = getAllReviewUseCaseResponse.averageStar;
@@ -126,7 +124,7 @@ export class ReviewController {
         }
     }
 
-    @Get('/likes')
+    @Get('/like-reviews')
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllFeedReseponse,
@@ -153,31 +151,29 @@ export class ReviewController {
             throw new HttpException('FAIL TO FIND ALL LIKES',StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviews = _.filter(
-            _.map(getAllLikeUseCaseResponse.likes, 
-                (like) => ({
-                    review: {
-                        id: like.review.id,
-                        title: like.review.title.value,
-                        vehicle: like.review.vehicle,
-                        star: like.review.star.value,
-                        content: like.review.content.value,
-                        userImage: like.review.walk.user.image.value,
-                        userId: like.review.walk.user.id,
-                        userName: like.review.walk.user.name.value,
-                        walkwayId: like.review.walk.walkway.id,
-                        walkwayTitle: like.review.walk.walkway.title.value,
-                        createdAt: like.review.createdAt,
-                        updatedAt: like.review.updatedAt,
-                    },
-                    time: like.review.walk.time.value,
-                    distance: like.review.walk.distance.value,
-                    // walkwayImage: like.review.walk.walkway.image.value,
-                    address: like.review.walk.walkway.address.value,
-                    // images: like.review.images.value,
-                    like:true,
-                })
-            )
+        const reviews = _.map(getAllLikeUseCaseResponse.likes, 
+            (like) => ({
+                review: {
+                    id: like.review.id,
+                    title: like.review.title.value,
+                    vehicle: like.review.vehicle,
+                    star: like.review.star.value,
+                    content: like.review.content.value,
+                    userImage: like.review.walk.user.image.value,
+                    userId: like.review.walk.user.id,
+                    userName: like.review.walk.user.name.value,
+                    walkwayId: like.review.walk.walkway.id,
+                    walkwayTitle: like.review.walk.walkway.title.value,
+                    createdAt: like.review.createdAt,
+                    updatedAt: like.review.updatedAt,
+                },
+                time: like.review.walk.time.value,
+                distance: like.review.walk.distance.value,
+                // walkwayImage: like.review.walk.walkway.image.value,
+                address: like.review.walk.walkway.address.value,
+                // images: like.review.images.value,
+                like:true,
+            })
         );
         return {
             reviews,
