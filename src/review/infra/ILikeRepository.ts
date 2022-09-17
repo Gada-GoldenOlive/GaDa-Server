@@ -5,5 +5,6 @@ import { Review } from "../domain/Review/Review";
 export const LIKE_REPOSITORY = Symbol('LIKE_REPOSITORY');
 
 export interface ILikeRepository {
-    findOne(userId: User, reviewId: Review): Promise<Like>;
+    findOne(user: User, review: Review): Promise<Like>;
+    findAll(user: User): Promise<Like[]>;
 }

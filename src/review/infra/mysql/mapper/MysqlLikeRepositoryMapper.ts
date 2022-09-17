@@ -19,4 +19,7 @@ export class MysqlLikeRepositoryMapper {
         },
         entity.id).value;
     }
-}
+
+    static toDomains(entities: LikeEntity[]): Like[] {
+        return _.map(entities, (entity) => this.toDomain(entity));
+    }}
