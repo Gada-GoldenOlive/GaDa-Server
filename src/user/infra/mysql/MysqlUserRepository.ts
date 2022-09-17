@@ -9,7 +9,7 @@ import { MysqlUserRepositoryMapper } from './mapper/MysqlUserRepositoryMapper';
 
 export interface FindOneUserOptions {
     id?: string;
-    userId?: string;
+    loginId?: string;
     password?: string;
 }
 
@@ -25,7 +25,7 @@ export class MysqlUserRepository implements IUserRepository {
         .where('user.status = :normal', { normal: UserStatus.NORMAL })
 
         if (options.id) query.andWhere('user.id = :id', { id: options.id });
-        if (options.userId) query.andWhere('user.userId = :userId', { userId: options.userId });
+        if (options.loginId) query.andWhere('user.loginId = :loginId', { loginId: options.loginId });
         if (options.password) query.andWhere('user.password = :password', { password: options.password });
 
         const user = await query.getOne();

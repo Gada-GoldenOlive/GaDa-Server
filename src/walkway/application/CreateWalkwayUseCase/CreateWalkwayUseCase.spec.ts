@@ -1,7 +1,7 @@
 import { mock, MockProxy } from 'jest-mock-extended';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { User } from '../../../user/domain/User/User';
-import { UserId } from '../../../user/domain/User/UserId';
+import { UserLoginId } from '../../../user/domain/User/UserLoginId';
 import { UserName } from '../../../user/domain/User/UserName';
 import { UserPassword } from '../../../user/domain/User/UserPassword';
 import { UserTotalDistance } from '../../../user/domain/User/UserTotalDistance';
@@ -29,7 +29,7 @@ describe('CreateSeoulmapWalkwaysUseCase', () => {
         image: ImageUrl.create('user-image-test.jpg').value,
         totalDistance: UserTotalDistance.create(30).value,
         totalTime: UserTotalTime.create(300).value,
-        userId: UserId.create('user-id').value,
+        loginId: UserLoginId.create('user-id').value,
         password: UserPassword.create('user-password').value,
         createdAt,
         updatedAt,

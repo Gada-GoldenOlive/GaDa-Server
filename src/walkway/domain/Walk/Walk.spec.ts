@@ -1,6 +1,6 @@
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { User } from '../../../user/domain/User/User';
-import { UserId } from '../../../user/domain/User/UserId';
+import { UserLoginId } from '../../../user/domain/User/UserLoginId';
 import { UserName } from '../../../user/domain/User/UserName';
 import { UserPassword } from '../../../user/domain/User/UserPassword';
 import { UserStatus } from '../../../user/domain/User/UserStatus';
@@ -29,7 +29,7 @@ describe ('Walk', () => {
     const TEST_USER_ID = 'test-user-uuid';
     const userName = UserName.create('유저이름').value;
     const userImage = ImageUrl.create('user-image-test.png').value;
-    const userId = UserId.create('user-id').value;
+    const userLoginId = UserLoginId.create('user-id').value;
     const userPassword = UserPassword.create('user-password').value;
     const userTotalDistance = UserTotalDistance.create(20).value;
     const userTotalTime = UserTotalTime.create(1123).value;
@@ -39,7 +39,7 @@ describe ('Walk', () => {
         totalDistance: userTotalDistance,
         totalTime: userTotalTime,
         status: UserStatus.NORMAL,
-        userId,
+        loginId: userLoginId,
         password: userPassword,
         createdAt,
         updatedAt,
