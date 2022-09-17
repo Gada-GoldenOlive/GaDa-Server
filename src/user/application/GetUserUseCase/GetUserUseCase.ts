@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { User } from '../../domain/User/User';
@@ -22,7 +22,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
     async execute(request: IGetUserUseCaseRequest): Promise<IGetUserUseCaseResponse> {
         try {
-            if (_.isNil(request.id) && _.isNil(request.userId)) {
+            if (_.isNil(request.id) && _.isNil(request.loginId)) {
                 return {
                     code: GetUserUseCaseCodes.NO_EXIST_USER,
                 };
@@ -30,17 +30,17 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
             let user: User;
 
-            if (request.id && !request.userId) {
+            if (request.id && !request.loginId) {
                 const foundUser = await this.userRepository.findOne(request);
 
                 user = foundUser;
             }
 
-            // NOTE: user id만 들어왔을 때 (중복 검사)
-            if (request.userId && !request.id) {
+            // NOTE: login id만 들어왔을 때
+            if (!request.id && request.loginId) {
                 const foundUser = await this.userRepository.findOne(request);
 
-                if(foundUser) {
+                if(foundUser && request.isCheckDuplicated) {  // NOTE: 회원가입 때 아이디 중복 검사
                     return {
                         code: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
                     };
@@ -49,12 +49,18 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
                 user = foundUser;
             }
 
+            
+            if (!user) {
+                return {
+                    code: GetUserUseCaseCodes.NO_EXIST_USER,
+                }
+            }
+
             return {
                 code: GetUserUseCaseCodes.SUCCESS,
                 user,
             };
-        } catch (e) {
-            Logger.log(e);
+        } catch {
             return {
                 code: GetUserUseCaseCodes.FAILURE,
             };

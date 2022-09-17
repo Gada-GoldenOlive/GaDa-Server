@@ -3,6 +3,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class UserDto {
     @ApiProperty()
     id: string;
+
+    @ApiProperty()
+    loginId: string;
+    
+    @ApiProperty()
+    image: string;
     
     @ApiProperty()
     name: string;
@@ -10,8 +16,14 @@ export class UserDto {
     @ApiProperty()
     pinCount: number;
 
+    @ApiPropertyOptional()
+    badgeCount?: number;
+
     @ApiProperty()
-    image: string;
+    goalDistance: number;
+
+    @ApiProperty()
+    goalTime: number;
 
     @ApiProperty()
     totalDistance: number;

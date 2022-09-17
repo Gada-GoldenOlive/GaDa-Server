@@ -30,7 +30,7 @@ export class MysqlWalkwayRepositoryMapper {
                 user: MysqlUserRepositoryMapper.toDomain(entity.user),
                 createdAt: entity.createdAt,
                 updatedAt: entity.updatedAt,
-                image: ImageUrl.create(entity.image).value,
+                image: entity.image ? ImageUrl.create(entity.image).value : null,
             },
             entity.id
         ).value;
