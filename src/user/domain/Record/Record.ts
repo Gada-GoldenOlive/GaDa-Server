@@ -5,7 +5,6 @@ import { Result } from '../../../common/presentationals/Result';
 import { User } from '../User/User';
 import { RecordStatus, RECORD_STATUS } from './RecordStatus';
 
-
 export interface RecordNewProps {
     status?: RECORD_STATUS;
     user: User;
