@@ -9,7 +9,9 @@ import { ILoginUseCaseResponse } from './dto/ILoginUseCaseResponse';
 export enum LoginUseCaseCodes {
 	SUCCESS= 'SUCCESS',
 	FAILURE = 'FAILURE',
-	NO_MATCH_USER_ERROR = 'User with requested ID or password does not exist.',
+	WRONG_LOGIN_ID = 'User with requested ID does not exist.',
+	WRONG_PASSWORD = 'Invalid password',
+	PROPS_VALUES_ARE_REQUIRED = 'Props value id or password is required.',
 }
 
 export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCaseResponse> {
@@ -20,22 +22,32 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 
 	async execute(request: ILoginUseCaseRequest): Promise<ILoginUseCaseResponse> {
 		try {
-			if (_.isEmpty(request.userId) || _.isEmpty(request.password)) {
+			if (_.isEmpty(request.loginId) || _.isEmpty(request.password)) {
 				return {
-					code: LoginUseCaseCodes.FAILURE,
-					user: null,
+					code: LoginUseCaseCodes.PROPS_VALUES_ARE_REQUIRED,
 				};
 			}
 
+			// NOTE: login id로 먼저 검사
+			const userWithLoginId = await this.userRepository.findOne({
+				loginId: request.loginId
+			});
+
+			if (!userWithLoginId) {
+				return {
+					code: LoginUseCaseCodes.WRONG_LOGIN_ID,
+				};
+			}
+
+			// NOTE: id를 가진 회원이 존재할 때 비밀번호도 넣어서 함께 검사
 			const user = await this.userRepository.findOne(request);
 
 			if (!user) {
 				return {
-					code: LoginUseCaseCodes.FAILURE,
-					user: null,
+					code: LoginUseCaseCodes.WRONG_PASSWORD,
 				};
 			}
-
+			
 			return {
 				code: LoginUseCaseCodes.SUCCESS,
 				user,

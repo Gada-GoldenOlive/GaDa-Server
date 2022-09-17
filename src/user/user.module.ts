@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GetAllPinUseCase } from '../pin/application/GetAllPinUseCase/GetAllPinUseCase';
+import { PinEntity } from '../pin/entity/Pin.entity';
+import { PIN_REPOSITORY } from '../pin/infra/IPinRepository';
+import { MysqlPinRepository } from '../pin/infra/mysql/MysqlPinRepository';
 
 import { CreateUserUseCase } from './application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase } from './application/GetUserUseCase/GetUserUseCase';
@@ -15,6 +19,7 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
         TypeOrmModule.forFeature([
             UserEntity,
             FriendEntity,
+            PinEntity,
         ])
     ],
     controllers: [ UserController ],
@@ -25,6 +30,11 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
         {
             provide: USER_REPOSITORY,
             useClass: MysqlUserRepository,
+        },
+        GetAllPinUseCase,
+        {
+            provide: PIN_REPOSITORY,
+            useClass: MysqlPinRepository,
         },
     ],
 })

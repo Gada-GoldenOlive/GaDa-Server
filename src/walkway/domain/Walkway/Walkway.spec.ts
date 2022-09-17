@@ -1,7 +1,7 @@
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { User } from '../../../user/domain/User/User';
-import { UserId } from '../../../user/domain/User/UserId';
+import { UserLoginId } from '../../../user/domain/User/UserLoginId';
 import { UserName } from '../../../user/domain/User/UserName';
 import { UserPassword } from '../../../user/domain/User/UserPassword';
 import { UserTotalDistance } from '../../../user/domain/User/UserTotalDistance';
@@ -9,6 +9,7 @@ import { UserTotalTime } from '../../../user/domain/User/UserTotalTime';
 import { Walkway } from './Walkway';
 import { WalkwayAddress } from './WalkwayAddress';
 import { WalkwayDistance } from './WalkwayDistance';
+import { WalkwayEndPoint } from './WalkwayEndPoint';
 import { WalkwayPath } from './WalkwayPath';
 import { WalkwayStartPoint } from './WalkwayStartPoint';
 import { WalkwayStatus } from './WalkwayStatus';
@@ -34,7 +35,7 @@ describe('Walkway', () => {
     const TEST_USER_ID = 'test-user-uuid';
     const userName = UserName.create('유저이름').value;
     const userImage = ImageUrl.create('user-image-test.png').value;
-    const userId = UserId.create('user-id').value;
+    const userId = UserLoginId.create('user-id').value;
     const userPassword = UserPassword.create('user-password').value;
     const userTotalDistance = UserTotalDistance.create(20).value;
     const userTotalTime = UserTotalTime.create(1123).value;
@@ -43,7 +44,7 @@ describe('Walkway', () => {
         image: userImage,
         totalDistance: userTotalDistance,
         totalTime: userTotalTime,
-        userId,
+        loginId: userId,
         password: userPassword,
         createdAt,
         updatedAt,
@@ -59,7 +60,7 @@ describe('Walkway', () => {
             user,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
-            user,
+            endPoint: walkwayStartPoint,
             status: WalkwayStatus.NORMAL,
         });
 
@@ -83,6 +84,7 @@ describe('Walkway', () => {
             path: walkwayPath,
             startPoint: walkwayStartPoint,
             user,
+            endPoint: walkwayStartPoint,
             status: WalkwayStatus.NORMAL,
             createdAt,
             updatedAt,
@@ -109,6 +111,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -119,6 +122,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -136,6 +140,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -146,6 +151,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -163,6 +169,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: null,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -173,6 +180,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: undefined,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -190,6 +198,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: null,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -200,6 +209,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: undefined,
+            endPoint: walkwayStartPoint,
             user,
         });
 
@@ -217,6 +227,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user: null,
         });
 
@@ -227,6 +238,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user: undefined,
         });
 
@@ -244,6 +256,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
         });
         
@@ -259,6 +272,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
             status: null,
         });
@@ -270,6 +284,7 @@ describe('Walkway', () => {
             time: walkwayTime,
             path: walkwayPath,
             startPoint: walkwayStartPoint,
+            endPoint: walkwayStartPoint,
             user,
             status: undefined,
         });

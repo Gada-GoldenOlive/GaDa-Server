@@ -1,4 +1,5 @@
 export interface IGetUserUseCaseRequest {
     id?: string;
-    userId?: string;
+    loginId?: string;
+    isCheckDuplicated?: boolean;
 }

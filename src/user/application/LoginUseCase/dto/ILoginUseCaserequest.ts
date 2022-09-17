@@ -1,4 +1,4 @@
 export interface ILoginUseCaseRequest {
-	userId: string;
+	loginId: string;
 	password: string;
 }
