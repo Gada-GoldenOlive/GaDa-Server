@@ -27,7 +27,7 @@ const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => 
         const getLikeUseCaseResponse = await getLikeUseCase.execute({
             user: getUserUseCaseResponse.user,
             review,
-        })
+        });
 
         if (getLikeUseCaseResponse.like)
             like = true;
@@ -168,7 +168,7 @@ export class ReviewController {
     })
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
-        description: 'Feed 목록 (feed 페이지에서의 리뷰 정보 목록)를 반환'
+        description: 'Feed 목록 (feed 페이지에서의 리뷰 정보 목록)를 반환 / '
         + 'userId를 보낼 경우: 해당하는 user의 리뷰 리스트 반환 (마이페이지>작성한 산책로) / '
         + '보내지 않을 경우: 전체 피드 리스트 반환 (피드 페이지)'
     })
