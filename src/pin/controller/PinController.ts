@@ -29,6 +29,9 @@ export class PinController {
     @ApiCreatedResponse({
         type: CommonResponse,
     })
+    @ApiOperation({
+        summary: '핀 생성',
+    })
     async create(
         @Body() request: CreatePinRequest,
     ): Promise<CommonResponse> {
@@ -82,6 +85,7 @@ export class PinController {
 
     @Get()
     @ApiOperation({
+        summary: '산책로 또는 유저의 핀 목록 조회',
         description: 'walkwayId, userId 중에 최대 하나만 보낼 수 있음. '
         + 'walkwayId만 보낼 경우: 해당하는 walkway의 핀 리스트 반환 / '
         + 'userId만 보낼 경우: 해당하는 user의 핀 리스트 반환 / '
@@ -168,6 +172,9 @@ export class PinController {
     @Get('/:pinId')
     @ApiOkResponse({
         type: GetPinResponse,
+    })
+    @ApiOperation({
+        summary: '개별 핀 정보 조회',
     })
     async getOne(
         @Param('pinId') pinId: string,
