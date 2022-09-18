@@ -12,6 +12,7 @@ import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/G
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
 import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
+import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
 
 const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => {
     let like = false;
@@ -44,6 +45,7 @@ export class ReviewController {
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getReviewUseCase: GetReviewUseCase,
         private readonly getLikeUseCase: GetLikeUseCase,
+        private readonly getAllLikeUseCase: GetAllLikeUseCase,
     ) {}
 
     @Post()
@@ -61,7 +63,7 @@ export class ReviewController {
         }
     }
 
-    @Post('/like')
+    @Post('/likes')
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -119,22 +121,21 @@ export class ReviewController {
             throw new HttpException('FAIL TO GET ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR)
         }
 
-        const reviews = _.filter(
-            _.map(getAllReviewUseCaseResponse.reviews, 
-                (review) => ({
-                    id: review.id,
-                    title: review.title.value,
-                    vehicle: review.vehicle,
-                    star: review.star.value,
-                    content: review.content.value,
-                    image: review.image ? review.image.value : null,
-                    userName: review.walk.user.name.value,
-                    walkwayId: review.walk.walkway.id,
-                    walkwayTitle: review.walk.walkway.title.value,
-                    createdAt: review.createdAt,
-                    updatedAt: review.updatedAt,
-                })
-            )
+        const reviews = _.map(getAllReviewUseCaseResponse.reviews, 
+            (review) => ({
+                id: review.id,
+                title: review.title.value,
+                vehicle: review.vehicle,
+                star: review.star.value,
+                content: review.content.value,
+                image: review.image ? review.image.value : null,
+                userId: review.walk.user.id,
+                userName: review.walk.user.name.value,
+                walkwayId: review.walk.walkway.id,
+                walkwayTitle: review.walk.walkway.title.value,
+                createdAt: review.createdAt,
+                updatedAt: review.updatedAt,
+            })
         );
 
         const averageStar = getAllReviewUseCaseResponse.averageStar;
@@ -145,20 +146,60 @@ export class ReviewController {
         }
     }
 
-    @Get('/like')
+    @Get('/like-reviews')
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
-        type: GetAllReviewResponse,
+        type: GetAllFeedReseponse,
     })
     @ApiOperation({
         description: 'userId에 해당하는 유저가 좋아요 한 리뷰 목록 리턴'
     })
     async getAllLikeReview(
         @Query('userId') userId: string,
-    ) {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+    ): Promise<GetAllFeedReseponse> {
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            id: userId,
+        });
 
+        if (!getUserUseCaseResponse || getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND USER',StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const getAllLikeUseCaseResponse = await this.getAllLikeUseCase.execute({
+            user: getUserUseCaseResponse.user,
+        })
+
+        if (getAllLikeUseCaseResponse.code !== GetLikeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL LIKES',StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const reviews = _.map(getAllLikeUseCaseResponse.likes, 
+            (like) => ({
+                review: {
+                    id: like.review.id,
+                    title: like.review.title.value,
+                    vehicle: like.review.vehicle,
+                    star: like.review.star.value,
+                    content: like.review.content.value,
+                    userImage: like.review.walk.user.image.value,
+                    userId: like.review.walk.user.id,
+                    userName: like.review.walk.user.name.value,
+                    walkwayId: like.review.walk.walkway.id,
+                    walkwayTitle: like.review.walk.walkway.title.value,
+                    createdAt: like.review.createdAt,
+                    updatedAt: like.review.updatedAt,
+                },
+                time: like.review.walk.time.value,
+                distance: like.review.walk.distance.value,
+                // walkwayImage: like.review.walk.walkway.image.value,
+                address: like.review.walk.walkway.address.value,
+                // images: like.review.images.value,
+                like:true,
+            })
+        );
+        return {
+            reviews,
+        }
     }
 
     @Get('/feeds')
@@ -306,7 +347,7 @@ export class ReviewController {
         }
     }
 
-    @Delete('/like')
+    @Delete('/likes')
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
