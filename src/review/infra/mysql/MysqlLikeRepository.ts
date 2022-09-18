@@ -31,4 +31,21 @@ export class MysqlLikeRepository implements ILikeRepository {
 
         return MysqlLikeRepositoryMapper.toDomain(like);
     }
+
+    async findAll(user: User): Promise<Like[]> {
+        const likes = await this.likeRepository
+        .createQueryBuilder('like')
+        .leftJoinAndSelect('like.user', 'user')
+        .leftJoinAndSelect('like.review', 'review')
+        .leftJoinAndSelect('review.walk', 'walk')
+        .leftJoinAndSelect('walk.user', 'user_walk')
+        .leftJoinAndSelect('walk.walkway', 'walkway_walk')
+        .where('review.status = :normal', { normal: ReviewStatus.NORMAL })
+        .andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
+        .andWhere('like.status = :normal', { normal: LikeStatus.NORMAL })
+        .andWhere('user.id = :userId', { userId: user.id })
+        .getMany();
+
+        return MysqlLikeRepositoryMapper.toDomains(likes);
+    }
 }
