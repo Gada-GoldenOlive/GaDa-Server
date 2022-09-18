@@ -9,6 +9,7 @@ import { LikeEntity } from '../../review/entity/Like.entity';
 import { CommentEntity } from '../../pin/entity/Comment.entity';
 import { FriendEntity } from './Friend.entity';
 import { AchieveEntity } from '../../badge/entity/AchieveEntity';
+import { RecordEntity } from './Record.entity';
 
 
 @Entity('user')
@@ -96,4 +97,7 @@ export class UserEntity extends CoreEntity {
 
     @OneToMany(() => AchieveEntity, (achieveEntity) => achieveEntity.user)
     achieves: AchieveEntity[];
+
+    @OneToMany(() => RecordEntity, (recordEntity) => recordEntity.user)
+    records: RecordEntity[];
 }
