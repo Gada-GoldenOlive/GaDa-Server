@@ -297,7 +297,6 @@ export class ReviewController {
                 star: getReviewUseCaseResponse.review.star.value,
                 content: getReviewUseCaseResponse.review.content.value,
                 userImage: getReviewUseCaseResponse.review.walk.user.image.value,
-                userId: getReviewUseCaseResponse.review.walk.user.id,
                 userName: getReviewUseCaseResponse.review.walk.user.name.value,
                 walkwayId: getReviewUseCaseResponse.review.walk.walkway.id,
                 walkwayTitle: getReviewUseCaseResponse.review.walk.walkway.title.value,
