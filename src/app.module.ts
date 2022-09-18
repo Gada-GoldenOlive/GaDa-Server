@@ -20,6 +20,7 @@ import { BadgeModule } from './badge/badge.module';
 import { CommentEntity } from './pin/entity/Comment.entity';
 import { FriendEntity } from './user/entity/Friend.entity';
 import { AchieveEntity } from './badge/entity/AchieveEntity';
+import { RecordEntity } from './user/entity/Record.entity';
 
 
 @Module({
@@ -56,6 +57,7 @@ import { AchieveEntity } from './badge/entity/AchieveEntity';
                 CommentEntity,
                 FriendEntity,
                 AchieveEntity,
+                RecordEntity,
             ],
         }),
         UserModule,
