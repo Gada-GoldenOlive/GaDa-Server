@@ -26,6 +26,9 @@ export class UserController {
     @ApiCreatedResponse({
         type: LoginOrSignUpUserResponse,
     })
+    @ApiOperation({
+        summary: '유저 생성',
+    })
     async create(
         @Body() request: CreateUserRequest,
     ): Promise<LoginOrSignUpUserResponse> {
@@ -91,6 +94,7 @@ export class UserController {
     @Get('/checked-id')
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
+        summary: 'id 중복체크',
         description: '회원가입 시 id가 사용 가능한지 중복 체크해주는 API'
     })
     @ApiOkResponse({
@@ -128,6 +132,10 @@ export class UserController {
     @ApiOkResponse({
         type: LoginOrSignUpUserResponse,
     })
+    @ApiOperation({
+        summary: '로그인',
+        description: 'loginId, password에 해당하는 유저의 uuid를 반환'
+    })
     async login(
         @Query('loginId') loginId: string,
         @Query('password') password: string,
@@ -163,6 +171,7 @@ export class UserController {
     @Get('/:userId')
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
+        summary: 'user 정보 조회',
         description: 'user의 uuid로 유저를 return해주는 API'
     })
     @ApiOkResponse({

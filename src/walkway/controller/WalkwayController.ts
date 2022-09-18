@@ -50,6 +50,9 @@ export class WalkwayController {
     @ApiCreatedResponse({
         type: CommonResponse,
     })
+    @ApiOperation({
+        summary: '산책로 생성',
+    })
     async create(
         @Body() request: CreateWalkwayRequest,
     ): Promise<CommonResponse> {
@@ -114,6 +117,9 @@ export class WalkwayController {
     @ApiCreatedResponse({
         type: CommonResponse,
     })
+    @ApiOperation({
+        summary: 'walk 생성',
+    })
     async createWalk(
         @Body() request: CreateWalkRequest,
     ): Promise<CommonResponse> {
@@ -157,7 +163,7 @@ export class WalkwayController {
         type: GetAllWalkwayResponse,
     })
     @ApiOperation({
-        summary: '추천 산책로 목록 가져오기',
+        summary: '추천 산책로 목록 조회',
         description: 'query로 받은 좌표에서 반경 2km 이내에 있는 산책로 목록을 리턴함.'
     })
     async getAll(
@@ -223,7 +229,7 @@ export class WalkwayController {
         type: GetAllWalkResponse,
     })
     @ApiOperation({
-        summary: 'qeury로 받은 유저의 산책기록을 최신순으로 가져오기',
+        summary: '유저의 산책기록을 최신순으로 조회',
         description: 'rate는 (실제 이동한 거리/산책로의 거리) * 100 / userId는 산책로 작성자가 아닌, 산책기록을 남긴 유저'
         + ' / option이 0이면 산책로 정보와 함께 전체 walk 목록 리턴(최근활동), 1이면 time, distance에 유저 기록과 함께 아직 리뷰가 없는 walk 목록 리턴(산책로가져오기)'
         + ' / option을 주지 않으면 최근활동'
@@ -270,7 +276,7 @@ export class WalkwayController {
         type: GetWalkwayResponse,
     })
     @ApiOperation({
-        summary: '개별 산책로 정보 가져오기',
+        summary: '개별 산책로 정보 조회',
         description: '경로의 양 끝점 중 현 위치에서 가까운 점을 startPoint로 설정하기 위해 현 위치를 query로 받음.'
     })
     async getWalkway(
@@ -346,10 +352,8 @@ export class WalkwayController {
     async update(
         @Body() request: UpdateWalkwayRequest,
     ): Promise<CommonResponse> {
-        return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO UPDATE WALKWAY',
-        }
+        // TODO: 차후 Usecase 생성시 추가
+        throw new Error('Method not implemented');
     }
 
     @Patch('/walks/:walkId')
@@ -359,10 +363,8 @@ export class WalkwayController {
     async updateWalk(
         @Body() request: UpdateWalkRequest,
     ): Promise<CommonResponse> {
-        return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO UPDATE WALK'
-        }
+        // TODO: 차후 Usecase 생성시 추가
+        throw new Error('Method not implemented');
     }
 
     @Delete('/:walkwayId')
@@ -375,5 +377,8 @@ export class WalkwayController {
     @ApiResponse({
         type: CommonResponse,
     })
-    async deleteWalk() {}
+    async deleteWalk() {
+        // TODO: 차후 Usecase 생성시 추가
+        throw new Error('Method not implemented');
+    }
 }
