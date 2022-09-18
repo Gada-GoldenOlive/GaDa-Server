@@ -171,7 +171,7 @@ export class UserController {
     @Get('/:userId')
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
-        summary: 'user 정보 조회',
+        summary: '개별 유저 정보 조회',
         description: 'user의 uuid로 유저를 return해주는 API'
     })
     @ApiOkResponse({

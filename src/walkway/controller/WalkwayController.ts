@@ -118,7 +118,7 @@ export class WalkwayController {
         type: CommonResponse,
     })
     @ApiOperation({
-        summary: 'walk 생성',
+        summary: 'walk(산책기록) 생성',
     })
     async createWalk(
         @Body() request: CreateWalkRequest,

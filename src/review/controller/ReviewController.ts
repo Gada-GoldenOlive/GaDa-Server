@@ -77,7 +77,7 @@ export class ReviewController {
 
     @Get()
     @ApiOperation({
-        summary: '리뷰 목록 반환 (산책로 세부정보>리뷰)',
+        summary: '리뷰 목록 조회 (산책로 세부정보>리뷰)',
         description: 'walkwayId, userId 중에 최대 하나만 보낼 수 있음. '
         + 'walkwayId만 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 / '
         + 'userId만 보낼 경우: 해당하는 user의 리뷰 리스트 반환 / '
@@ -153,7 +153,7 @@ export class ReviewController {
         type: GetAllFeedReseponse,
     })
     @ApiOperation({
-        summary: '유저가 좋아요한 피드 목록',
+        summary: '유저가 좋아요한 피드 목록 조회',
         description: 'userId에 해당하는 유저가 좋아요 한 피드 목록 리턴'
     })
     async getAllLikeReview(
@@ -210,7 +210,7 @@ export class ReviewController {
     })
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
-        summary: '피드 목록 가져오기',
+        summary: '피드 목록 조회',
         description: 'Feed 목록 (feed 페이지에서의 리뷰 정보 목록)를 반환 / '
         + 'userId를 보낼 경우: 해당하는 user의 리뷰 리스트 반환 (마이페이지>작성한 산책로) / '
         + '보내지 않을 경우: 전체 피드 리스트 반환 (피드 페이지)'
