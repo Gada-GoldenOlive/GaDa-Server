@@ -61,7 +61,7 @@ describe('Badge', () => {
         expect(badgeOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
     });
 
-	it('badge image가 null이나 undefined로 전달될 경우 Badge createNew는 실패해야 한다.', () => {
+    it('badge image가 null이나 undefined로 전달될 경우 Badge createNew는 실패해야 한다.', () => {
         const badgeOrErrorWithNull = Badge.createNew({
             title: badgeTitle,
             image: null,
