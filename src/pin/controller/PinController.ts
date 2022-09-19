@@ -68,7 +68,7 @@ export class PinController {
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE PIN',
-        }
+        };
     }
 
     @Post('/comments')
@@ -150,7 +150,7 @@ export class PinController {
 
         return {
             pins,
-        }
+        };
     }
 
     @Get('/comments')
@@ -205,7 +205,7 @@ export class PinController {
 
         return {
             pin,
-        }
+        };
     }
 
     @Patch('/comments/:commentId')
@@ -230,10 +230,7 @@ export class PinController {
         @Param('pinId') pinId: string,
     ): Promise<CommonResponse> {
         // TODO: 차후 Usecase 생성시 추가
-        return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO UPDATE PIN',
-        }
+        throw new Error('Method not implemented');
     }
 
     @Delete('/comments/:commentId')
@@ -257,9 +254,6 @@ export class PinController {
         @Param('pinId') pinId: string,
     ): Promise<CommonResponse> {
         // TODO: 차후 Usecase 생성시 추가
-        return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO DELETE PIN',
-        }
+        throw new Error('Method not implemented');
     }
 }

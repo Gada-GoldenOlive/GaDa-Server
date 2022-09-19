@@ -1,27 +1,43 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
+import { CreateBadgeUseCase, CreateBadgeUseCaseCodes } from '../application/CreateBadgeUseCase/CreateBadgeUseCase';
 import { CreateAchieveRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
 import { GetAllBadgeResponse } from './dto/BadgeResponse';
 
 @Controller('badges')
 @ApiTags('배지')
 export class BadgeController {
-	constructor() {}
+	constructor(
+		private readonly createBadgeUseCase: CreateBadgeUseCase,
+	) {}
 
 	@Post()
 	@HttpCode(StatusCodes.CREATED)
 	@ApiCreatedResponse({
 		type: CommonResponse,
 	})
+	@ApiOperation({
+		summary: '배지 생성(백엔드 용, 프론트는 쓸 일X)'
+	})
 	async create(
 		@Body() request: CreateBadgeRequest,
 	): Promise<CommonResponse> {
-		// TODO: 차후 UseCase 생성 시 추가
-		throw new Error('Method not implemented');
-		
+		const createBadgeUseCaseResponse = await this.createBadgeUseCase.execute({
+			title: request.title,
+			image: request.image,
+		});
+
+		if (createBadgeUseCaseResponse.code !== CreateBadgeUseCaseCodes.SUCCESS) {
+			throw new HttpException('FAIL TO CREATE BADGE', StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+
+		return {
+			code: StatusCodes.CREATED,
+			responseMessage: 'SUCCESS TO CREATE BADGE',
+		};
 	}
 
 	@Post('/achievement')
@@ -33,10 +49,7 @@ export class BadgeController {
 		@Body() request: CreateAchieveRequest,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
-		return {
-			code: StatusCodes.CREATED,
-			responseMessage: 'SUCCESS TO LINK USER AND BADGE'
-		}
+        throw new Error('Method not implemented');
 	}
 
 	@Get()
