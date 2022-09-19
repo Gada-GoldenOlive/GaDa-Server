@@ -9,6 +9,11 @@ export class CreateBadgeRequest {
 
 	@ApiProperty()
 	image: string;
+
+	@ApiProperty({
+		enum: BadgeStatus,
+	})
+	category: string;
 }
 
 export class UpdateBadgeReqeust {
@@ -17,6 +22,11 @@ export class UpdateBadgeReqeust {
 
 	@ApiPropertyOptional()
 	image?: string;
+
+	@ApiPropertyOptional({
+		enum: BadgeStatus,
+	})
+	badge?: string;
 
 	@ApiPropertyOptional({
 		enum: BadgeStatus,
