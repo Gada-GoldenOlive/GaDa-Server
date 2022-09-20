@@ -47,7 +47,8 @@ export class CreateUserUseCase implements UseCase<ICreateUserUseCaseRequest, ICr
 				code: CreateUserUseCaseCodes.SUCCESS,
 				user,
 			};
-		} catch {
+		} catch (e){
+            console.log(e)
 			return {
 				code: CreateUserUseCaseCodes.FAILURE,
 			};
