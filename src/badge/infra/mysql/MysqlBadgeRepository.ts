@@ -40,6 +40,5 @@ export class MysqlBadgeRepository implements IBadgeRepository {
 		const badges = await query.getMany();
 
 		return MysqlBadgeRepositoryMapper.toDomains(badges);
-
 	}
 }
