@@ -1,7 +1,9 @@
-import { Inject } from '@nestjs/common';
 import _ from 'lodash';
+import * as bcrypt from 'bcrypt';
+import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
+import { User } from '../../domain/User/User';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
 import { ILoginUseCaseRequest } from './dto/ILoginUseCaserequest';
 import { ILoginUseCaseResponse } from './dto/ILoginUseCaseResponse';
@@ -42,7 +44,7 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 			// NOTE: id를 가진 회원이 존재할 때 비밀번호도 넣어서 함께 검사
 			const user = await this.userRepository.findOne(request);
 
-			if (!user) {
+			if (!(await LoginUseCase.checkPassword(request.password, user))) {
 				return {
 					code: LoginUseCaseCodes.WRONG_PASSWORD,
 				};
@@ -57,5 +59,12 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 				code: LoginUseCaseCodes.FAILURE,
 			};
 		}
+	}
+
+	private static async checkPassword(
+		requestPassword: string,
+		user: User,
+	): Promise<boolean> {
+		return await bcrypt.compare(requestPassword, user.password.value);
 	}
 }

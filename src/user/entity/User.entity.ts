@@ -1,4 +1,6 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, Index, OneToMany } from 'typeorm';
+import { InternalServerErrorException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
 import { WalkEntity } from 'src/walkway/entity/Walk.entity';
 import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
@@ -24,9 +26,19 @@ export class UserEntity extends CoreEntity {
     @Column({
         nullable: false,
         type: 'varchar',
-        length: 20,
     })
     password: string;
+
+    @BeforeInsert()
+    private async hashing(): Promise<void> {
+        if (this.password) {
+            try {
+                this.password = await bcrypt.hash(this.password, 10);
+            } catch (e) {
+                throw new InternalServerErrorException();
+            }
+        }
+    }
     
     @Column({
         nullable: false,
