@@ -78,10 +78,8 @@ export class ReviewController {
     @Get()
     @ApiOperation({
         summary: '리뷰 목록 조회 (산책로 세부정보>리뷰)',
-        description: 'walkwayId, userId 중에 최대 하나만 보낼 수 있음. '
-        + 'walkwayId만 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 / '
-        + 'userId만 보낼 경우: 해당하는 user의 리뷰 리스트 반환 / '
-        + '둘 다 보내지 않을 경우: 전체 리뷰 리스트 반환 (둘 다 보내는 건 구현X)'
+        description: 'walkwayId를 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 / '
+        + '보내지 않을 경우: 전체 리뷰 리스트 반환'
     })
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
@@ -89,32 +87,26 @@ export class ReviewController {
     })
     async getAll(
         @Query('walkwayId') walkwayId?: string,
-        @Query('userId') userId?: string,
     ): Promise<GetAllReviewResponse> {
-        const [ walkwayResponse, userResponse ] = await Promise.all([
-            this.getWalkwayUseCase.execute({
+        const walkwayResponse = await this.getWalkwayUseCase.execute({
                 id: walkwayId,
-            }),
-            this.getUserUseCase.execute({
-                id: userId,
-            }),
-        ]);
+        });
 
         let getAllReviewUseCaseResponse: IGetAllReviewUseCaseResponse;
 
-        if (walkwayResponse) {
+        if (walkwayId && walkwayResponse) {
+            if (!walkwayResponse.walkway) {
+                return {
+                    reviews: [],
+                    averageStar: 0,
+                }
+            }
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
                 walkway: walkwayResponse.walkway,
             });
         }
 
-        if (userResponse) {
-            getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-                user: userResponse.user,
-            });
-        }
-
-        if (!walkwayResponse && !userResponse) {
+        if (!walkwayId) {
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({});
         }
 
