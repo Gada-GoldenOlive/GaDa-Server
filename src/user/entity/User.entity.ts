@@ -30,7 +30,7 @@ export class UserEntity extends CoreEntity {
     password: string;
 
     @BeforeInsert()
-    async hashPassword(): Promise<void> {
+    private async hashing(): Promise<void> {
         if (this.password) {
             try {
                 this.password = await bcrypt.hash(this.password, 10);
