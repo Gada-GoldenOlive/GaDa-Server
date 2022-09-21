@@ -1,6 +1,7 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 import { CoreEntity } from '../../common/entity/Core.entity';
+import { BadgeCategory, BADGE_CATEGORY } from '../domain/Badge/BadgeCategory';
 import { BadgeStatus, BADGE_STATUS } from '../domain/Badge/BadgeStatus';
 import { AchieveEntity } from './AchieveEntity';
 
@@ -18,6 +19,14 @@ export class BadgeEntity extends CoreEntity {
         type: 'varchar',
     })
     image: string;
+
+    @Column({
+        nullable: false,
+        type: 'enum',
+        enum: BadgeCategory,
+        default: BadgeCategory.USER,
+    })
+    category: BADGE_CATEGORY;
 
 	@Column({
         nullable: false,
