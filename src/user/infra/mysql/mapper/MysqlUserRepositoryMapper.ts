@@ -46,29 +46,19 @@ export class MysqlUserRepositoryMapper {
             return null;
         }
 
-        const entity: UserEntity = {
-            id: user.id,
-            loginId: user.loginId.value,
-            password: user.password.value,
-            name: user.name.value,
-            image: user.image ? user.image.value : null,
-            goalDistance: user.goalDistance.value,
-            goalTime: user.goalTime.value,
-            totalDistance: user.totalDistance.value,
-            totalTime: user.totalTime.value,
-            status: user.status,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            records: undefined,
-            walkways: undefined,
-            walks: undefined,
-            pins: undefined,
-            likes: undefined,
-            comments: undefined,
-            friendsOfUser1: undefined,
-            friendsOfUser2: undefined,
-            achieves: undefined,
-        };
+        const entity = new UserEntity();
+        entity.id = user.id;
+        entity.name = user.name.value;
+        entity.loginId = user.loginId.value;
+        entity.password = user.password.value;
+        entity.image = user.image ? user.image.value : null;
+        entity.goalDistance = user.goalDistance ? user.goalDistance.value : null;
+        entity.goalTime = user.goalTime ? user.goalTime.value : null;
+        entity.totalDistance = user.totalDistance.value;
+        entity.totalTime = user.totalTime.value;
+        entity.status = user.status;
+        entity.createdAt = user.createdAt;
+        entity.updatedAt = user.updatedAt;
 
         return entity;
     }
