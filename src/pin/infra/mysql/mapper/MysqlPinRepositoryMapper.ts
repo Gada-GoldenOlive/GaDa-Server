@@ -22,6 +22,7 @@ export class MysqlPinRepositoryMapper {
             location: PinLocation.create(MysqlPinRepositoryMapper.convertToPoint(entity.location)).value,
             walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
             user: MysqlUserRepositoryMapper.toDomain(entity.user),
+            status: entity.status,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
         }, entity.id).value;
