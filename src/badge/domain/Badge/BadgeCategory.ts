@@ -1,4 +1,4 @@
-export type BADGE_CATEGORY = 'PIN' | 'REVIEW' | 'USER' | 'FRIEND' | 'WALKWAY' | 'WALK'
+export type BADGE_CATEGORY = 'PIN' | 'REVIEW' | 'USER' | 'FRIEND' | 'WALKWAY' | 'WALK' | 'COMMENT'
 export enum BadgeCategory {
     PIN = 'PIN',
     REVIEW = 'REVIEW',
