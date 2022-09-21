@@ -5,10 +5,12 @@ import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { Result } from '../../../common/presentationals/Result';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { BadgeStatus, BADGE_STATUS } from './BadgeStatus';
+import { BADGE_CATEGORY } from './BadgeCategory';
 
 export interface BadgeNewProps {
     title: BadgeTitle;
     image: ImageUrl;
+    category: BADGE_CATEGORY;
 	status?: BADGE_STATUS;
 }
 
@@ -25,7 +27,7 @@ export class Badge extends AggregateRoot<BadgeProps> {
     }
 
     static createNew(props: BadgeNewProps): Result<Badge> {
-        if (_.isNil(props.title) || _.isNil(props.image)) {
+        if (_.isNil(props.title) || _.isNil(props.image) || _.isNil(props.category)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 
@@ -48,6 +50,11 @@ export class Badge extends AggregateRoot<BadgeProps> {
     get image(): ImageUrl {
         return this.props.image;
     }
+
+    get category(): BADGE_CATEGORY {
+        return this.props.category;
+    }
+
     get status(): BADGE_STATUS {
         return this.props.status;
     }

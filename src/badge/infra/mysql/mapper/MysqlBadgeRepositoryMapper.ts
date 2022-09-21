@@ -14,6 +14,7 @@ export class MysqlBadgeRepositoryMapper {
 		const badge = Badge.create({
 			title: BadgeTitle.create(entity.title).value,
 			image: ImageUrl.create(entity.image).value,
+			category: entity.category,
 			status: entity.status,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt
@@ -35,6 +36,7 @@ export class MysqlBadgeRepositoryMapper {
 			id: badge.id,
 			title: badge.title.value,
 			image: badge.image.value,
+			category: badge.category,
 			status: badge.status,
 			createdAt: badge.createdAt,
 			updatedAt: badge.updatedAt,

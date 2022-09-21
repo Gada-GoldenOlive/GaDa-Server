@@ -28,6 +28,7 @@ export class BadgeController {
 		const createBadgeUseCaseResponse = await this.createBadgeUseCase.execute({
 			title: request.title,
 			image: request.image,
+			category: request.category,
 		});
 
 		if (createBadgeUseCaseResponse.code !== CreateBadgeUseCaseCodes.SUCCESS) {
