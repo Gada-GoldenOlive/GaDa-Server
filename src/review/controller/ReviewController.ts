@@ -102,19 +102,31 @@ export class ReviewController {
 
         let getAllReviewUseCaseResponse: IGetAllReviewUseCaseResponse;
 
-        if (walkwayResponse) {
+        if (walkwayId && walkwayResponse) {
+            if (!walkwayResponse.walkway) {
+                return {
+                    reviews: [],
+                    averageStar: 0,
+                }
+            }
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
                 walkway: walkwayResponse.walkway,
             });
         }
 
-        if (userResponse) {
+        if (userId && userResponse) {
+            if (!userResponse.user) {
+                return {
+                    reviews: [],
+                    averageStar: 0,
+                }
+            }
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
                 user: userResponse.user,
             });
         }
 
-        if (!walkwayResponse && !userResponse) {
+        if (!userId && !walkwayId) {
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({});
         }
 
