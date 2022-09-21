@@ -1,4 +1,5 @@
 import { BeforeInsert, Column, Entity, Index, OneToMany } from 'typeorm';
+import { InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { WalkEntity } from 'src/walkway/entity/Walk.entity';
@@ -11,7 +12,6 @@ import { CommentEntity } from '../../pin/entity/Comment.entity';
 import { FriendEntity } from './Friend.entity';
 import { AchieveEntity } from '../../badge/entity/AchieveEntity';
 import { RecordEntity } from './Record.entity';
-import { InternalServerErrorException } from '@nestjs/common';
 
 
 @Entity('user')
@@ -44,7 +44,6 @@ export class UserEntity extends CoreEntity {
         nullable: false,
         type: 'varchar',
         length: 17,
-        default: "이름없음",
     })
     name: string;
 
