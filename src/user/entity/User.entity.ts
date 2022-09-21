@@ -1,4 +1,5 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, Index, OneToMany } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { WalkEntity } from 'src/walkway/entity/Walk.entity';
 import { WalkwayEntity } from 'src/walkway/entity/Walkway.entity';
@@ -10,6 +11,7 @@ import { CommentEntity } from '../../pin/entity/Comment.entity';
 import { FriendEntity } from './Friend.entity';
 import { AchieveEntity } from '../../badge/entity/AchieveEntity';
 import { RecordEntity } from './Record.entity';
+import { InternalServerErrorException } from '@nestjs/common';
 
 
 @Entity('user')
@@ -24,14 +26,25 @@ export class UserEntity extends CoreEntity {
     @Column({
         nullable: false,
         type: 'varchar',
-        length: 20,
     })
     password: string;
+
+    @BeforeInsert()
+    async hashPassword(): Promise<void> {
+        if (this.password) {
+            try {
+                this.password = await bcrypt.hash(this.password, 10);
+            } catch (e) {
+                throw new InternalServerErrorException();
+            }
+        }
+    }
     
     @Column({
         nullable: false,
         type: 'varchar',
         length: 17,
+        default: "이름없음",
     })
     name: string;
 
