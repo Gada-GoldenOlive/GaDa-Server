@@ -1,5 +1,6 @@
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Badge, PROPS_VALUES_ARE_REQUIRED } from './Badge';
+import { BadgeCategory } from './BadgeCategory';
 import { BadgeStatus } from './BadgeStatus';
 import { BadgeTitle } from './BadgeTitle';
 
@@ -14,6 +15,7 @@ describe('Badge', () => {
 		const badgeOrError = Badge.createNew({
 			title: badgeTitle,
 			image: badgeImage,
+            category: BadgeCategory.FRIEND,
 			status: BadgeStatus.NORMAL,
 		});
 
@@ -21,6 +23,7 @@ describe('Badge', () => {
 		expect(badgeOrError.value.id).toBeDefined();
 		expect(badgeOrError.value.title.value).toBe(badgeTitle.value);
 		expect(badgeOrError.value.image.value).toBe(badgeImage.value);
+        expect(badgeOrError.value.category).toBe(BadgeCategory.FRIEND);
 		expect(badgeOrError.value.status).toBe(BadgeStatus.NORMAL);
 	});
 
@@ -28,6 +31,7 @@ describe('Badge', () => {
 		const badgeOrError = Badge.create({
 			title: badgeTitle,
 			image: badgeImage,
+            category: BadgeCategory.FRIEND,
 			status: BadgeStatus.NORMAL,
 			createdAt,
 			updatedAt,
@@ -37,6 +41,7 @@ describe('Badge', () => {
 		expect(badgeOrError.value.id).toBe(TEST_BADGE_ID);
 		expect(badgeOrError.value.title.value).toBe(badgeTitle.value);
 		expect(badgeOrError.value.image.value).toBe(badgeImage.value);
+        expect(badgeOrError.value.category).toBe(BadgeCategory.FRIEND);
 		expect(badgeOrError.value.status).toBe(BadgeStatus.NORMAL);
         expect(badgeOrError.value.createdAt).toBe(createdAt);
         expect(badgeOrError.value.updatedAt).toBe(updatedAt);
@@ -46,12 +51,14 @@ describe('Badge', () => {
         const badgeOrErrorWithNull = Badge.createNew({
             title: null,
             image: badgeImage,
+            category: BadgeCategory.FRIEND,
             status: BadgeStatus.NORMAL,
         });
 
         const badgeOrErrorWithUndefined = Badge.createNew({
             title: undefined,
             image: badgeImage,
+            category: BadgeCategory.FRIEND,
             status: BadgeStatus.NORMAL,
         });
 
@@ -61,16 +68,39 @@ describe('Badge', () => {
         expect(badgeOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
     });
 
-	it('badge image가 null이나 undefined로 전달될 경우 Badge createNew는 실패해야 한다.', () => {
+    it('badge image가 null이나 undefined로 전달될 경우 Badge createNew는 실패해야 한다.', () => {
         const badgeOrErrorWithNull = Badge.createNew({
             title: badgeTitle,
             image: null,
+            category: BadgeCategory.FRIEND,
             status: BadgeStatus.NORMAL,
         });
 
         const badgeOrErrorWithUndefined = Badge.createNew({
             title: badgeTitle,
             image: undefined,
+            category: BadgeCategory.FRIEND,
+            status: BadgeStatus.NORMAL,
+        });
+
+        expect(badgeOrErrorWithNull.isFailure).toBeTruthy();
+        expect(badgeOrErrorWithUndefined.isFailure).toBeTruthy();
+        expect(badgeOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+        expect(badgeOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+    });
+
+    it('badge category가 null이나 undefined로 전달될 경우 Badge createNew는 실패해야 한다.', () => {
+        const badgeOrErrorWithNull = Badge.createNew({
+            title: badgeTitle,
+            image: badgeImage,
+            category: null,
+            status: BadgeStatus.NORMAL,
+        });
+
+        const badgeOrErrorWithUndefined = Badge.createNew({
+            title: badgeTitle,
+            image: badgeImage,
+            category: undefined,
             status: BadgeStatus.NORMAL,
         });
 
@@ -83,6 +113,7 @@ describe('Badge', () => {
 	it('status가 전달되지 않은 경우에는 NORMAL로 임의 설정되어야 한다.', () => {
         const badgeStatusOrError = Badge.createNew({
             title: badgeTitle,
+            category: BadgeCategory.FRIEND,
             image: badgeImage,
         });
         
@@ -94,12 +125,14 @@ describe('Badge', () => {
         const badgeStatusOrErrorWithNull = Badge.createNew({
             title: badgeTitle,
             image: badgeImage,
+            category: BadgeCategory.FRIEND,
             status: null,
         });
 
         const badgeStatusOrErrorWithUndefined = Badge.createNew({
             title: badgeTitle,
             image: badgeImage,
+            category: BadgeCategory.FRIEND,
             status: undefined,
         });
 

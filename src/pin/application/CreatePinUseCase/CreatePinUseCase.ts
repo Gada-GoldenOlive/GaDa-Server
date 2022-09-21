@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
