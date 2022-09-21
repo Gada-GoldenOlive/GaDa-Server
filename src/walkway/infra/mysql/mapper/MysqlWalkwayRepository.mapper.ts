@@ -57,7 +57,7 @@ export class MysqlWalkwayRepositoryMapper {
             status: walkway.status,
             createdAt: walkway.createdAt,
             updatedAt: walkway.updatedAt,
-            image: walkway.image.value,
+            image: walkway.image? walkway.image.value : null,
             user: MysqlUserRepositoryMapper.toEntity(walkway.user),
             walks: undefined,
             pins: undefined,
