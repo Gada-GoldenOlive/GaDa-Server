@@ -13,6 +13,7 @@ import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
 import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
 import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
+import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
 
 const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => {
     let like = false;
@@ -46,6 +47,7 @@ export class ReviewController {
         private readonly getReviewUseCase: GetReviewUseCase,
         private readonly getLikeUseCase: GetLikeUseCase,
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
+        private readonly createLikeUseCase: CreateLikeUseCase,
     ) {}
 
     @Post()
@@ -68,11 +70,43 @@ export class ReviewController {
     @ApiCreatedResponse({
         type: CommonResponse,
     })
+    @ApiOperation({
+        summary: '좋아요 생성',
+    })
     async createLike(
         @Body() request: CreateLikeRequest,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
-        throw new Error('Method not implemented');
+        const [ reviewResponse, userResponse ] = await Promise.all([
+            this.getReviewUseCase.execute({
+                id: request.reviewId,
+            }),
+            this.getUserUseCase.execute({
+                id: request.userId,
+            }),
+        ]);
+
+
+        if (reviewResponse.code !== GetReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE LIKE BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE LIKE BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const createLikeUseCaseResponse = await this.createLikeUseCase.execute({
+            review: reviewResponse.review,
+            user: userResponse.user,
+        });
+
+        if (createLikeUseCaseResponse.code !== CreateLikeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE LIKE',
+        };
     }
 
     @Get()
