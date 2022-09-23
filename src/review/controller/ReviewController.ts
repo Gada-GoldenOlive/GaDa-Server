@@ -85,7 +85,6 @@ export class ReviewController {
             }),
         ]);
 
-
         if (reviewResponse.code !== GetReviewUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE LIKE BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }

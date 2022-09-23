@@ -6,7 +6,6 @@ import { ILikeRepository, LIKE_REPOSITORY } from '../../infra/ILikeRepository';
 import { ICreateLikeUseCaseRequest } from './dto/ICreateLikeUseCaseRequest';
 import { ICreateLikeUseCaseResponse } from './dto/ICreateLikeUseCaseResponse';
 
-
 export enum CreateLikeUseCaseCodes {
 	SUCCESS = 'SUCCESS',
 	FAILURE = 'FAILURE',

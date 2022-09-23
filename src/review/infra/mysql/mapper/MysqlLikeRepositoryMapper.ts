@@ -31,8 +31,8 @@ export class MysqlLikeRepositoryMapper {
 
         const entity = new LikeEntity();
         entity.id = like.id;
-        entity.user = MysqlUserRepositoryMapper.toEntity(like.user)
-        entity.review = MysqlReviewRepositoryMapper.toEntity(like.review)
+        entity.user = MysqlUserRepositoryMapper.toEntity(like.user);
+        entity.review = MysqlReviewRepositoryMapper.toEntity(like.review);
         entity.status = like.status;
         entity.createdAt = like.createdAt;
         entity.updatedAt = like.updatedAt;
