@@ -1,24 +1,29 @@
 import _ from 'lodash';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
-import { LoginUseCase, LoginUseCaseCodes } from '../application/LoginUseCase/LoginUseCase';
 import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
+import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { request } from 'http';
 
 @Controller('users')
 @ApiTags('사용자')
 export class UserController {
     constructor(
         private readonly createUserUseCase: CreateUserUseCase,
-        private readonly loginUseCase: LoginUseCase,
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
+        private readonly jwtService: JwtService,
+        private readonly configServiece: ConfigService,
     ) {}
 
     @Post()
@@ -28,6 +33,7 @@ export class UserController {
     })
     @ApiOperation({
         summary: '유저 생성',
+        description: '유저를 생성한 뒤, 해당 유저의 토큰을 리턴한다.'
     })
     async create(
         @Body() request: CreateUserRequest,
@@ -50,7 +56,10 @@ export class UserController {
         const user = createUserUseCaseResponse.user;
 
         return {
-            id: user.id,    
+            access_token: this.jwtService.sign(
+                { username: user.loginId.value, sub: user.id }, 
+                { secret: this.configServiece.get('JWT_SECRET') }
+            ),
         };
     }
 
@@ -129,61 +138,43 @@ export class UserController {
         }
     }
 
-    @Get('/login')
+    @Post('/login')
+    @UseGuards(LocalAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: LoginOrSignUpUserResponse,
     })
     @ApiOperation({
         summary: '로그인',
-        description: 'loginId, password에 해당하는 유저의 uuid를 반환'
+        description: 'loginId, password에 해당하는 유저가 존재한다면, 유저의 토큰을 리턴한다.'
     })
     async login(
-        @Query('loginId') loginId: string,
-        @Query('password') password: string,
+        @Request() request
     ): Promise<LoginOrSignUpUserResponse> {
-        const loginUsecaseResponse = await this.loginUseCase.execute({
-            loginId,
-            password,
-        })
-
-        if (loginUsecaseResponse.code === LoginUseCaseCodes.WRONG_LOGIN_ID) {
-            throw new HttpException(LoginUseCaseCodes.WRONG_LOGIN_ID, StatusCodes.NOT_FOUND);
-        }
-
-        if (loginUsecaseResponse.code === LoginUseCaseCodes.WRONG_PASSWORD) {
-            throw new HttpException(LoginUseCaseCodes.WRONG_PASSWORD, StatusCodes.BAD_REQUEST);
-        }
-
-        if (loginUsecaseResponse.code === LoginUseCaseCodes.PROPS_VALUES_ARE_REQUIRED) {
-            throw new HttpException(LoginUseCaseCodes.PROPS_VALUES_ARE_REQUIRED, StatusCodes.BAD_REQUEST);
-        }
-
-        if (loginUsecaseResponse.code !== LoginUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO LOGIN', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
-        const user = loginUsecaseResponse.user;
+        const user = request.user;
 
         return {
-            id: user.id,
-        }
+            access_token: this.jwtService.sign(
+                { username: user.loginId.value, sub: user.id }, 
+                { secret: this.configServiece.get('JWT_SECRET') }
+            ),
+        };
     }
     
-    @Get('/:userId')
+    @Get('/detail')
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
         summary: '개별 유저 정보 조회',
-        description: 'user의 uuid로 유저를 return해주는 API'
+        description: 'token에 해당하는 유저 정보를 리턴함.'
     })
     @ApiOkResponse({
         type: GetUserResponse,
     })
     async getOne(
-        @Param('userId') userId: string,
+        @Request() request,
     ) {
         const getUserUseCaseResponse = await this.getUserUseCase.execute({
-            id: userId,
+            id: request.user.id,
         });
 
         if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
