@@ -41,10 +41,7 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 				};
 			}
 
-			// NOTE: id를 가진 회원이 존재할 때 비밀번호도 넣어서 함께 검사
-			const user = await this.userRepository.findOne(request);
-
-			if (!(await LoginUseCase.checkPassword(request.password, user))) {
+			if (!(await LoginUseCase.checkPassword(request.password, userWithLoginId))) {
 				return {
 					code: LoginUseCaseCodes.WRONG_PASSWORD,
 				};
@@ -52,7 +49,7 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 			
 			return {
 				code: LoginUseCaseCodes.SUCCESS,
-				user,
+				user: userWithLoginId,
 			};
 		} catch {
 			return {
