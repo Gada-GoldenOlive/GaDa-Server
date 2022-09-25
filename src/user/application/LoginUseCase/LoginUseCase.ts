@@ -31,18 +31,15 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 			}
 
 			// NOTE: login id로 먼저 검사
-			const userWithLoginId = await this.userRepository.findOne({
+			const user = await this.userRepository.findOne({
 				loginId: request.loginId
 			});
 
-			if (!userWithLoginId) {
+			if (!user) {
 				return {
 					code: LoginUseCaseCodes.WRONG_LOGIN_ID,
 				};
 			}
-
-			// NOTE: id를 가진 회원이 존재할 때 비밀번호도 넣어서 함께 검사
-			const user = await this.userRepository.findOne(request);
 
 			if (!(await LoginUseCase.checkPassword(request.password, user))) {
 				return {

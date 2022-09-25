@@ -1,10 +1,14 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { JwtStrategy } from '../auth/jwt.strategy';
+import { LocalStrategy } from '../auth/local.strategy';
 import { GetAllPinUseCase } from '../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { PinEntity } from '../pin/entity/Pin.entity';
 import { PIN_REPOSITORY } from '../pin/infra/IPinRepository';
 import { MysqlPinRepository } from '../pin/infra/mysql/MysqlPinRepository';
-
 import { CreateUserUseCase } from './application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase } from './application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase } from './application/LoginUseCase/LoginUseCase';
@@ -22,7 +26,11 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
             FriendEntity,
             PinEntity,
             RecordEntity,
-        ])
+        ]),
+        JwtModule.register({
+            secret: process.env.JWT_SECRET,
+            signOptions: { expiresIn: '60s' },
+        }),
     ],
     controllers: [ UserController ],
     providers: [
@@ -38,6 +46,10 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
             provide: PIN_REPOSITORY,
             useClass: MysqlPinRepository,
         },
+        JwtService,
+        LocalStrategy,
+        JwtStrategy,
+        ConfigService,
     ],
 })
 
