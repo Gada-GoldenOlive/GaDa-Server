@@ -1,19 +1,17 @@
 import _ from 'lodash';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
+import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
-import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
-import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
-import { request } from 'http';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -173,19 +171,7 @@ export class UserController {
     async getOne(
         @Request() request,
     ) {
-        const getUserUseCaseResponse = await this.getUserUseCase.execute({
-            id: request.user.id,
-        });
-
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
-            throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
-        }
-
-        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
-        const user = getUserUseCaseResponse.user;
+        const user = request.user;
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             user,

@@ -31,17 +31,17 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 			}
 
 			// NOTE: login id로 먼저 검사
-			const userWithLoginId = await this.userRepository.findOne({
+			const user = await this.userRepository.findOne({
 				loginId: request.loginId
 			});
 
-			if (!userWithLoginId) {
+			if (!user) {
 				return {
 					code: LoginUseCaseCodes.WRONG_LOGIN_ID,
 				};
 			}
 
-			if (!(await LoginUseCase.checkPassword(request.password, userWithLoginId))) {
+			if (!(await LoginUseCase.checkPassword(request.password, user))) {
 				return {
 					code: LoginUseCaseCodes.WRONG_PASSWORD,
 				};
@@ -49,7 +49,7 @@ export class LoginUseCase implements UseCase<ILoginUseCaseRequest, ILoginUseCase
 			
 			return {
 				code: LoginUseCaseCodes.SUCCESS,
-				user: userWithLoginId,
+				user,
 			};
 		} catch {
 			return {
