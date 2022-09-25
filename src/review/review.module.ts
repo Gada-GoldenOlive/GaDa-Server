@@ -9,6 +9,7 @@ import { GetWalkwayUseCase } from '../walkway/application/GetWalkwayUseCase/GetW
 import { WalkwayEntity } from '../walkway/entity/Walkway.entity';
 import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
+import { CreateLikeUseCase } from './application/CreateLikeUseCase/CreateLikeUseCase';
 import { GetAllLikeUseCase } from './application/GetAllLikeUseCase/IGetAllLikeUseCase';
 import { GetAllReviewUseCase } from './application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { GetLikeUseCase } from './application/GetLikeUseCase/IGetLikeUseCase';
@@ -54,6 +55,7 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
         useClass: MysqlLikeRepository,
       },
       GetAllLikeUseCase,
+      CreateLikeUseCase,
   ],
 })
 
