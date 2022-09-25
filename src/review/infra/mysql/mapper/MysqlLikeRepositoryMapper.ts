@@ -22,4 +22,21 @@ export class MysqlLikeRepositoryMapper {
 
     static toDomains(entities: LikeEntity[]): Like[] {
         return _.map(entities, (entity) => this.toDomain(entity));
-    }}
+    }
+
+    static toEntity(like: Like): LikeEntity {
+        if (_.isNil(like)) {
+            return null;
+        }
+
+        const entity = new LikeEntity();
+        entity.id = like.id;
+        entity.user = MysqlUserRepositoryMapper.toEntity(like.user);
+        entity.review = MysqlReviewRepositoryMapper.toEntity(like.review);
+        entity.status = like.status;
+        entity.createdAt = like.createdAt;
+        entity.updatedAt = like.updatedAt;
+
+        return entity;
+    }
+}

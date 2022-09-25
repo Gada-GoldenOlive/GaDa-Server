@@ -48,4 +48,12 @@ export class MysqlLikeRepository implements ILikeRepository {
 
         return MysqlLikeRepositoryMapper.toDomains(likes);
     }
+
+    async save(like: Like): Promise<boolean> {
+        await this.likeRepository.save(
+            MysqlLikeRepositoryMapper.toEntity(like)
+        );
+
+        return true;
+    }
 }
