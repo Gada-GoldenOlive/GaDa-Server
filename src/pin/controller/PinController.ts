@@ -12,6 +12,7 @@ import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/applica
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
 import { GetPinUseCase, GetPinUseCaseCodes } from '../application/GetPinUseCase/GetPinUseCase';
+import { CreateCommentUseCase, CreateCommentUseCaseCodes } from '../application/CreateCommentUseCase/CreateCommentUseCase';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -22,6 +23,7 @@ export class PinController {
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly createPinUseCase: CreatePinUseCase,
         private readonly getPinUseCase: GetPinUseCase,
+        private readonly createCommentUseCase: CreateCommentUseCase,
     ) {}
 
     @Post()
@@ -76,11 +78,43 @@ export class PinController {
     @ApiCreatedResponse({
         type: CommonResponse,
     })
+    @ApiOperation({
+        summary: '댓글 생성',
+    })
     async createComment(
         @Body() request: CreateCommentRequest,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
-        throw new Error('Method not implemented');
+        const [ pinResponse, userResponse ] = await Promise.all([
+            this.getPinUseCase.execute({
+                id: request.pinId,
+            }),
+            this.getUserUseCase.execute({
+                id: request.userId,
+            }),
+        ]);
+
+        if (pinResponse.code !== GetPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE COMMENT BY PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE COMMENT BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const createCommentUseCaseResponse = await this.createCommentUseCase.execute({
+            content: request.content,
+            pin: pinResponse.pin,
+            user: userResponse.user,
+        });
+
+        if (createCommentUseCaseResponse.code !== CreateCommentUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE COMMENT', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE COMMENT',
+        };
     }
 
     @Get()

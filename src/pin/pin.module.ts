@@ -9,13 +9,16 @@ import { GetWalkwayUseCase } from '../walkway/application/GetWalkwayUseCase/GetW
 import { WalkwayEntity } from '../walkway/entity/Walkway.entity';
 import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
+import { CreateCommentUseCase } from './application/CreateCommentUseCase/CreateCommentUseCase';
 import { CreatePinUseCase } from './application/CreatePinUseCase/CreatePinUseCase';
 import { GetAllPinUseCase } from './application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetPinUseCase } from './application/GetPinUseCase/GetPinUseCase';
 import { PinController } from './controller/PinController';
 import { CommentEntity } from './entity/Comment.entity';
 import { PinEntity } from './entity/Pin.entity';
+import { COMMENT_REPOSITORY } from './infra/ICommentRepository';
 import { PIN_REPOSITORY } from './infra/IPinRepository';
+import { MysqlCommentRepository } from './infra/mysql/MysqlCommentRepository';
 import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
 
 @Module({
@@ -45,6 +48,11 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
     {
       provide: WALKWAY_REPOSITORY,
       useClass: MysqlWalkwayRepository,
+    },
+    CreateCommentUseCase,
+    {
+      provide: COMMENT_REPOSITORY,
+      useClass: MysqlCommentRepository,
     },
   ],
 })
