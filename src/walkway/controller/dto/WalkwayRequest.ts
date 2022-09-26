@@ -23,9 +23,6 @@ export class CreateWalkwayRequest {
 
     @ApiPropertyOptional()
     image?: string;
-
-    @ApiProperty()
-    userId: string;
 }
 
 export class UpdateWalkwayRequest {
@@ -67,9 +64,6 @@ export class CreateWalkRequest {
 
     @ApiProperty()
     walkwayId: string;
-
-    @ApiProperty()
-    userId: string;
 }
 
 export class UpdateWalkRequest {

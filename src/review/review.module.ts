@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { JwtAuthGuard } from '../auth/jwt-auth.gaurd';
 import { GetUserUseCase } from '../user/application/GetUserUseCase/GetUserUseCase';
 import { UserEntity } from '../user/entity/User.entity';
 import { USER_REPOSITORY } from '../user/infra/IUserRepository';
@@ -56,6 +58,10 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
       },
       GetAllLikeUseCase,
       CreateLikeUseCase,
+      {
+        provide: APP_GUARD,
+        useClass: JwtAuthGuard,
+    },
   ],
 })
 

@@ -16,9 +16,6 @@ export class CreatePinRequest {
 
     @ApiProperty()
     walkwayId: string;
-
-    @ApiProperty()
-    userId: string;
 }
 
 export class UpdatePinRequest {
@@ -38,9 +35,6 @@ export class CreateCommentRequest {
 
     @ApiProperty()
     pinId: string;
-
-    @ApiProperty()
-    userId: string;
 }
 
 export class UpdateCommentReqeust {

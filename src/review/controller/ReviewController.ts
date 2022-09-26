@@ -1,10 +1,9 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
-import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { CreateLikeRequest, CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
 import { FeedDto, GetAllReviewResponse, GetReviewResponse, GetAllFeedReseponse } from './dto/ReviewResponse';
@@ -15,19 +14,11 @@ import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCa
 import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
 import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
 
-const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => {
+const is_like_exist = async (review, user, getLikeUseCase) => {
     let like = false;
-    if (userId) {
-        const getUserUseCaseResponse = await getUserUseCase.execute({
-            id: userId,
-        });
-
-        if (!getUserUseCaseResponse || getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND USER',StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
+    if (user) {
         const getLikeUseCaseResponse = await getLikeUseCase.execute({
-            user: getUserUseCaseResponse.user,
+            user,
             review,
         });
 
@@ -42,7 +33,6 @@ const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => 
 export class ReviewController {
     constructor(
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
-        private readonly getUserUseCase: GetUserUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getReviewUseCase: GetReviewUseCase,
         private readonly getLikeUseCase: GetLikeUseCase,
@@ -74,28 +64,20 @@ export class ReviewController {
         summary: '좋아요 생성',
     })
     async createLike(
-        @Body() request: CreateLikeRequest,
+        @Request() request,
     ): Promise<CommonResponse> {
-        const [ reviewResponse, userResponse ] = await Promise.all([
-            this.getReviewUseCase.execute({
-                id: request.reviewId,
-            }),
-            this.getUserUseCase.execute({
-                id: request.userId,
-            }),
-        ]);
+        const body: CreateLikeRequest = request.body;
+        const reviewResponse = await this.getReviewUseCase.execute({
+            id: body.reviewId,
+        });
 
         if (reviewResponse.code !== GetReviewUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE LIKE BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE LIKE BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
         const createLikeUseCaseResponse = await this.createLikeUseCase.execute({
             review: reviewResponse.review,
-            user: userResponse.user,
+            user: request.user,
         });
 
         if (createLikeUseCaseResponse.code !== CreateLikeUseCaseCodes.SUCCESS) {
@@ -179,21 +161,13 @@ export class ReviewController {
     })
     @ApiOperation({
         summary: '유저가 좋아요한 피드 목록 조회',
-        description: 'userId에 해당하는 유저가 좋아요 한 피드 목록 리턴'
+        description: 'token에 해당하는 유저가 좋아요 한 피드 목록 리턴'
     })
     async getAllLikeReview(
-        @Query('userId') userId: string,
+        @Request() request,
     ): Promise<GetAllFeedReseponse> {
-        const getUserUseCaseResponse = await this.getUserUseCase.execute({
-            id: userId,
-        });
-
-        if (!getUserUseCaseResponse || getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND USER',StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
         const getAllLikeUseCaseResponse = await this.getAllLikeUseCase.execute({
-            user: getUserUseCaseResponse.user,
+            user: request.user,
         })
 
         if (getAllLikeUseCaseResponse.code !== GetLikeUseCaseCodes.SUCCESS) {
@@ -241,17 +215,14 @@ export class ReviewController {
         + '보내지 않을 경우: 전체 피드 리스트 반환 (피드 페이지)'
     })
     async getAllFeed(
+        @Request() request,
         @Query('userId') userId?: string,
     ): Promise<GetAllFeedReseponse> {
-        const userResponse = await this.getUserUseCase.execute({
-                id: userId,
-            });
-
         let getAllReviewUseCaseResponse: IGetAllReviewUseCaseResponse;
 
-        if (userResponse) {
+        if (userId) {
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-                user: userResponse.user,
+                user: request.user,
             });
         }
         else {
@@ -284,7 +255,7 @@ export class ReviewController {
                 // walkwayImage: review.walk.walkway.image.value,
                 address: review.walk.walkway.address.value,
                 // images: review.images.value,
-                like: await is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
+                like: await is_like_exist(review, request.user, this.getLikeUseCase),
             }
             reviews.push(tmp);
         }
@@ -300,12 +271,11 @@ export class ReviewController {
     })
     @ApiOperation({
         summary: '개별 리뷰 정보 가져오기',
-        description: '피드>산책로게시물 페이지에 보여질 리뷰 정보 get / userId는 좋아요 여부를 알기 위함. / ' 
-        + 'userId가 주어지지 않으면 like는 false로 리턴'
+        description: '피드>산책로게시물 페이지에 보여질 리뷰 정보 get' 
     })
     async getReview(
         @Param('reviewId') reviewId: string,
-        @Query('userId') userId: string,
+        @Request() request,
     ): Promise<GetReviewResponse> {
         const getReviewUseCaseResponse = await this.getReviewUseCase.execute({
             id: reviewId,
@@ -336,7 +306,7 @@ export class ReviewController {
             // walkwayImage: getReviewUseCaseResponse.review.walk.walkway.image.value,
             address: getReviewUseCaseResponse.review.walk.walkway.address.value,
             // images: getReviewUseCaseResponse.review.images.value,
-            like: await is_like_exist(getReviewUseCaseResponse.review, userId, this.getUserUseCase, this.getLikeUseCase),
+            like: await is_like_exist(getReviewUseCaseResponse.review, request.user, this.getLikeUseCase),
         };
         return {
             review,
@@ -374,14 +344,13 @@ export class ReviewController {
         }
     }
 
-    @Delete('/likes')
+    @Delete('/likes/:likeId')
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
 	})
 	async deleteLike(
-		@Query('userId') userId: string,
-        @Query('reviewId') reviewId: string
+		@Param('likeId') userId: string,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');

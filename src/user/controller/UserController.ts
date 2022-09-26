@@ -12,6 +12,7 @@ import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCa
 import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -62,6 +63,7 @@ export class UserController {
     }
 
     @Post('/friends')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -74,6 +76,7 @@ export class UserController {
     }
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllUserResponse,
@@ -84,6 +87,7 @@ export class UserController {
     }
 
     @Get('/friends')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllUserResponse,
@@ -160,6 +164,7 @@ export class UserController {
     }
     
     @Get('/detail')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
         summary: '개별 유저 정보 조회',
@@ -195,6 +200,7 @@ export class UserController {
     }
 
     @Patch('/:userId')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -207,6 +213,7 @@ export class UserController {
     }
 
     @Delete('/:userId')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -217,6 +224,7 @@ export class UserController {
     }
 
     @Delete('/friends/:friendId')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
