@@ -303,40 +303,6 @@ export class ReviewController {
             });
         }));
 
-        // NOTE: for in 코드
-        /*
-        const reviews = [];
-        for (const review of getAllReviewUseCaseResponse.reviews) {
-            const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
-
-            const feed = {
-                review: {
-                    id: review.id,
-                    title: review.title.value,
-                    vehicle: review.vehicle,
-                    star: review.star.value,
-                    content: review.content.value,
-                    userImage: review.walk.user.image.value,
-                    userId: review.walk.user.id,
-                    userName: review.walk.user.name.value,
-                    walkwayId: review.walk.walkway.id,
-                    walkwayTitle: review.walk.walkway.title.value,
-                    createdAt: review.createdAt,
-                    updatedAt: review.updatedAt,
-                },
-                time: review.walk.time.value,
-                distance: review.walk.distance.value,
-                // walkwayImage: review.walk.walkway.image.value,
-                address: review.walk.walkway.address.value,
-                images: _.map(images, (image) => ({
-                    id: image.id,
-                    url: image.url.value,
-                })),
-                like: await is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
-            }
-            reviews.push(feed);
-        } */
-
         return {
             reviews,
         }
