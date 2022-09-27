@@ -14,11 +14,12 @@ import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetRevie
 import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
 import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
 import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
+import { GetAllReviewImageUseCase, GetAllReviewImageUseCaseCodes } from '../application/GetAllReviewImageUseCase/GetAllReviewImageUseCase';
 
-const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => {
+const is_like_exist = (review, userId, getUserUseCase, getLikeUseCase) => {
     let like = false;
     if (userId) {
-        const getUserUseCaseResponse = await getUserUseCase.execute({
+        const getUserUseCaseResponse = getUserUseCase.execute({
             id: userId,
         });
 
@@ -26,7 +27,7 @@ const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => 
             throw new HttpException('FAIL TO FIND USER',StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const getLikeUseCaseResponse = await getLikeUseCase.execute({
+        const getLikeUseCaseResponse = getLikeUseCase.execute({
             user: getUserUseCaseResponse.user,
             review,
         });
@@ -48,6 +49,7 @@ export class ReviewController {
         private readonly getLikeUseCase: GetLikeUseCase,
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
         private readonly createLikeUseCase: CreateLikeUseCase,
+        private readonly getAllReviewImageUseCase: GetAllReviewImageUseCase,
     ) {}
 
     @Post()
@@ -262,9 +264,19 @@ export class ReviewController {
             throw new HttpException('FAIL TO GET ALL FEED', StatusCodes.INTERNAL_SERVER_ERROR)
         }
 
-        let reviews = []
-        for (const review of getAllReviewUseCaseResponse.reviews) {
-            const tmp = {
+        const reviewIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => review.id);
+        const getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+            reviewIds,
+        });
+
+        if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO ET ALL FEED IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const reviews: FeedDto[] = _.map(getAllReviewUseCaseResponse.reviews, (review) => {
+            const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
+
+            return ({
                 review: {
                     id: review.id,
                     title: review.title.value,
@@ -283,11 +295,13 @@ export class ReviewController {
                 distance: review.walk.distance.value,
                 // walkwayImage: review.walk.walkway.image.value,
                 address: review.walk.walkway.address.value,
-                // images: review.images.value,
-                like: await is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
-            }
-            reviews.push(tmp);
-        }
+                images: _.map(images, (image) => ({
+                    id: image.id,
+                    url: image.url.value,
+                })),
+                like: is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
+            });
+        });
 
         return {
             reviews,

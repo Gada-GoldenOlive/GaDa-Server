@@ -2,6 +2,14 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { VEHCILE_STATUS, Vehicle } from '../../domain/Review/Vehicle';
 
+export class ImageDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    url: string;
+}
+
 export class ReviewDto {
     @ApiProperty()
     id: string;
@@ -55,8 +63,10 @@ export class FeedDto {
     @ApiProperty()
     address: string;
 
-    @ApiPropertyOptional()
-    images?: string[];
+    @ApiPropertyOptional({
+        type: [ImageDto]
+    })
+    images?: ImageDto[];
 
     @ApiProperty()
     like: boolean;

@@ -11,15 +11,19 @@ import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
 import { CreateLikeUseCase } from './application/CreateLikeUseCase/CreateLikeUseCase';
 import { GetAllLikeUseCase } from './application/GetAllLikeUseCase/IGetAllLikeUseCase';
+import { GetAllReviewImageUseCase } from './application/GetAllReviewImageUseCase/GetAllReviewImageUseCase';
 import { GetAllReviewUseCase } from './application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { GetLikeUseCase } from './application/GetLikeUseCase/IGetLikeUseCase';
 import { GetReviewUseCase } from './application/GetReviewUseCase/IGetReviewUseCase';
 import { ReviewController } from './controller/ReviewController';
 import { LikeEntity } from './entity/Like.entity';
 import { ReviewEntity } from './entity/Review.entity';
+import { ReviewImageEntity } from './entity/ReviewImage.entity';
 import { LIKE_REPOSITORY } from './infra/ILikeRepository';
+import { REVIEW_IMAGE_REPOSITORY } from './infra/IReviewImageRepository';
 import { REVIEW_REPOSITORY } from './infra/IReviewRepository';
 import { MysqlLikeRepository } from './infra/mysql/MysqlLikeRepository';
+import { MysqlReviewImageRepository } from './infra/mysql/MysqlReviewImageRepository';
 import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
 
 @Module({
@@ -29,11 +33,13 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
         UserEntity,
         WalkwayEntity,
         LikeEntity,
+        ReviewImageEntity,
     ])
   ],
   controllers: [ ReviewController ],
   providers: [
       GetAllReviewUseCase,
+      GetReviewUseCase,
       {
           provide: REVIEW_REPOSITORY,
           useClass: MysqlReviewRepository,
@@ -48,14 +54,18 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
         provide: WALKWAY_REPOSITORY,
         useClass: MysqlWalkwayRepository,
       },
-      GetReviewUseCase,
       GetLikeUseCase,
+      GetAllLikeUseCase,
+      CreateLikeUseCase,
       {
         provide: LIKE_REPOSITORY,
         useClass: MysqlLikeRepository,
       },
-      GetAllLikeUseCase,
-      CreateLikeUseCase,
+      GetAllReviewImageUseCase,
+      {
+        provide: REVIEW_IMAGE_REPOSITORY,
+        useClass: MysqlReviewImageRepository,
+      },
   ],
 })
 

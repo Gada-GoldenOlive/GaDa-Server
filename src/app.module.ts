@@ -23,6 +23,7 @@ import { FriendEntity } from './user/entity/Friend.entity';
 import { AchieveEntity } from './badge/entity/AchieveEntity';
 import { RecordEntity } from './user/entity/Record.entity';
 import { JwtAuthGuard } from './auth/jwt-auth.gaurd';
+import { ReviewImageEntity } from './review/entity/ReviewImage.entity';
 
 
 @Module({
@@ -61,6 +62,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.gaurd';
                 FriendEntity,
                 AchieveEntity,
                 RecordEntity,
+                ReviewImageEntity,
             ],
         }),
         UserModule,
