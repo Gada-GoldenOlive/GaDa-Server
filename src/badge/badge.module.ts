@@ -11,24 +11,24 @@ import { BADGE_REPOSITORY } from './infra/IBadgeRepository';
 import { MysqlBadgeRepository } from './infra/mysql/MysqlBadgeRepository';
 
 @Module({
-	imports: [
-		TypeOrmModule.forFeature([ 
-			BadgeEntity,
-			AchieveEntity,
-		]),
-	],
-	controllers: [ BadgeController ],
-	providers: [
-		CreateBadgeUseCase,
-		{
-			provide: BADGE_REPOSITORY,
-			useClass: MysqlBadgeRepository,
-		},
+    imports: [
+        TypeOrmModule.forFeature([ 
+            BadgeEntity,
+            AchieveEntity,
+        ]),
+    ],
+    controllers: [ BadgeController ],
+    providers: [
+        CreateBadgeUseCase,
+        {
+            provide: BADGE_REPOSITORY,
+            useClass: MysqlBadgeRepository,
+        },
         {
             provide: APP_GUARD,
             useClass: JwtAuthGuard,
         },
-	],
+    ],
 })
 
 export class BadgeModule {}
