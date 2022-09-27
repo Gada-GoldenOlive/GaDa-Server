@@ -25,7 +25,7 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 		const reviewIds = options.reviewIds;
 
 		const query = this.reviewImageRepository
-		.createQueryBuilder('image')
+		.createQueryBuilder('reviewImage')
 		.leftJoinAndSelect('image.review', 'review')
 		.leftJoinAndSelect('review.walk', 'walk')
 		.leftJoinAndSelect('walk.user', 'user')
@@ -38,7 +38,7 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 		}
 
 		if (reviewIds) {
-			query.andWhere('reviewId IN (:reviewIds)', { reviewIds });
+			query.andWhere('reviewImage.reviewId IN (:reviewIds)', { reviewIds });
 		}
 
 		query.orderBy('image.createdAt', 'ASC');

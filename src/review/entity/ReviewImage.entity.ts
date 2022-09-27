@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { CoreEntity } from '../../common/entity/Core.entity';
 import { ReviewEntity } from './Review.entity';
 
-@Entity('image')
+@Entity('reviewImage')
 export class ReviewImageEntity extends CoreEntity {
   @Column({
     nullable: false,
