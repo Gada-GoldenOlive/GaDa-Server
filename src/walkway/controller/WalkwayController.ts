@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { LineString } from 'geojson';
@@ -14,7 +14,6 @@ import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/appl
 import { GetAllWalkwayUseCase, GetAllWalkwayUseCaseCodes } from '../application/GetAllWalkwayUseCase/GetAllWalkwayUseCase';
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 import { Point } from '../domain/Walkway/WalkwayEndPoint';
-import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
 import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
@@ -40,7 +39,6 @@ export class WalkwayController {
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
         private readonly getAllWalkwayUseCase: GetAllWalkwayUseCase,
         private readonly createWalkUseCase: CreateWalkUseCase,
-        private readonly getUserUseCase: GetUserUseCase,
         private readonly getAllWalkUseCase: GetAllWalkUseCase,
         private readonly createWalkwayUseCase: CreateWalkwayUseCase,
     ) {}
@@ -54,24 +52,17 @@ export class WalkwayController {
         summary: '산책로 생성',
     })
     async create(
-        @Body() request: CreateWalkwayRequest,
+        @Request() request,
     ): Promise<CommonResponse> {
-        const getUserUseCaseResposne = await this.getUserUseCase.execute({
-            id: request.userId,
-        })
-
-        if (getUserUseCaseResposne.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE WALKWAY BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
+        const body: CreateWalkwayRequest = request.body;
         const createWalkwayUseCaseResponse = await this.createWalkwayUseCase.execute({
-            title: request.title,
-            address: request.address,
-            distance: request.distance,
-            time: request.time,
-            path: request.path,
-            image: request.image,
-            user: getUserUseCaseResposne.user,
+            title: body.title,
+            address: body.address,
+            distance: body.distance,
+            time: body.time,
+            path: body.path,
+            image: body.image,
+            user: request.user,
         })
 
         if (createWalkwayUseCaseResponse.code !== CreateWalkwayUseCaseCodes.SUCCESS) {
@@ -121,30 +112,22 @@ export class WalkwayController {
         summary: 'walk(산책기록) 생성',
     })
     async createWalk(
-        @Body() request: CreateWalkRequest,
+        @Request() request,
     ): Promise<CommonResponse> {
-        const [ walkwayResponse, userResponse ] = await Promise.all([
-            this.getWalkwayUseCase.execute({
-                id: request.walkwayId,
-            }),
-            this.getUserUseCase.execute({
-                id: request.userId,
-            }),
-        ]);
+        const body: CreateWalkRequest = request.body;
+        const walkwayResponse = await this.getWalkwayUseCase.execute({
+            id: body.walkwayId,
+        });
 
         if (walkwayResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE WALK BY WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE WALK BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
         const createWalkUseCaseResponse = await this.createWalkUseCase.execute({
-            time: request.time,
-            distance: request.distance,
-            finishStatus: request.finishStatus,
-            user: userResponse.user,
+            time: body.time,
+            distance: body.distance,
+            finishStatus: body.finishStatus,
+            user: request.user,
             walkway: walkwayResponse.walkway,
         })
 
@@ -235,12 +218,12 @@ export class WalkwayController {
         + ' / option을 주지 않으면 최근활동'
     })
     async getAllWalk(
-        @Query('userId') userId: string,
+        @Request() request,
         @Query('option') option?: number,
     ) {
         option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option
         const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
-            userId: userId,
+            userId: request.user.id,
             option: option,
         });
 
