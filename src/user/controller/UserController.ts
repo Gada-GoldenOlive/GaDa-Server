@@ -12,6 +12,8 @@ import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCa
 import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
+import { UserOwnerGuard } from '../user-owner.guard';
+import { FriendOwnerGuard } from '../friend-owner.guard';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -195,6 +197,7 @@ export class UserController {
     }
 
     @Patch('/:userId')
+    @UseGuards(UserOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -207,6 +210,7 @@ export class UserController {
     }
 
     @Delete('/:userId')
+    @UseGuards(UserOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -217,6 +221,7 @@ export class UserController {
     }
 
     @Delete('/friends/:friendId')
+    @UseGuards(FriendOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -13,6 +13,8 @@ import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/I
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
 import { GetPinUseCase, GetPinUseCaseCodes } from '../application/GetPinUseCase/GetPinUseCase';
 import { CreateCommentUseCase, CreateCommentUseCaseCodes } from '../application/CreateCommentUseCase/CreateCommentUseCase';
+import { PinOwnerGuard } from '../pin-owner.guard';
+import { CommentOwnerGuard } from '../comment-owner.guard';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -243,6 +245,7 @@ export class PinController {
     }
 
     @Patch('/comments/:commentId')
+    @UseGuards(CommentOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -255,6 +258,7 @@ export class PinController {
     }
 
     @Patch('/:pinId')
+    @UseGuards(PinOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -268,6 +272,7 @@ export class PinController {
     }
 
     @Delete('/comments/:commentId')
+    @UseGuards(CommentOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
@@ -280,6 +285,7 @@ export class PinController {
     }
 
     @Delete('/:pinId')
+    @UseGuards(PinOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,

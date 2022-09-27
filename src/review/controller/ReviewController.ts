@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -14,6 +14,8 @@ import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetRevie
 import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
 import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
 import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
+import { ReviewOwnerGuard } from '../review-owner.guard';
+import { LikeOwnerGuard } from '../like-owner.guard';
 
 const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => {
     let like = false;
@@ -344,6 +346,7 @@ export class ReviewController {
     }
 
     @Patch('/:reviewId')
+    @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -360,6 +363,7 @@ export class ReviewController {
     }
 
     @Delete('/:reviewId')
+    @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -374,14 +378,14 @@ export class ReviewController {
         }
     }
 
-    @Delete('/likes')
-	@HttpCode(StatusCodes.NO_CONTENT)
+    @Delete('/likes/:likeId')
+    @UseGuards(LikeOwnerGuard)
+    @HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
 	})
 	async deleteLike(
-		@Query('userId') userId: string,
-        @Query('reviewId') reviewId: string
+		@Param('likeId') likeId: string,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');
