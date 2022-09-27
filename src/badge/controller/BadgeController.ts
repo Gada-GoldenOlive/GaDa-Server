@@ -29,6 +29,7 @@ export class BadgeController {
 			title: request.title,
 			image: request.image,
 			category: request.category,
+			code: request.code,
 		});
 
 		if (createBadgeUseCaseResponse.code !== CreateBadgeUseCaseCodes.SUCCESS) {

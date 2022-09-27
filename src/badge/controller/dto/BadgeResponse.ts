@@ -10,6 +10,12 @@ export class BadgeDto {
     @ApiProperty()
     image: string;
 
+	@ApiProperty()
+	category: string;
+
+	@ApiProperty()
+	code: string;
+
     @ApiProperty()
     createdAt: Date;
 
