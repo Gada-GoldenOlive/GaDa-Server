@@ -154,7 +154,7 @@ export class ReviewController {
                 vehicle: review.vehicle,
                 star: review.star.value,
                 content: review.content.value,
-                image: review.image ? review.image.value : null,
+                userImage: review.walk.user.image ? review.walk.user.image.value : null,
                 userId: review.walk.user.id,
                 userName: review.walk.user.name.value,
                 walkwayId: review.walk.walkway.id,
