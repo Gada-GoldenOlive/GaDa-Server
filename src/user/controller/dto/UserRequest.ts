@@ -29,9 +29,6 @@ export class UpdateUserRequest {
 }
 
 export class CreateFriendRequest {
-    @ApiProperty() 
-    userId: string;
-
     @ApiProperty()
     friendLoginId: string;
 }
