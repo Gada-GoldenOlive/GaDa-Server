@@ -16,10 +16,10 @@ import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeU
 import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
 import { GetAllReviewImageUseCase, GetAllReviewImageUseCaseCodes } from '../application/GetAllReviewImageUseCase/GetAllReviewImageUseCase';
 
-const is_like_exist = (review, userId, getUserUseCase, getLikeUseCase) => {
+const is_like_exist = async (review, userId, getUserUseCase, getLikeUseCase) => {
     let like = false;
     if (userId) {
-        const getUserUseCaseResponse = getUserUseCase.execute({
+        const getUserUseCaseResponse = await getUserUseCase.execute({
             id: userId,
         });
 
@@ -27,7 +27,7 @@ const is_like_exist = (review, userId, getUserUseCase, getLikeUseCase) => {
             throw new HttpException('FAIL TO FIND USER',StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const getLikeUseCaseResponse = getLikeUseCase.execute({
+        const getLikeUseCaseResponse = await getLikeUseCase.execute({
             user: getUserUseCaseResponse.user,
             review,
         });
@@ -273,7 +273,7 @@ export class ReviewController {
             throw new HttpException('FAIL TO ET ALL FEED IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviews: FeedDto[] = _.map(getAllReviewUseCaseResponse.reviews, (review) => {
+        const reviews: FeedDto[] = await Promise.all(_.map(getAllReviewUseCaseResponse.reviews, async (review) => {
             const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
 
             return ({
@@ -299,9 +299,43 @@ export class ReviewController {
                     id: image.id,
                     url: image.url.value,
                 })),
-                like: is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
+                like: await is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
             });
-        });
+        }));
+
+        // NOTE: for in 코드
+        /*
+        const reviews = [];
+        for (const review of getAllReviewUseCaseResponse.reviews) {
+            const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
+
+            const feed = {
+                review: {
+                    id: review.id,
+                    title: review.title.value,
+                    vehicle: review.vehicle,
+                    star: review.star.value,
+                    content: review.content.value,
+                    userImage: review.walk.user.image.value,
+                    userId: review.walk.user.id,
+                    userName: review.walk.user.name.value,
+                    walkwayId: review.walk.walkway.id,
+                    walkwayTitle: review.walk.walkway.title.value,
+                    createdAt: review.createdAt,
+                    updatedAt: review.updatedAt,
+                },
+                time: review.walk.time.value,
+                distance: review.walk.distance.value,
+                // walkwayImage: review.walk.walkway.image.value,
+                address: review.walk.walkway.address.value,
+                images: _.map(images, (image) => ({
+                    id: image.id,
+                    url: image.url.value,
+                })),
+                like: await is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
+            }
+            reviews.push(feed);
+        } */
 
         return {
             reviews,
