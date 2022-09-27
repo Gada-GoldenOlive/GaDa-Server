@@ -7,7 +7,7 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { CreateLikeRequest, CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
-import { FeedDto, GetAllReviewResponse, GetReviewResponse, GetAllFeedReseponse } from './dto/ReviewResponse';
+import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedReseponse } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
@@ -202,7 +202,7 @@ export class ReviewController {
             throw new HttpException('FAIL TO FIND ALL LIKES',StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviews = _.map(getAllLikeUseCaseResponse.likes, 
+        const feeds = _.map(getAllLikeUseCaseResponse.likes, 
             (like) => ({
                 review: {
                     id: like.review.id,
@@ -220,14 +220,17 @@ export class ReviewController {
                 },
                 time: like.review.walk.time.value,
                 distance: like.review.walk.distance.value,
-                // walkwayImage: like.review.walk.walkway.image.value,
+                walkwayImage: like.review.walk.walkway.image ? like.review.walk.walkway.image.value : null,
                 address: like.review.walk.walkway.address.value,
-                // images: like.review.images.value,
+                images: _.map(like.review.images, (image) => ({
+                    id: image.id,
+                    url: image.url.value,
+                })),
                 like:true,
             })
         );
         return {
-            reviews,
+            feeds,
         }
     }
 
@@ -270,10 +273,10 @@ export class ReviewController {
         });
 
         if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO ET ALL FEED IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
+            throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviews: FeedDto[] = await Promise.all(_.map(getAllReviewUseCaseResponse.reviews, async (review) => {
+        const feeds: FeedDto[] = await Promise.all(_.map(getAllReviewUseCaseResponse.reviews, async (review) => {
             const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
 
             return ({
@@ -293,7 +296,7 @@ export class ReviewController {
                 },
                 time: review.walk.time.value,
                 distance: review.walk.distance.value,
-                // walkwayImage: review.walk.walkway.image.value,
+                walkwayImage: review.walk.walkway.image ? review.walk.walkway.image.value : null,
                 address: review.walk.walkway.address.value,
                 images: _.map(images, (image) => ({
                     id: image.id,
@@ -304,13 +307,13 @@ export class ReviewController {
         }));
 
         return {
-            reviews,
+            feeds,
         }
     }
 
     @Get('/:reviewId')
     @ApiOkResponse({
-        type: GetReviewResponse,
+        type: GetFeedResponse,
     })
     @ApiOperation({
         summary: '개별 리뷰 정보 가져오기',
@@ -320,7 +323,7 @@ export class ReviewController {
     async getReview(
         @Param('reviewId') reviewId: string,
         @Query('userId') userId: string,
-    ): Promise<GetReviewResponse> {
+    ): Promise<GetFeedResponse> {
         const getReviewUseCaseResponse = await this.getReviewUseCase.execute({
             id: reviewId,
         });
@@ -331,29 +334,34 @@ export class ReviewController {
             throw new HttpException('FAIL TO FIND REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const review: FeedDto = {
+        const review = getReviewUseCaseResponse.review;
+
+        const feed: FeedDto = {
             review: {
-                id: getReviewUseCaseResponse.review.id,
-                title: getReviewUseCaseResponse.review.title.value,
-                vehicle: getReviewUseCaseResponse.review.vehicle,
-                star: getReviewUseCaseResponse.review.star.value,
-                content: getReviewUseCaseResponse.review.content.value,
-                userImage: getReviewUseCaseResponse.review.walk.user.image.value,
-                userName: getReviewUseCaseResponse.review.walk.user.name.value,
-                walkwayId: getReviewUseCaseResponse.review.walk.walkway.id,
-                walkwayTitle: getReviewUseCaseResponse.review.walk.walkway.title.value,
-                createdAt: getReviewUseCaseResponse.review.createdAt,
-                updatedAt: getReviewUseCaseResponse.review.updatedAt,
+                id: review.id,
+                title: review.title.value,
+                vehicle: review.vehicle,
+                star: review.star.value,
+                content: review.content.value,
+                userImage: review.walk.user.image.value,
+                userName: review.walk.user.name.value,
+                walkwayId: review.walk.walkway.id,
+                walkwayTitle: review.walk.walkway.title.value,
+                createdAt: review.createdAt,
+                updatedAt: review.updatedAt,
             },
-            time: getReviewUseCaseResponse.review.walk.time.value,
-            distance: getReviewUseCaseResponse.review.walk.distance.value,
-            // walkwayImage: getReviewUseCaseResponse.review.walk.walkway.image.value,
-            address: getReviewUseCaseResponse.review.walk.walkway.address.value,
-            // images: getReviewUseCaseResponse.review.images.value,
+            time: review.walk.time.value,
+            distance: review.walk.distance.value,
+            walkwayImage: review.walk.walkway.image ? review.walk.walkway.image.value : null,
+            address: review.walk.walkway.address.value,
+            images: _.map(review.images, (image) => ({
+                id: image.id,
+                url: image.url.value,
+            })),
             like: await is_like_exist(getReviewUseCaseResponse.review, userId, this.getUserUseCase, this.getLikeUseCase),
         };
         return {
-            review,
+            feed,
         };
     }
 

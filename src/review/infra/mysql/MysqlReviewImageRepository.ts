@@ -28,7 +28,7 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 		.createQueryBuilder('image')
 		.leftJoinAndSelect('image.review', 'review')
 		.leftJoinAndSelect('review.walk', 'walk')
-		.leftJoinAndSelect('review.user', 'user')
+		.leftJoinAndSelect('walk.user', 'user')
 		.where('review.status = :normal', { normal: ReviewStatus.NORMAL })
 		.andWhere('walk.status = :normal', { normal: WalkStatus.NORMAL })
 		.andWhere('user.status = :normal', { normal: UserStatus.NORMAL })

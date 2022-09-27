@@ -81,14 +81,14 @@ export class GetAllReviewResponse {
     averageStar: number;
 }
 
-export class GetReviewResponse {
+export class GetFeedResponse {
     @ApiProperty()
-    review: FeedDto;
+    feed: FeedDto;
 }
 
 export class GetAllFeedReseponse {
     @ApiProperty({
         type: [FeedDto],
     })
-    reviews?: FeedDto[];
+    feeds?: FeedDto[];
 }
