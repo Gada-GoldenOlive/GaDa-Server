@@ -44,8 +44,5 @@ export class UpdateReviewRequest {
 
 export class CreateLikeRequest {
     @ApiProperty()
-    userId: string;
-
-    @ApiProperty()
     reviewId: string;
 }

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -13,6 +13,8 @@ import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/I
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
 import { GetPinUseCase, GetPinUseCaseCodes } from '../application/GetPinUseCase/GetPinUseCase';
 import { CreateCommentUseCase, CreateCommentUseCaseCodes } from '../application/CreateCommentUseCase/CreateCommentUseCase';
+import { PinOwnerGuard } from '../pin-owner.guard';
+import { CommentOwnerGuard } from '../comment-owner.guard';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -35,32 +37,24 @@ export class PinController {
         summary: '핀 생성',
     })
     async create(
-        @Body() request: CreatePinRequest,
+        @Request() request,
     ): Promise<CommonResponse> {
-        const [ walkwayResponse, userResponse ] = await Promise.all([
-            this.getWalkwayUseCase.execute({
-                id: request.walkwayId,
-            }),
-            this.getUserUseCase.execute({
-                id: request.userId,
-            }),
-        ]);
+        const body: CreatePinRequest = request.body;
+        const walkwayResponse = await this.getWalkwayUseCase.execute({
+            id: body.walkwayId,
+        });
 
         if (walkwayResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE PIN BY WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE PIN BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
         const createPinUseCaseResponse = await this.createPinUseCase.execute({
-            title: request.title,
-            content: request.content,
-            image: request.image,
-            location: request.location,
+            title: body.title,
+            content: body.content,
+            image: body.image,
+            location: body.location,
             walkway: walkwayResponse.walkway,
-            user: userResponse.user,
+            user: request.user,
         });
 
         if (createPinUseCaseResponse.code !== CreatePinUseCaseCodes.SUCCESS) {
@@ -82,29 +76,21 @@ export class PinController {
         summary: '댓글 생성',
     })
     async createComment(
-        @Body() request: CreateCommentRequest,
+        @Request() request,
     ): Promise<CommonResponse> {
-        const [ pinResponse, userResponse ] = await Promise.all([
-            this.getPinUseCase.execute({
-                id: request.pinId,
-            }),
-            this.getUserUseCase.execute({
-                id: request.userId,
-            }),
-        ]);
+        const body: CreateCommentRequest = request.body;
+        const pinResponse = await this.getPinUseCase.execute({
+            id: body.pinId,
+        });
 
         if (pinResponse.code !== GetPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE COMMENT BY PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE COMMENT BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
         const createCommentUseCaseResponse = await this.createCommentUseCase.execute({
-            content: request.content,
+            content: body.content,
             pin: pinResponse.pin,
-            user: userResponse.user,
+            user: request.user,
         });
 
         if (createCommentUseCaseResponse.code !== CreateCommentUseCaseCodes.SUCCESS) {
@@ -243,6 +229,7 @@ export class PinController {
     }
 
     @Patch('/comments/:commentId')
+    @UseGuards(CommentOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -255,6 +242,7 @@ export class PinController {
     }
 
     @Patch('/:pinId')
+    @UseGuards(PinOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -268,6 +256,7 @@ export class PinController {
     }
 
     @Delete('/comments/:commentId')
+    @UseGuards(CommentOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
@@ -280,6 +269,7 @@ export class PinController {
     }
 
     @Delete('/:pinId')
+    @UseGuards(PinOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,

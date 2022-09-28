@@ -21,7 +21,7 @@ IGetLikeUseCaseRequest, IGetLikeUseCaseResponse> {
     async execute(request?: IGetLikeUseCaseRequest): Promise<IGetLikeUseCaseResponse> {
         try {            
             const like = await this.likeRepository.findOne(request.user, request.review);
-            
+
             return {
                 code: GetLikeUseCaseCodes.SUCCESS,
                 like,
