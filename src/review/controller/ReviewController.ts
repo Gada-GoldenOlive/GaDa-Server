@@ -275,8 +275,7 @@ export class ReviewController {
                     id: image.id,
                     url: image.url.value,
                 })),
-                like: await is_like_exist(review, userId, this.getUserUseCase, this.getLikeUseCase),
-            });
+                like: await is_like_exist(review, request.user, this.getLikeUseCase),            });
         }));
 
         return {
@@ -295,7 +294,7 @@ export class ReviewController {
     async getReview(
         @Param('reviewId') reviewId: string,
         @Request() request,
-    ): Promise<GetReviewResponse> {
+    ): Promise<GetFeedResponse> {
         const getReviewUseCaseResponse = await this.getReviewUseCase.execute({
             id: reviewId,
         });
@@ -332,7 +331,7 @@ export class ReviewController {
                 id: image.id,
                 url: image.url.value,
             })),
-            like: await is_like_exist(getReviewUseCaseResponse.review, userId, this.getUserUseCase, this.getLikeUseCase),
+            like: await is_like_exist(review, request.user, this.getLikeUseCase),
         };
         return {
             feed,
