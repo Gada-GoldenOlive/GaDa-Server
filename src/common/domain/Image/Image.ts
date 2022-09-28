@@ -1,11 +1,13 @@
 import _ from 'lodash';
 
+import { Review } from '../../../review/domain/Review/Review';
 import { Result } from '../../presentationals/Result';
 import { AggregateRoot } from '../AggregateRoot';
 import { ImageUrl } from './ImageUrl';
 
 export interface ImageNewProps {
     url: ImageUrl;
+    review?: Review;
 }
 
 export interface ImageProps extends ImageNewProps {
@@ -46,5 +48,9 @@ export class Image extends AggregateRoot<ImageProps> {
     
     get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+    
+    get review(): Review {
+        return this.props.review;
     }
 }

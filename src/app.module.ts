@@ -21,6 +21,8 @@ import { CommentEntity } from './pin/entity/Comment.entity';
 import { FriendEntity } from './user/entity/Friend.entity';
 import { AchieveEntity } from './badge/entity/AchieveEntity';
 import { RecordEntity } from './user/entity/Record.entity';
+import { JwtAuthGuard } from './auth/jwt-auth.gaurd';
+import { ReviewImageEntity } from './review/entity/ReviewImage.entity';
 
 @Module({
     imports: [
@@ -58,6 +60,7 @@ import { RecordEntity } from './user/entity/Record.entity';
                 FriendEntity,
                 AchieveEntity,
                 RecordEntity,
+                ReviewImageEntity,
             ],
         }),
         UserModule,
