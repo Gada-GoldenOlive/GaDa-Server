@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
+import { AchieveOwnerGuard } from '../achieve-owner.guard';
 import { CreateBadgeUseCase, CreateBadgeUseCaseCodes } from '../application/CreateBadgeUseCase/CreateBadgeUseCase';
+import { BadgeOwnerGuard } from '../badge-owner.guard';
 import { CreateAchieveRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
 import { GetAllBadgeResponse } from './dto/BadgeResponse';
 
@@ -69,6 +71,7 @@ export class BadgeController {
 	}
 
 	@Patch('/:badgeId')
+    @UseGuards(BadgeOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse,
@@ -82,6 +85,7 @@ export class BadgeController {
 	}
 
 	@Patch('/achievement/:achieveId')
+    @UseGuards(AchieveOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse,
@@ -95,6 +99,7 @@ export class BadgeController {
 	}
 
 	@Delete('/:badgeId')
+    @UseGuards(BadgeOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
@@ -107,6 +112,7 @@ export class BadgeController {
 	}
 
 	@Delete('/achievement/:achieveId')
+    @UseGuards(AchieveOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
