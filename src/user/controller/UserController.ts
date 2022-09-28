@@ -13,6 +13,7 @@ import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -23,6 +24,7 @@ export class UserController {
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly jwtService: JwtService,
         private readonly configServiece: ConfigService,
+        private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
 
     @Post()
@@ -151,7 +153,7 @@ export class UserController {
         description: 'loginId, password에 해당하는 유저가 존재한다면, 유저의 토큰을 리턴한다.'
     })
     async login(
-        @Request() request
+        @Request() request,
     ): Promise<LoginOrSignUpUserResponse> {
         const user = request.user;
 
@@ -206,10 +208,37 @@ export class UserController {
         type: CommonResponse,
     })
     async update(
-        @Body() request: UpdateUserRequest,
+        @Param('userId') userId: string,
+        @Request() request,
     ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+        const body: UpdateUserRequest = request.body;
+
+        const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
+            id: userId,
+            loginId: body.loginId,
+            password: body.password,
+            name: body.name,
+            image: body.image,
+            goalDistance: body.goalDistance,
+            goalTime: body.goalTime,
+        });
+
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.NO_EXIST_USER) {
+            throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+
+        if (updateUserUseCaseResponse.code == UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+            throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
+        }
+        
+        if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }   
+        
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO UPDATE USER',
+        };
     }
 
     @Delete('/:userId')
