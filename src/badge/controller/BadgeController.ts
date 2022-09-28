@@ -92,7 +92,7 @@ export class BadgeController {
 
 		return {
 			badges,
-		}
+		};
 	}
 
 	@Get('/:userId')
