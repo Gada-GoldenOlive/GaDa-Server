@@ -18,6 +18,8 @@ import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/Create
 import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
 import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/CreateWalkwayUseCase/CreateWalkwayUseCase';
+import { WalkwayOwnerGuard } from '../walkway-owner.guard';
+import { WalkOwnerGuard } from '../walk-owner.guard';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -329,6 +331,7 @@ export class WalkwayController {
     }
 
     @Patch('/:walkwayId')
+    @UseGuards(WalkwayOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })
@@ -340,6 +343,7 @@ export class WalkwayController {
     }
 
     @Patch('/walks/:walkId')
+    @UseGuards(WalkOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })
@@ -351,12 +355,14 @@ export class WalkwayController {
     }
 
     @Delete('/:walkwayId')
+    @UseGuards(WalkwayOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })
     async delete() {}
 
     @Delete('/walks/:walkId')
+    @UseGuards(WalkOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })

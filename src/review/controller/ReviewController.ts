@@ -13,6 +13,8 @@ import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetRevie
 import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
 import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
 import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
+import { ReviewOwnerGuard } from '../review-owner.guard';
+import { LikeOwnerGuard } from '../like-owner.guard';
 
 const is_like_exist = async (review, user, getLikeUseCase) => {
     let like = false;
@@ -314,6 +316,7 @@ export class ReviewController {
     }
 
     @Patch('/:reviewId')
+    @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -330,6 +333,7 @@ export class ReviewController {
     }
 
     @Delete('/:reviewId')
+    @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -345,12 +349,13 @@ export class ReviewController {
     }
 
     @Delete('/likes/:likeId')
-	@HttpCode(StatusCodes.NO_CONTENT)
+    @UseGuards(LikeOwnerGuard)
+    @HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
 	})
 	async deleteLike(
-		@Param('likeId') userId: string,
+		@Param('likeId') likeId: string,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');
