@@ -126,7 +126,7 @@ export class UserController {
                 code: StatusCodes.CONFLICT,
                 responseMessage: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
                 isValid: false,
-            }
+            };
         }
 
         if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
@@ -134,7 +134,7 @@ export class UserController {
                 code: StatusCodes.OK,
                 responseMessage: 'Available User ID.',
                 isValid: true,
-            }
+            };
         }
 
         if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
@@ -177,40 +177,42 @@ export class UserController {
     })
     async getOne(
         @Request() request,
-    ) {
+    ): Promise<GetUserResponse> {
         const user = request.user;
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             user,
-        })
+        });
 
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         return {
-            id: user.id,
-            loginId: user.loginId.value,
-            image: user.image ? user.image.value : null,
-            name: user.name.value,
-            pinCount: getAllPinUseCaseResponse.pins.length,
-            goalDistance: user.goalDistance.value,
-            goalTime: user.goalTime.value,
-            totalDistnace: user.totalDistance.value,
-            totalTime: user.totalTime.value,
-        }
+            user: {
+                id: user.id,
+                loginId: user.loginId.value,
+                image: user.image ? user.image.value : null,
+                name: user.name.value,
+                pinCount: getAllPinUseCaseResponse.pins.length,
+                goalDistance: user.goalDistance.value,
+                goalTime: user.goalTime.value,
+                totalDistance: user.totalDistance.value,
+                totalTime: user.totalTime.value,
+            }
+        };
     }
 
     @Patch('/:userId')
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
-        type: CommonResponse,
+        type: GetUserResponse,
     })
     async update(
         @Param('userId') userId: string,
         @Request() request,
-    ): Promise<CommonResponse> {
+    ): Promise<GetUserResponse> {
         const body: UpdateUserRequest = request.body;
 
         const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
@@ -234,10 +236,29 @@ export class UserController {
         if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO UPDATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }   
+
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE USER BY FAILING TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
         
+        const user = updateUserUseCaseResponse.user;
+
         return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO UPDATE USER',
+            user: {
+                id: user.id,
+                loginId: user.loginId.value,
+                image: user.image ? user.image.value : null,
+                name: user.image.value,
+                pinCount: getAllPinUseCaseResponse.pins.length,
+                goalDistance: user.goalDistance.value,
+                goalTime: user.goalTime.value,
+                totalDistance: user.totalDistance.value,
+                totalTime: user.totalTime.value,
+            }
         };
     }
 
