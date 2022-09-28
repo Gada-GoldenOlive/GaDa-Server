@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { VEHCILE_STATUS } from '../../domain/Review/Vehicle';
+import { ImageDto } from './ReviewResponse';
 
 export class CreateReviewRequest {
     @ApiProperty()
@@ -35,8 +36,10 @@ export class UpdateReviewRequest {
     @ApiProperty()
     content: string;
 
-    @ApiPropertyOptional()
-    images?: string[];
+    @ApiPropertyOptional({
+        type: [ImageDto],
+    })
+    images?: ImageDto[];
 }
 
 export class CreateLikeRequest {

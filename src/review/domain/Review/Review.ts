@@ -1,8 +1,7 @@
 import _ from 'lodash';
 
 import { AggregateRoot } from '../../../common/domain/AggregateRoot';
-import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
-import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
+import { Image, PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { Result } from '../../../common/presentationals/Result';
 import { Walk } from '../../../walkway/domain/Walk/Walk';
 import { ReviewContent } from './ReviewContent';
@@ -16,7 +15,7 @@ export interface ReviewNewProps {
     vehicle: VEHCILE_STATUS;
     star: ReviewStar;
     content: ReviewContent;
-    image?: ImageUrl;
+    images?: Image[];
     status?: REVIEW_STATUS;
     walk: Walk;
 }
@@ -65,8 +64,8 @@ export class Review extends AggregateRoot<ReviewProps> {
         return this.props.content;
     }
 
-    get image(): ImageUrl {
-        return this.props.image;
+    get images(): Image[] {
+        return this.props.images;
     }
     
     get status(): REVIEW_STATUS {
