@@ -16,6 +16,7 @@ import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/Create
 import { GetAllReviewImageUseCase, GetAllReviewImageUseCaseCodes } from '../application/GetAllReviewImageUseCase/GetAllReviewImageUseCase';
 import { ReviewOwnerGuard } from '../review-owner.guard';
 import { LikeOwnerGuard } from '../like-owner.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 
 const is_like_exist = async (review, user, getLikeUseCase) => {
     let like = false;
@@ -45,6 +46,7 @@ export class ReviewController {
     ) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -60,6 +62,7 @@ export class ReviewController {
     }
 
     @Post('/likes')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -95,6 +98,7 @@ export class ReviewController {
     }
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({
         summary: '리뷰 목록 조회 (산책로 세부정보>리뷰)',
         description: 'walkwayId를 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 / '
@@ -159,6 +163,7 @@ export class ReviewController {
     }
 
     @Get('/like-reviews')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllFeedReseponse,
@@ -211,6 +216,7 @@ export class ReviewController {
     }
 
     @Get('/feeds')
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
         type: GetAllFeedReseponse,
     })
@@ -284,6 +290,7 @@ export class ReviewController {
     }
 
     @Get('/:reviewId')
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
         type: GetFeedResponse,
     })
@@ -339,6 +346,7 @@ export class ReviewController {
     }
 
     @Patch('/:reviewId')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
@@ -356,6 +364,7 @@ export class ReviewController {
     }
 
     @Delete('/:reviewId')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
@@ -372,6 +381,7 @@ export class ReviewController {
     }
 
     @Delete('/likes/:likeId')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(LikeOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({

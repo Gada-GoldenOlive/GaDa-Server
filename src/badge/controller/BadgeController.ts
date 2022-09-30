@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, P
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { AchieveOwnerGuard } from '../achieve-owner.guard';
 import { CreateBadgeUseCase, CreateBadgeUseCaseCodes } from '../application/CreateBadgeUseCase/CreateBadgeUseCase';
@@ -17,6 +18,7 @@ export class BadgeController {
 	) {}
 
 	@Post()
+    @UseGuards(JwtAuthGuard)
 	@HttpCode(StatusCodes.CREATED)
 	@ApiCreatedResponse({
 		type: CommonResponse,
@@ -44,6 +46,7 @@ export class BadgeController {
 	}
 
 	@Post('/achievement')
+    @UseGuards(JwtAuthGuard)
 	@HttpCode(StatusCodes.CREATED)
 	@ApiCreatedResponse({
 		type: CommonResponse,
@@ -56,6 +59,7 @@ export class BadgeController {
 	}
 
 	@Get()
+    @UseGuards(JwtAuthGuard)
 	@ApiOperation({
 		description: 'userId query parameter로 보낼 경우: 해당하는 유저의 모든 배지 리턴. || 안 보낼 경우: 모든 배지 리턴.'
 	})
@@ -71,6 +75,7 @@ export class BadgeController {
 	}
 
 	@Patch('/:badgeId')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(BadgeOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
@@ -85,6 +90,7 @@ export class BadgeController {
 	}
 
 	@Patch('/achievement/:achieveId')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(AchieveOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
@@ -99,6 +105,7 @@ export class BadgeController {
 	}
 
 	@Delete('/:badgeId')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(BadgeOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
@@ -112,6 +119,7 @@ export class BadgeController {
 	}
 
 	@Delete('/achievement/:achieveId')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(AchieveOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
