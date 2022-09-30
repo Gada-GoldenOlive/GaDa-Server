@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { JwtAuthGuard } from '../auth/jwt-auth.gaurd';
 import { GetUserUseCase } from '../user/application/GetUserUseCase/GetUserUseCase';
 import { UserEntity } from '../user/entity/User.entity';
 import { USER_REPOSITORY } from '../user/infra/IUserRepository';
@@ -27,6 +25,7 @@ import { REVIEW_REPOSITORY } from './infra/IReviewRepository';
 import { MysqlLikeRepository } from './infra/mysql/MysqlLikeRepository';
 import { MysqlReviewImageRepository } from './infra/mysql/MysqlReviewImageRepository';
 import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
+
 
 @Module({
   imports: [
@@ -67,10 +66,6 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
       {
         provide: REVIEW_IMAGE_REPOSITORY,
         useClass: MysqlReviewImageRepository,
-      },
-      {
-        provide: APP_GUARD,
-        useClass: JwtAuthGuard,
       },
   ],
 })
