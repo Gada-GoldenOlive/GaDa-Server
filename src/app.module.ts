@@ -19,7 +19,7 @@ import { BadgeEntity } from './badge/entity/Badge.entity';
 import { BadgeModule } from './badge/badge.module';
 import { CommentEntity } from './pin/entity/Comment.entity';
 import { FriendEntity } from './user/entity/Friend.entity';
-import { AchieveEntity } from './badge/entity/AchieveEntity';
+import { AchieveEntity } from './badge/entity/Achieve.entity';
 import { RecordEntity } from './user/entity/Record.entity';
 
 @Module({
