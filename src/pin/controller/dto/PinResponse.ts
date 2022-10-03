@@ -26,9 +26,6 @@ export class PinDto {
     location: LocationDto;
 
     @ApiProperty()
-    userId: string;
-
-    @ApiProperty()
     walkwayId: string;
 
     @ApiProperty()

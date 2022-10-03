@@ -53,7 +53,7 @@ export class ReviewEntity extends CoreEntity {
     @Index()
     status: REVIEW_STATUS;
 
-    @OneToOne(() => WalkEntity, (walkEntity) => walkEntity.review)
+    @OneToOne(() => WalkEntity)
     @JoinColumn()
     walk: WalkEntity;
 

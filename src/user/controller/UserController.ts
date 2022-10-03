@@ -7,7 +7,7 @@ import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
-import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
+import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { UserOwnerGuard } from '../user-owner.guard';
@@ -16,6 +16,7 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { AuthService, JwtPayload } from '../../auth/authServiece';
 import { RefreshAuthGuard } from '../../auth/refresh-auth.guard';
 import { checkRefreshToken } from '../../auth/refresh.strategy';
+import { CreateFriendUseCase, CreateFriendUseCaseCodes } from '../application/CreateFriendUseCase/CreateFriendUseCase';
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
 
 @Controller('users')
@@ -26,8 +27,7 @@ export class UserController {
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly authService: AuthService,
-        private readonly jwtService: JwtService,
-        private readonly configServiece: ConfigService,
+        private readonly createFriendUseCase: CreateFriendUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
 
@@ -108,10 +108,30 @@ export class UserController {
         type: CommonResponse,
     })
     async createFriend(
-        @Body() request: CreateFriendRequest,
+        @Body() body: CreateFriendRequest,
+        @Request() request,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
-        throw new Error('Method not implemented');
+        const userResponse = await this.getUserUseCase.execute({
+            loginId: body.friendLoginId,
+        });
+
+        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE FRIEND BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const createFriendUseCaseResponse = await this.createFriendUseCase.execute({
+            user: request.user,
+            friend: userResponse.user,
+        });
+
+        if (createFriendUseCaseResponse.code !== CreateFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE FRIEND',
+        };
     }
 
     @Get()
@@ -134,9 +154,7 @@ export class UserController {
     @ApiOperation({
         description: 'userId(uuid)에 해당하는 유저의 친구 목록 리턴'
     })
-    async getAllFriends(
-        @Query('userId') userId: string,
-    ) {
+    async getAllFriends() {
         // TODO: 차후 Usecase 생성시 추가
         throw new Error('Method not implemented');
     }
@@ -191,6 +209,7 @@ export class UserController {
     })
     async login(
         @Request() request,
+        @Body() body: LoginRequest,
     ): Promise<LoginOrSignUpUserResponse> {
         const user = request.user;
 
