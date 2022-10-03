@@ -17,7 +17,6 @@ export interface WalkNewProps {
     finishStatus: WALK_FINISH_STATUS,
     walkway: Walkway;
     user: User;
-    review?: Review;
     status?: WALK_STATUS;
 }
 
@@ -70,10 +69,6 @@ export class Walk extends AggregateRoot<WalkProps> {
 
     get user(): User {
         return this.props.user;
-    }
-
-    get review(): Review {
-        return this.props.review;
     }
 
     private static getWalkStatusAndSetIfStatusIsUndefined(props: WalkNewProps) {
