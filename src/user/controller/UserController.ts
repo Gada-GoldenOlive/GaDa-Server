@@ -206,6 +206,9 @@ export class UserController {
     @Patch('/:userId')
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiOperation({
+        summary: '비번 수정은 아직 안 되니까 쓰지 마세여. 나머진 다 됨'
+    })
     @ApiResponse({
         type: GetUserResponse,
     })

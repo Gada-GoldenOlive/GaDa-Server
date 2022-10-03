@@ -36,9 +36,9 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				};
 			}
 
-			// NOTE: loginId가 있다면 loginId를 바꾸겠다는 뜻 -> 중복 검사
-			if (request.loginId) {
-				const foundDuplicatedUserLoginId = await this.userRepository.findOne({ loginId: request.loginId });
+			// NOTE: name이 있다면 name을 바꾸겠다는 뜻 -> 중복 검사 (닉네임도 중복 안 됨.)
+			if (request.name) {
+				const foundDuplicatedUserLoginId = await this.userRepository.findOne({ name: request.name });
 
 				if (foundDuplicatedUserLoginId) {
 					return {
