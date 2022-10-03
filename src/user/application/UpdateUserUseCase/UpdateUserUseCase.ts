@@ -48,7 +48,6 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			}
 
 			// NOTE: request로 들어온 게 없으면 request에 기존 것들 넣어줌 (아래에서 통일성을 위해 작성한 코드)
-			if (!request.loginId) request.loginId = foundUser.loginId.value;
 			// TODO: 비밀번호 변경하는 것도 암호화 처리되게 해줘야 함
 			if (!request.password) request.password = foundUser.password.value;
 			if (!request.name) request.name = foundUser.name.value;
@@ -57,7 +56,7 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			if (!request.goalTime) request.goalTime = foundUser.goalTime.value;
 			
 			const user = User.create({
-				loginId: UserLoginId.create(request.loginId).value,
+				loginId: UserLoginId.create(foundUser.loginId.value).value,
 				password: UserPassword.create(request.password).value,
 				name: UserName.create(request.name).value,
 				image: ImageUrl.create(request.image).value,

@@ -215,12 +215,10 @@ export class UserController {
     async update(
         @Param('userId') userId: string,
         @Request() request,
+        @Body() body: UpdateUserRequest,
     ): Promise<GetUserResponse> {
-        const body: UpdateUserRequest = request.body;
-
         const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
             id: userId,
-            loginId: body.loginId,
             password: body.password,
             name: body.name,
             image: body.image,
