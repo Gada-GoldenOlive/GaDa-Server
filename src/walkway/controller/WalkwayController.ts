@@ -228,14 +228,36 @@ export class WalkwayController {
         @Request() request,
         @Query('option') option?: number,
     ) {
+        let walks;
         option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option
+
         const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
-            userId: request.user.id,
-            option: option,
+            user: request.user,
         });
 
         if (getAllWalkUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        walks = getAllWalkUseCaseResponse.walks;
+
+        // NOTE: 이미 리뷰를 작성한 walk를 필터링
+        if (option == GET_ALL_WALK_OPTION.USER_INFO) {
+            const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+                user: request.user,
+            });
+
+            if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO FIND ALL WALK BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+            const review_walkIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => 
+                review.walk.id
+            );
+
+            walks = _.filter(walks, (walk) => {
+                return !review_walkIds.includes(walk.id);
+            });
         }
 
         const getRate = (walkDistance, walkwayDistance) => {
@@ -244,7 +266,7 @@ export class WalkwayController {
             return rate > 100 ? 100 : rate;
         }
 
-        const walks = _.map(getAllWalkUseCaseResponse.walks, (walk) => ({
+        walks = _.map(walks, (walk) => ({
             id: walk.id,
             finishStatus: walk.finishStatus,
             rate: getRate(walk.distance.value, walk.walkway.distance.value),

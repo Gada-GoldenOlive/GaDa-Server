@@ -21,7 +21,6 @@ export class MysqlWalkRepositoryMapper {
                 finishStatus: entity.finishStatus,
                 walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
                 user: MysqlUserRepositoryMapper.toDomain(entity.user),
-                review: MysqlReviewRepositoryMapper.toDomain(entity.review),
                 status: entity.status,
                 createdAt: entity.createdAt,
                 updatedAt: entity.updatedAt,
@@ -47,7 +46,6 @@ export class MysqlWalkRepositoryMapper {
             status: walk.status,
             user: MysqlUserRepositoryMapper.toEntity(walk.user),
             walkway: MysqlWalkwayRepositoryMapper.toEntity(walk.walkway),
-            review: MysqlReviewRepositoryMapper.toEntity(walk.review),
             createdAt: walk.createdAt,
             updatedAt: walk.updatedAt,
         };
