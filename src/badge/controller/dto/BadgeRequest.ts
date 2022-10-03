@@ -5,7 +5,7 @@ import { ACHIEVE_STATUS } from '../../domain/Achieve/AchieveStatus'
 import { BadgeCategory, BADGE_CATEGORY } from '../../domain/Badge/BadgeCategory';
 import { BadgeCode, BADGE_CODE } from '../../domain/Badge/BadgeCode';
 
-export class CreateBadgeRequest {
+export class BadgeDto {
 	@ApiProperty()
 	title: string;
 
@@ -21,6 +21,23 @@ export class CreateBadgeRequest {
 		enum: BadgeCode,
 	})
 	code: BADGE_CODE;
+
+	@ApiProperty({
+		enum: BadgeStatus,
+	})
+	status: BADGE_STATUS;
+}
+
+export class CreateBadgeRequest {
+	@ApiProperty()
+	badge: BadgeDto;
+}
+
+export class CreateAllBadgeRequest {
+	@ApiProperty({
+		type: [BadgeDto],
+	})
+	badges: BadgeDto[];
 }
 
 export class UpdateBadgeReqeust {

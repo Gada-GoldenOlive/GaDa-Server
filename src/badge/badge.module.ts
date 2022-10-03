@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CreateAllBadgeUseCase } from './application/CreateBadgesUseCase/CreateAllBadgeUseCase';
 
 import { CreateBadgeUseCase } from './application/CreateBadgeUseCase/CreateBadgeUseCase';
 import { GetAllBadgeUseCase } from './application/GetAllBadgeUseCase/GetAllBadgeUseCase';
@@ -19,6 +20,7 @@ import { MysqlBadgeRepository } from './infra/mysql/MysqlBadgeRepository';
     controllers: [ BadgeController ],
     providers: [
         CreateBadgeUseCase,
+        CreateAllBadgeUseCase,
         GetAllBadgeUseCase,
         {
             provide: BADGE_REPOSITORY,
