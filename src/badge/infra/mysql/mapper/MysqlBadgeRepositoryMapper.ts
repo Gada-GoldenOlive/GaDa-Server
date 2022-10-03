@@ -15,6 +15,7 @@ export class MysqlBadgeRepositoryMapper {
 			title: BadgeTitle.create(entity.title).value,
 			image: ImageUrl.create(entity.image).value,
 			category: entity.category,
+			code: entity.code,
 			status: entity.status,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt
@@ -32,16 +33,15 @@ export class MysqlBadgeRepositoryMapper {
 			return null;
 		}
 
-		const entity: BadgeEntity = {
-			id: badge.id,
-			title: badge.title.value,
-			image: badge.image.value,
-			category: badge.category,
-			status: badge.status,
-			createdAt: badge.createdAt,
-			updatedAt: badge.updatedAt,
-			achieves: undefined,
-		};
+		const entity = new BadgeEntity();
+		entity.id = badge.id;
+		entity.title = badge.title.value;
+		entity.image = badge.image.value;
+		entity.category = badge.category;
+		entity.code = badge.code;
+		entity.status = badge.status;
+		entity.createdAt = badge.createdAt;
+		entity.updatedAt = badge.updatedAt;
 
 		return entity;
 	}
