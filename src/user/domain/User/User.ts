@@ -41,7 +41,7 @@ export class User extends AggregateRoot<UserProps> {
     }
 
     static createNew(props: UserNewProps): Result<User> {
-        if (_.isNil(props.name) || _.isNil(props.loginId) || _.isNil(props.password) || _.isNil(props.refreshToken)) {
+        if (_.isNil(props.name) || _.isNil(props.loginId) || _.isNil(props.password)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 

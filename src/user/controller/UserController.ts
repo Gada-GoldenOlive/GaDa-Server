@@ -60,9 +60,7 @@ export class UserController {
 
         const user = createUserUseCaseResponse.user;
 
-        // TODO: UpdateUserUseCase 머지 후 새로운 refresh token 암호화 후 업데이트
-
-        return this.authService.getToken({
+        return await this.authService.getToken({
             username: user.loginId.value,
             sub: user.id,
         });
@@ -70,9 +68,13 @@ export class UserController {
 
     @Post('/refresh')
     @UseGuards(RefreshAuthGuard)
+    @ApiOperation({
+        summary: '토큰 리프레시',
+        description: '헤더로 받은 refresh token에 해당하는 유저의 토큰을 재생성해서 리턴함.'
+    })
     async refreshToken(
         @Request() request,
-    ) {
+    ): Promise<LoginOrSignUpUserResponse> {
         const { refreshToken, sub, username } = request.user as JwtPayload;
 
         const getUserUseCaseResponse = await this.getUserUseCase.execute({
@@ -93,9 +95,7 @@ export class UserController {
 
         const user = getUserUseCaseResponse.user;
 
-        // TODO: UpdateUserUseCase 머지 후, 새로운 refresh token 암호화 후 업데이트
-
-        return this.authService.getToken({
+        return await this.authService.getToken({
             username: user.loginId.value,
             sub: user.id,
         });
@@ -213,9 +213,7 @@ export class UserController {
     ): Promise<LoginOrSignUpUserResponse> {
         const user = request.user;
 
-        // TODO: UpdateUserUseCase 머지 후 새로운 refresh token 암호화 후 업데이트
-
-        return this.authService.getToken({
+        return await this.authService.getToken({
             username: user.loginId.value,
             sub: user.id,
         });

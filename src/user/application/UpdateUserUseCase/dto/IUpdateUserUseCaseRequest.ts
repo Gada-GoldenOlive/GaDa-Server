@@ -5,4 +5,5 @@ export interface IUpdateUserUseCaseRequest {
     image?: string;
     goalDistance?: number;
     goalTime?: number;
+    refreshToken?: string;
 }
