@@ -27,7 +27,7 @@ export class MysqlWalkRepository implements IWalkRepository {
         .andWhere('walk.status = :normal', { normal: WalkStatus.NORMAL })
         .andWhere('walkway.status = :normal', { normal: WalkwayStatus.NORMAL })
         .andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
-        .orderBy('walk.createdAt', 'DESC')
+        .orderBy('walk.createdAt', 'DESC');
 
         const walks = await query.getMany();
 
