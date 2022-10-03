@@ -2,8 +2,6 @@ import _ from 'lodash';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -15,6 +13,9 @@ import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/G
 import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { AuthService, JwtPayload } from '../../auth/authServiece';
+import { RefreshAuthGuard } from '../../auth/refresh-auth.guard';
+import { checkRefreshToken } from '../../auth/refresh.strategy';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -23,8 +24,7 @@ export class UserController {
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
-        private readonly jwtService: JwtService,
-        private readonly configServiece: ConfigService,
+        private readonly authService: AuthService,
     ) {}
 
     @Post()
@@ -56,12 +56,45 @@ export class UserController {
 
         const user = createUserUseCaseResponse.user;
 
-        return {
-            access_token: this.jwtService.sign(
-                { username: user.loginId.value, sub: user.id }, 
-                { secret: this.configServiece.get('JWT_SECRET') }
-            ),
-        };
+        // TODO: UpdateUserUseCase 머지 후 새로운 refresh token 암호화 후 업데이트
+
+        return this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
+    }
+
+    @Post('/refresh')
+    @UseGuards(RefreshAuthGuard)
+    async refreshToken(
+        @Request() request,
+    ) {
+        const { refreshToken, sub, username } = request.user as JwtPayload;
+
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            id: sub,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+            throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+    
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (!!(await checkRefreshToken(refreshToken, getUserUseCaseResponse.user))) {
+            throw new HttpException('INVALID REFREESH TOKEN', StatusCodes.UNAUTHORIZED);
+        }
+
+        const user = getUserUseCaseResponse.user;
+
+        // TODO: UpdateUserUseCase 머지 후, 새로운 refresh token 암호화 후 업데이트
+
+        return this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
     }
 
     @Post('/friends')
@@ -157,12 +190,12 @@ export class UserController {
     ): Promise<LoginOrSignUpUserResponse> {
         const user = request.user;
 
-        return {
-            access_token: this.jwtService.sign(
-                { username: user.loginId.value, sub: user.id }, 
-                { secret: this.configServiece.get('JWT_SECRET') }
-            ),
-        };
+        // TODO: UpdateUserUseCase 머지 후 새로운 refresh token 암호화 후 업데이트
+
+        return this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
     }
     
     @Get('/detail')

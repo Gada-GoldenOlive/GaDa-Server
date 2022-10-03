@@ -8,6 +8,7 @@ import { UserGoalTime } from './UserGoalTime';
 import { UserLoginId } from './UserLoginId';
 import { UserName } from './UserName';
 import { UserPassword } from './UserPassword';
+import { UserRefreshToken } from './UserRefreshToken';
 import { UserStatus, USER_STATUS } from './UserStatus';
 import { UserTotalDistance } from './UserTotalDistance';
 import { UserTotalTime } from './UserTotalTime';
@@ -22,6 +23,7 @@ export interface UserNewProps {
     totalDistance?: UserTotalDistance;
     totalTime?: UserTotalTime;
     status?: USER_STATUS;
+    refreshToken?: UserRefreshToken;
 }
 
 export interface UserProps extends UserNewProps {
@@ -39,7 +41,7 @@ export class User extends AggregateRoot<UserProps> {
     }
 
     static createNew(props: UserNewProps): Result<User> {
-        if (_.isNil(props.name) || _.isNil(props.loginId) || _.isNil(props.password)) {
+        if (_.isNil(props.name) || _.isNil(props.loginId) || _.isNil(props.password) || _.isNil(props.refreshToken)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 
@@ -93,6 +95,10 @@ export class User extends AggregateRoot<UserProps> {
 
     get status(): USER_STATUS {
         return this.props.status;
+    }
+
+    get refreshToken(): UserRefreshToken {
+        return this.props.refreshToken;
     }
 
     get createdAt(): Date {

@@ -86,6 +86,12 @@ export class UserEntity extends CoreEntity {
     @Index()
     status: USER_STATUS;
 
+    @Column({
+        nullable: true,
+        type: 'varchar',
+    })
+    refreshToken: string;
+
     @OneToMany(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.user)
     walkways: WalkwayEntity[];
 

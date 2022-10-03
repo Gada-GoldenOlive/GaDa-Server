@@ -46,5 +46,8 @@ export class GetUserResponse {
 
 export class LoginOrSignUpUserResponse {
     @ApiProperty()
-    access_token: string;
+    accessToken: string;
+
+    @ApiProperty()
+    refreshToken: string;
 }
