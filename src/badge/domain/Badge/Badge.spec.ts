@@ -1,6 +1,7 @@
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Badge, PROPS_VALUES_ARE_REQUIRED } from './Badge';
 import { BadgeCategory } from './BadgeCategory';
+import { BadgeCode } from './BadgeCode';
 import { BadgeStatus } from './BadgeStatus';
 import { BadgeTitle } from './BadgeTitle';
 
@@ -16,6 +17,7 @@ describe('Badge', () => {
 			title: badgeTitle,
 			image: badgeImage,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
 			status: BadgeStatus.NORMAL,
 		});
 
@@ -24,6 +26,7 @@ describe('Badge', () => {
 		expect(badgeOrError.value.title.value).toBe(badgeTitle.value);
 		expect(badgeOrError.value.image.value).toBe(badgeImage.value);
         expect(badgeOrError.value.category).toBe(BadgeCategory.FRIEND);
+        expect(badgeOrError.value.code).toBe(BadgeCode.TEN);
 		expect(badgeOrError.value.status).toBe(BadgeStatus.NORMAL);
 	});
 
@@ -32,6 +35,7 @@ describe('Badge', () => {
 			title: badgeTitle,
 			image: badgeImage,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
 			status: BadgeStatus.NORMAL,
 			createdAt,
 			updatedAt,
@@ -42,6 +46,7 @@ describe('Badge', () => {
 		expect(badgeOrError.value.title.value).toBe(badgeTitle.value);
 		expect(badgeOrError.value.image.value).toBe(badgeImage.value);
         expect(badgeOrError.value.category).toBe(BadgeCategory.FRIEND);
+        expect(badgeOrError.value.code).toBe(BadgeCode.TEN);
 		expect(badgeOrError.value.status).toBe(BadgeStatus.NORMAL);
         expect(badgeOrError.value.createdAt).toBe(createdAt);
         expect(badgeOrError.value.updatedAt).toBe(updatedAt);
@@ -52,6 +57,7 @@ describe('Badge', () => {
             title: null,
             image: badgeImage,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
             status: BadgeStatus.NORMAL,
         });
 
@@ -59,6 +65,7 @@ describe('Badge', () => {
             title: undefined,
             image: badgeImage,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
             status: BadgeStatus.NORMAL,
         });
 
@@ -73,6 +80,7 @@ describe('Badge', () => {
             title: badgeTitle,
             image: null,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
             status: BadgeStatus.NORMAL,
         });
 
@@ -80,6 +88,7 @@ describe('Badge', () => {
             title: badgeTitle,
             image: undefined,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
             status: BadgeStatus.NORMAL,
         });
 
@@ -94,6 +103,7 @@ describe('Badge', () => {
             title: badgeTitle,
             image: badgeImage,
             category: null,
+            code: BadgeCode.TEN,
             status: BadgeStatus.NORMAL,
         });
 
@@ -101,6 +111,30 @@ describe('Badge', () => {
             title: badgeTitle,
             image: badgeImage,
             category: undefined,
+            code: BadgeCode.TEN,
+            status: BadgeStatus.NORMAL,
+        });
+
+        expect(badgeOrErrorWithNull.isFailure).toBeTruthy();
+        expect(badgeOrErrorWithUndefined.isFailure).toBeTruthy();
+        expect(badgeOrErrorWithNull.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+        expect(badgeOrErrorWithUndefined.errorValue()).toBe(PROPS_VALUES_ARE_REQUIRED);
+    });
+
+    it('badge code가 null이나 undefined로 전달될 경우 Badge createNew는 실패해야 한다.', () => {
+        const badgeOrErrorWithNull = Badge.createNew({
+            title: badgeTitle,
+            image: badgeImage,
+            category: BadgeCategory.FRIEND,
+            code: null,
+            status: BadgeStatus.NORMAL,
+        });
+
+        const badgeOrErrorWithUndefined = Badge.createNew({
+            title: badgeTitle,
+            image: badgeImage,
+            category: BadgeCategory.FRIEND,
+            code: undefined,
             status: BadgeStatus.NORMAL,
         });
 
@@ -114,6 +148,7 @@ describe('Badge', () => {
         const badgeStatusOrError = Badge.createNew({
             title: badgeTitle,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
             image: badgeImage,
         });
         
@@ -126,6 +161,7 @@ describe('Badge', () => {
             title: badgeTitle,
             image: badgeImage,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
             status: null,
         });
 
@@ -133,6 +169,7 @@ describe('Badge', () => {
             title: badgeTitle,
             image: badgeImage,
             category: BadgeCategory.FRIEND,
+            code: BadgeCode.TEN,
             status: undefined,
         });
 
