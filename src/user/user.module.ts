@@ -13,6 +13,7 @@ import { CreateFriendUseCase } from './application/CreateFriendUseCase/CreateFri
 import { CreateUserUseCase } from './application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase } from './application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase } from './application/LoginUseCase/LoginUseCase';
+import { UpdateUserUseCase } from './application/UpdateUserUseCase/UpdateUserUseCase';
 import { UserController } from './controller/UserController';
 import { FriendEntity } from './entity/Friend.entity';
 import { RecordEntity } from './entity/Record.entity';
@@ -40,6 +41,7 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
         CreateUserUseCase,
         GetUserUseCase,
         LoginUseCase,
+        UpdateUserUseCase,
         {
             provide: USER_REPOSITORY,
             useClass: MysqlUserRepository,

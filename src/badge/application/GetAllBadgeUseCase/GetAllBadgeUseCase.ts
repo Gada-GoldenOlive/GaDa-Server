@@ -20,6 +20,7 @@ export class GetAllBadgeUseCase implements UseCase<IGetAllBadgeUseCaseRequest, I
 		try {
 			const badges = await this.badgeRepository.getAll({
 				category: request.category,
+				code: request.code,
 			});
 
 			return {

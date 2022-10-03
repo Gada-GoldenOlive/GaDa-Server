@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 
 import { Badge } from '../../domain/Badge/Badge';
 import { BadgeCategory } from '../../domain/Badge/BadgeCategory';
+import { BadgeCode } from '../../domain/Badge/BadgeCode';
 import { BadgeStatus } from '../../domain/Badge/BadgeStatus';
 import { BadgeEntity } from '../../entity/Badge.entity';
 import { IBadgeRepository } from '../IBadgeRepository';
@@ -10,6 +11,7 @@ import { MysqlBadgeRepositoryMapper } from './mapper/MysqlBadgeRepositoryMapper'
 
 export interface GetAllBadgeOptions {
 	category?: BadgeCategory;
+	code?: BadgeCode;
 }
 
 export class MysqlBadgeRepository implements IBadgeRepository {
@@ -28,12 +30,14 @@ export class MysqlBadgeRepository implements IBadgeRepository {
 
 	async getAll(options: GetAllBadgeOptions): Promise<Badge[]> {
 		const category = options.category;
+		const code = options.code;
 		
 		const query = this.badgeRepository
 		.createQueryBuilder('badge')
 		.where('badge.status = :normal', { normal: BadgeStatus.NORMAL })
 
 		if (category) query.andWhere('badge.category = :category', { category });
+		if (code) query.andWhere('badge.code = :code', { code });
 
 		query.orderBy('badge.updatedAt', 'DESC'); // NOTE: 최신 업데이트순 정렬
 		

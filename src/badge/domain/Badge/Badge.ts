@@ -6,11 +6,13 @@ import { Result } from '../../../common/presentationals/Result';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { BadgeStatus, BADGE_STATUS } from './BadgeStatus';
 import { BADGE_CATEGORY } from './BadgeCategory';
+import { BADGE_CODE } from './BadgeCode';
 
 export interface BadgeNewProps {
     title: BadgeTitle;
     image: ImageUrl;
     category: BADGE_CATEGORY;
+    code: BADGE_CODE;
 	status?: BADGE_STATUS;
 }
 
@@ -53,6 +55,10 @@ export class Badge extends AggregateRoot<BadgeProps> {
 
     get category(): BADGE_CATEGORY {
         return this.props.category;
+    }
+
+    get code(): BADGE_CODE {
+        return this.props.code;
     }
 
     get status(): BADGE_STATUS {

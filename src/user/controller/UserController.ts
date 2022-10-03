@@ -16,6 +16,7 @@ import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { CreateFriendUseCase, CreateFriendUseCaseCodes } from '../application/CreateFriendUseCase/CreateFriendUseCase';
+import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -27,6 +28,7 @@ export class UserController {
         private readonly jwtService: JwtService,
         private readonly configServiece: ConfigService,
         private readonly createFriendUseCase: CreateFriendUseCase,
+        private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
 
     @Post()
@@ -146,7 +148,7 @@ export class UserController {
                 code: StatusCodes.CONFLICT,
                 responseMessage: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
                 isValid: false,
-            }
+            };
         }
 
         if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
@@ -154,7 +156,7 @@ export class UserController {
                 code: StatusCodes.OK,
                 responseMessage: 'Available User ID.',
                 isValid: true,
-            }
+            };
         }
 
         if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
@@ -198,42 +200,91 @@ export class UserController {
     })
     async getOne(
         @Request() request,
-    ) {
+    ): Promise<GetUserResponse> {
         const user = request.user;
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             user,
-        })
+        });
 
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         return {
-            id: user.id,
-            loginId: user.loginId.value,
-            image: user.image ? user.image.value : null,
-            name: user.name.value,
-            pinCount: getAllPinUseCaseResponse.pins.length,
-            goalDistance: user.goalDistance.value,
-            goalTime: user.goalTime.value,
-            totalDistnace: user.totalDistance.value,
-            totalTime: user.totalTime.value,
-        }
+            user: {
+                id: user.id,
+                loginId: user.loginId.value,
+                image: user.image ? user.image.value : null,
+                name: user.name.value,
+                pinCount: getAllPinUseCaseResponse.pins.length,
+                goalDistance: user.goalDistance.value,
+                goalTime: user.goalTime.value,
+                totalDistance: user.totalDistance.value,
+                totalTime: user.totalTime.value,
+            }
+        };
     }
 
     @Patch('/:userId')
     @UseGuards(UserOwnerGuard)
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiOperation({
+        summary: '비번 수정은 아직 안 되니까 쓰지 마세여. 나머진 다 됨'
+    })
     @ApiResponse({
-        type: CommonResponse,
+        type: GetUserResponse,
     })
     async update(
-        @Body() request: UpdateUserRequest,
-    ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+        @Param('userId') userId: string,
+        @Request() request,
+        @Body() body: UpdateUserRequest,
+    ): Promise<GetUserResponse> {
+        const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
+            id: userId,
+            password: body.password,
+            name: body.name,
+            image: body.image,
+            goalDistance: body.goalDistance,
+            goalTime: body.goalTime,
+        });
+
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.NO_EXIST_USER) {
+            throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+
+        if (updateUserUseCaseResponse.code == UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+            throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
+        }
+        
+        if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }   
+
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE USER BY FAILING TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+        
+        const user = updateUserUseCaseResponse.user;
+
+        return {
+            user: {
+                id: user.id,
+                loginId: user.loginId.value,
+                image: user.image ? user.image.value : null,
+                name: user.image.value,
+                pinCount: getAllPinUseCaseResponse.pins.length,
+                goalDistance: user.goalDistance.value,
+                goalTime: user.goalTime.value,
+                totalDistance: user.totalDistance.value,
+                totalTime: user.totalTime.value,
+            }
+        };
     }
 
     @Delete('/:userId')
