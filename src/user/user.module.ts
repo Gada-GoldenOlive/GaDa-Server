@@ -9,6 +9,7 @@ import { GetAllPinUseCase } from '../pin/application/GetAllPinUseCase/GetAllPinU
 import { PinEntity } from '../pin/entity/Pin.entity';
 import { PIN_REPOSITORY } from '../pin/infra/IPinRepository';
 import { MysqlPinRepository } from '../pin/infra/mysql/MysqlPinRepository';
+import { CreateFriendUseCase } from './application/CreateFriendUseCase/CreateFriendUseCase';
 import { CreateUserUseCase } from './application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase } from './application/GetUserUseCase/GetUserUseCase';
 import { LoginUseCase } from './application/LoginUseCase/LoginUseCase';
@@ -17,7 +18,9 @@ import { UserController } from './controller/UserController';
 import { FriendEntity } from './entity/Friend.entity';
 import { RecordEntity } from './entity/Record.entity';
 import { UserEntity } from './entity/User.entity';
+import { FRIEND_REPOSITORY } from './infra/IFriendRepository';
 import { USER_REPOSITORY } from './infra/IUserRepository';
+import { MysqlFriendRepository } from './infra/mysql/MysqlFriendRepository';
 import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
 
 @Module({
@@ -52,6 +55,11 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
         LocalStrategy,
         JwtStrategy,
         ConfigService,
+        {
+            provide: FRIEND_REPOSITORY,
+            useClass: MysqlFriendRepository,
+        },
+        CreateFriendUseCase,
     ],
 })
 
