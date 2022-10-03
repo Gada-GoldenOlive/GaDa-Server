@@ -10,7 +10,7 @@ export class FriendEntity extends CoreEntity {
         nullable: false,
         type: 'enum',
         enum: FriendStatus,
-        default: FriendStatus.NORMAL,
+        default: FriendStatus.REQUESTED,
     })
     @Index()
     status: FRIEND_STATUS;

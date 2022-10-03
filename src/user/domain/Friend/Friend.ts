@@ -64,7 +64,7 @@ export class Friend extends AggregateRoot<FriendProps> {
     private static getFriendStatusAndSetIfStatusIsUndefined(props: FriendNewProps) {
         let { status } = props;
         if (_.isNil(props.status) || _.isEmpty(props.status)) {
-            status = FriendStatus.NORMAL;
+            status = FriendStatus.REQUESTED;
         }
 
         return status;
