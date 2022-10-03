@@ -39,9 +39,6 @@ export class CreateAchieveRequest {
 	@ApiProperty()
 	badgeId: string;
 
-	@ApiProperty()
-	userId: string;
-
 	@ApiPropertyOptional()
 	status?: ACHIEVE_STATUS;
 }

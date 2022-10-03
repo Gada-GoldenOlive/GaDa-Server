@@ -40,8 +40,8 @@ export class PinController {
     })
     async create(
         @Request() request,
+        @Body() body: CreatePinRequest,
     ): Promise<CommonResponse> {
-        const body: CreatePinRequest = request.body;
         const walkwayResponse = await this.getWalkwayUseCase.execute({
             id: body.walkwayId,
         });
@@ -80,8 +80,8 @@ export class PinController {
     })
     async createComment(
         @Request() request,
+        @Body() body: CreateCommentRequest,
     ): Promise<CommonResponse> {
-        const body: CreateCommentRequest = request.body;
         const pinResponse = await this.getPinUseCase.execute({
             id: body.pinId,
         });
