@@ -7,8 +7,8 @@ export class UserDto {
     @ApiProperty()
     loginId: string;
     
-    @ApiProperty()
-    image: string;
+    @ApiPropertyOptional()
+    image?: string;
     
     @ApiProperty()
     name: string;

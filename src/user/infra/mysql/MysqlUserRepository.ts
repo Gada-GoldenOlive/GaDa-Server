@@ -11,6 +11,7 @@ export interface FindOneUserOptions {
     id?: string;
     loginId?: string;
     password?: string;
+    name?: string;
 }
 
 export class MysqlUserRepository implements IUserRepository {
@@ -27,6 +28,7 @@ export class MysqlUserRepository implements IUserRepository {
         if (options.id) query.andWhere('user.id = :id', { id: options.id });
         if (options.loginId) query.andWhere('user.loginId = :loginId', { loginId: options.loginId });
         if (options.password) query.andWhere('user.password = :password', { password: options.password });
+        if (options.name) query.andWhere('user.name = :name', { name: options.name });
 
         const user = await query.getOne();
 

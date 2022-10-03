@@ -10,7 +10,7 @@ import { UserStatus, USER_STATUS } from '../domain/User/UserStatus';
 import { LikeEntity } from '../../review/entity/Like.entity';
 import { CommentEntity } from '../../pin/entity/Comment.entity';
 import { FriendEntity } from './Friend.entity';
-import { AchieveEntity } from '../../badge/entity/AchieveEntity';
+import { AchieveEntity } from '../../badge/entity/Achieve.entity';
 import { RecordEntity } from './Record.entity';
 
 
