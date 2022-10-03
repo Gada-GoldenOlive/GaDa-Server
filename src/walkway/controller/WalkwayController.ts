@@ -57,8 +57,8 @@ export class WalkwayController {
     })
     async create(
         @Request() request,
+        @Body() body: CreateWalkwayRequest,
     ): Promise<CommonResponse> {
-        const body: CreateWalkwayRequest = request.body;
         const createWalkwayUseCaseResponse = await this.createWalkwayUseCase.execute({
             title: body.title,
             address: body.address,
@@ -118,8 +118,8 @@ export class WalkwayController {
     })
     async createWalk(
         @Request() request,
+        @Body() body: CreateWalkRequest,
     ): Promise<CommonResponse> {
-        const body: CreateWalkRequest = request.body;
         const walkwayResponse = await this.getWalkwayUseCase.execute({
             id: body.walkwayId,
         });

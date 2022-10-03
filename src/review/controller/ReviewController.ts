@@ -72,8 +72,8 @@ export class ReviewController {
     })
     async createLike(
         @Request() request,
+        @Body() body: CreateLikeRequest,
     ): Promise<CommonResponse> {
-        const body: CreateLikeRequest = request.body;
         const reviewResponse = await this.getReviewUseCase.execute({
             id: body.reviewId,
         });
