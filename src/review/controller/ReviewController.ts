@@ -6,13 +6,17 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { CreateLikeRequest, CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
-import { FeedDto, GetAllReviewResponse, GetReviewResponse, GetAllFeedReseponse } from './dto/ReviewResponse';
+import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedReseponse } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
 import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
 import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
 import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
+import { GetAllReviewImageUseCase, GetAllReviewImageUseCaseCodes } from '../application/GetAllReviewImageUseCase/GetAllReviewImageUseCase';
+import { ReviewOwnerGuard } from '../review-owner.guard';
+import { LikeOwnerGuard } from '../like-owner.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 
 const is_like_exist = async (review, user, getLikeUseCase) => {
     let like = false;
@@ -26,7 +30,7 @@ const is_like_exist = async (review, user, getLikeUseCase) => {
             like = true;
     }
     return like;
-}
+};
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -38,9 +42,11 @@ export class ReviewController {
         private readonly getLikeUseCase: GetLikeUseCase,
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
         private readonly createLikeUseCase: CreateLikeUseCase,
+        private readonly getAllReviewImageUseCase: GetAllReviewImageUseCase,
     ) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -56,6 +62,7 @@ export class ReviewController {
     }
 
     @Post('/likes')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -91,6 +98,7 @@ export class ReviewController {
     }
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({
         summary: '리뷰 목록 조회 (산책로 세부정보>리뷰)',
         description: 'walkwayId를 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 / '
@@ -136,7 +144,7 @@ export class ReviewController {
                 vehicle: review.vehicle,
                 star: review.star.value,
                 content: review.content.value,
-                image: review.image ? review.image.value : null,
+                userImage: review.walk.user.image ? review.walk.user.image.value : null,
                 userId: review.walk.user.id,
                 userName: review.walk.user.name.value,
                 walkwayId: review.walk.walkway.id,
@@ -155,6 +163,7 @@ export class ReviewController {
     }
 
     @Get('/like-reviews')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllFeedReseponse,
@@ -174,7 +183,7 @@ export class ReviewController {
             throw new HttpException('FAIL TO FIND ALL LIKES',StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviews = _.map(getAllLikeUseCaseResponse.likes, 
+        const feeds = _.map(getAllLikeUseCaseResponse.likes, 
             (like) => ({
                 review: {
                     id: like.review.id,
@@ -192,18 +201,22 @@ export class ReviewController {
                 },
                 time: like.review.walk.time.value,
                 distance: like.review.walk.distance.value,
-                // walkwayImage: like.review.walk.walkway.image.value,
+                walkwayImage: like.review.walk.walkway.image ? like.review.walk.walkway.image.value : null,
                 address: like.review.walk.walkway.address.value,
-                // images: like.review.images.value,
+                images: _.map(like.review.images, (image) => ({
+                    id: image.id,
+                    url: image.url.value,
+                })),
                 like:true,
             })
         );
         return {
-            reviews,
+            feeds,
         }
     }
 
     @Get('/feeds')
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
         type: GetAllFeedReseponse,
     })
@@ -233,9 +246,19 @@ export class ReviewController {
             throw new HttpException('FAIL TO GET ALL FEED', StatusCodes.INTERNAL_SERVER_ERROR)
         }
 
-        let reviews = []
-        for (const review of getAllReviewUseCaseResponse.reviews) {
-            const tmp = {
+        const reviewIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => review.id);
+        const getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+            reviewIds,
+        });
+
+        if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const feeds: FeedDto[] = await Promise.all(_.map(getAllReviewUseCaseResponse.reviews, async (review) => {
+            const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
+
+            return ({
                 review: {
                     id: review.id,
                     title: review.title.value,
@@ -252,22 +275,24 @@ export class ReviewController {
                 },
                 time: review.walk.time.value,
                 distance: review.walk.distance.value,
-                // walkwayImage: review.walk.walkway.image.value,
+                walkwayImage: review.walk.walkway.image ? review.walk.walkway.image.value : null,
                 address: review.walk.walkway.address.value,
-                // images: review.images.value,
-                like: await is_like_exist(review, request.user, this.getLikeUseCase),
-            }
-            reviews.push(tmp);
-        }
+                images: _.map(images, (image) => ({
+                    id: image.id,
+                    url: image.url.value,
+                })),
+                like: await is_like_exist(review, request.user, this.getLikeUseCase),            });
+        }));
 
         return {
-            reviews,
+            feeds,
         }
     }
 
     @Get('/:reviewId')
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
-        type: GetReviewResponse,
+        type: GetFeedResponse,
     })
     @ApiOperation({
         summary: '개별 리뷰 정보 가져오기',
@@ -276,44 +301,53 @@ export class ReviewController {
     async getReview(
         @Param('reviewId') reviewId: string,
         @Request() request,
-    ): Promise<GetReviewResponse> {
+    ): Promise<GetFeedResponse> {
         const getReviewUseCaseResponse = await this.getReviewUseCase.execute({
             id: reviewId,
         });
-        if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NO_EXIST_REVIEW)
+          
+        if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NO_EXIST_REVIEW) {
             throw new HttpException('NO EXIST REVIEW', StatusCodes.NOT_FOUND);
+        }
 
         if (getReviewUseCaseResponse.code !== GetReviewUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const review: FeedDto = {
+        const review = getReviewUseCaseResponse.review;
+
+        const feed: FeedDto = {
             review: {
-                id: getReviewUseCaseResponse.review.id,
-                title: getReviewUseCaseResponse.review.title.value,
-                vehicle: getReviewUseCaseResponse.review.vehicle,
-                star: getReviewUseCaseResponse.review.star.value,
-                content: getReviewUseCaseResponse.review.content.value,
-                userImage: getReviewUseCaseResponse.review.walk.user.image.value,
-                userName: getReviewUseCaseResponse.review.walk.user.name.value,
-                walkwayId: getReviewUseCaseResponse.review.walk.walkway.id,
-                walkwayTitle: getReviewUseCaseResponse.review.walk.walkway.title.value,
-                createdAt: getReviewUseCaseResponse.review.createdAt,
-                updatedAt: getReviewUseCaseResponse.review.updatedAt,
+                id: review.id,
+                title: review.title.value,
+                vehicle: review.vehicle,
+                star: review.star.value,
+                content: review.content.value,
+                userImage: review.walk.user.image.value,
+                userName: review.walk.user.name.value,
+                walkwayId: review.walk.walkway.id,
+                walkwayTitle: review.walk.walkway.title.value,
+                createdAt: review.createdAt,
+                updatedAt: review.updatedAt,
             },
-            time: getReviewUseCaseResponse.review.walk.time.value,
-            distance: getReviewUseCaseResponse.review.walk.distance.value,
-            // walkwayImage: getReviewUseCaseResponse.review.walk.walkway.image.value,
-            address: getReviewUseCaseResponse.review.walk.walkway.address.value,
-            // images: getReviewUseCaseResponse.review.images.value,
-            like: await is_like_exist(getReviewUseCaseResponse.review, request.user, this.getLikeUseCase),
+            time: review.walk.time.value,
+            distance: review.walk.distance.value,
+            walkwayImage: review.walk.walkway.image ? review.walk.walkway.image.value : null,
+            address: review.walk.walkway.address.value,
+            images: _.map(review.images, (image) => ({
+                id: image.id,
+                url: image.url.value,
+            })),
+            like: await is_like_exist(review, request.user, this.getLikeUseCase),
         };
         return {
-            review,
+            feed,
         };
     }
 
     @Patch('/:reviewId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -330,6 +364,8 @@ export class ReviewController {
     }
 
     @Delete('/:reviewId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(ReviewOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -345,12 +381,14 @@ export class ReviewController {
     }
 
     @Delete('/likes/:likeId')
-	@HttpCode(StatusCodes.NO_CONTENT)
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(LikeOwnerGuard)
+    @HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
 	})
 	async deleteLike(
-		@Param('likeId') userId: string,
+		@Param('likeId') likeId: string,
 	): Promise<CommonResponse> {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');

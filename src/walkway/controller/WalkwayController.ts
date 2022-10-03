@@ -18,6 +18,9 @@ import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/Create
 import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
 import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/CreateWalkwayUseCase/CreateWalkwayUseCase';
+import { WalkwayOwnerGuard } from '../walkway-owner.guard';
+import { WalkOwnerGuard } from '../walk-owner.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -44,6 +47,7 @@ export class WalkwayController {
     ) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -104,6 +108,7 @@ export class WalkwayController {
     }
 
     @Post('/walks')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -142,6 +147,7 @@ export class WalkwayController {
     }
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
         type: GetAllWalkwayResponse,
     })
@@ -208,6 +214,7 @@ export class WalkwayController {
     }
 
     @Get('/walks')
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
         type: GetAllWalkResponse,
     })
@@ -255,6 +262,7 @@ export class WalkwayController {
     }
 
     @Get('/:walkwayId')
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
         type: GetWalkwayResponse,
     })
@@ -329,6 +337,8 @@ export class WalkwayController {
     }
 
     @Patch('/:walkwayId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(WalkwayOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })
@@ -340,6 +350,8 @@ export class WalkwayController {
     }
 
     @Patch('/walks/:walkId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(WalkOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })
@@ -351,12 +363,16 @@ export class WalkwayController {
     }
 
     @Delete('/:walkwayId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(WalkwayOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })
     async delete() {}
 
     @Delete('/walks/:walkId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(WalkOwnerGuard)
     @ApiResponse({
         type: CommonResponse,
     })

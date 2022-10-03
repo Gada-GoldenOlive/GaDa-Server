@@ -7,12 +7,15 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateCommentRequest, CreatePinRequest, UpdateCommentReqeust, UpdatePinRequest } from './dto/PinRequest';
 import { GetAllCommentResponse, GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
-import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
+import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
 import { GetPinUseCase, GetPinUseCaseCodes } from '../application/GetPinUseCase/GetPinUseCase';
 import { CreateCommentUseCase, CreateCommentUseCaseCodes } from '../application/CreateCommentUseCase/CreateCommentUseCase';
+import { PinOwnerGuard } from '../pin-owner.guard';
+import { CommentOwnerGuard } from '../comment-owner.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -27,6 +30,7 @@ export class PinController {
     ) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -66,6 +70,7 @@ export class PinController {
     }
 
     @Post('/comments')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -102,6 +107,7 @@ export class PinController {
     }
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({
         summary: '산책로 또는 유저의 핀 목록 조회',
         description: 'walkwayId, userId 중에 최대 하나만 보낼 수 있음. '
@@ -172,6 +178,7 @@ export class PinController {
     }
 
     @Get('/comments')
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({
         description: "query parameter로 userId만 보낼 경우: 해당하는 유저의 모든 댓글 리턴. || pinId만 보낼 경우: 해당하는 핀의 모든 댓글 리턴."
     })
@@ -188,6 +195,7 @@ export class PinController {
     }
 
     @Get('/:pinId')
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
         type: GetPinResponse,
     })
@@ -227,6 +235,8 @@ export class PinController {
     }
 
     @Patch('/comments/:commentId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(CommentOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -239,6 +249,8 @@ export class PinController {
     }
 
     @Patch('/:pinId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(PinOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -252,6 +264,8 @@ export class PinController {
     }
 
     @Delete('/comments/:commentId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(CommentOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
@@ -264,6 +278,8 @@ export class PinController {
     }
 
     @Delete('/:pinId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(PinOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,

@@ -5,6 +5,7 @@ import { WalkEntity } from '../../walkway/entity/Walk.entity';
 import { ReviewStatus, REVIEW_STATUS } from '../domain/Review/ReviewStatus';
 import { VEHCILE_STATUS, Vehicle } from '../domain/Review/Vehicle';
 import { LikeEntity } from './Like.entity';
+import { ReviewImageEntity } from './ReviewImage.entity';
 
 @Entity('review')
 export class ReviewEntity extends CoreEntity {
@@ -58,4 +59,7 @@ export class ReviewEntity extends CoreEntity {
 
     @OneToMany(() => LikeEntity, (likeEntity) => likeEntity.user)
     likes: LikeEntity[];
+
+    @OneToMany(() => ReviewImageEntity, (reviewImageEntity) => reviewImageEntity.review)
+    images: ReviewImageEntity[];
 }

@@ -1,13 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import _ from 'lodash';
 
+import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
+import { AchieveOwnerGuard } from '../achieve-owner.guard';
 import { CreateBadgeUseCase, CreateBadgeUseCaseCodes } from '../application/CreateBadgeUseCase/CreateBadgeUseCase';
 import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../application/GetAllBadgeUseCase/GetAllBadgeUseCase';
 import { BadgeCategory } from '../domain/Badge/BadgeCategory';
 import { BadgeCode } from '../domain/Badge/BadgeCode';
+import { BadgeOwnerGuard } from '../badge-owner.guard';
 import { CreateAchieveRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
 import { GetAllBadgeResponse } from './dto/BadgeResponse';
 
@@ -20,6 +23,7 @@ export class BadgeController {
 	) {}
 
 	@Post()
+    @UseGuards(JwtAuthGuard)
 	@HttpCode(StatusCodes.CREATED)
 	@ApiCreatedResponse({
 		type: CommonResponse,
@@ -48,6 +52,7 @@ export class BadgeController {
 	}
 
 	@Post('/achievement')
+    @UseGuards(JwtAuthGuard)
 	@HttpCode(StatusCodes.CREATED)
 	@ApiCreatedResponse({
 		type: CommonResponse,
@@ -60,6 +65,7 @@ export class BadgeController {
 	}
 
 	@Get()
+    @UseGuards(JwtAuthGuard)
 	@ApiOperation({
 		description: 'query로 요청한 category 혹은 code에 해당하는 배지 모두 리턴'
 	})
@@ -111,6 +117,8 @@ export class BadgeController {
 	}
 
 	@Patch('/:badgeId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(BadgeOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse,
@@ -124,6 +132,8 @@ export class BadgeController {
 	}
 
 	@Patch('/achievement/:achieveId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(AchieveOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse,
@@ -137,6 +147,8 @@ export class BadgeController {
 	}
 
 	@Delete('/:badgeId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(BadgeOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
@@ -149,6 +161,8 @@ export class BadgeController {
 	}
 
 	@Delete('/achievement/:achieveId')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(AchieveOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
 	@ApiResponse({
 		type: CommonResponse
