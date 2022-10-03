@@ -6,7 +6,6 @@ import { FRIEND_REPOSITORY, IFriendRepository } from "../../infra/IFriendReposit
 import { ICreateFriendUseCaseRequest } from "./dto/CreateFriendUseCaseRequest";
 import { ICreateFriendUseCaseResponse } from "./dto/CreateFriendUseCaseResponse";
 
-
 export enum CreateFriendUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
