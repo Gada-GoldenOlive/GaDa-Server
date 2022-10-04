@@ -1,4 +1,6 @@
 import { Inject } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { InternalServerErrorException } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
@@ -8,6 +10,7 @@ import { UserGoalTime } from '../../domain/User/UserGoalTime';
 import { UserLoginId } from '../../domain/User/UserLoginId';
 import { UserName } from '../../domain/User/UserName';
 import { UserPassword } from '../../domain/User/UserPassword';
+import { UserRefreshToken } from '../../domain/User/UserRefreshToken';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
 import { IUpdateUserUseCaseRequest } from './dto/IUpdateUserUseCaseRequest';
 import { IUpdateUserUseCaseResponse } from './dto/IUpdateUserUseCaseResponse';
@@ -17,6 +20,16 @@ export enum UpdateUserUseCaseCodes {
 	FAILURE = 'FAILURE',
 	NO_EXIST_USER = 'Corresponding user does not exist.',
 	DUPLICATE_USER_ID_ERROR = 'Request user id is duplicated.',
+}
+
+async function hashing(refreshToken: string): Promise<string> {
+	if (refreshToken) {
+		try {
+			return await bcrypt.hash(refreshToken, 10);
+		} catch (e) {
+			throw new InternalServerErrorException();
+		}
+	}
 }
 
 export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUpdateUserUseCaseResponse> {
@@ -54,10 +67,11 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			if (!request.image) request.image = foundUser.image.value;
 			if (!request.goalDistance) request.goalDistance = foundUser.goalDistance.value;
 			if (!request.goalTime) request.goalTime = foundUser.goalTime.value;
+			if (!request.refreshToken) request.refreshToken = foundUser.refreshToken ? foundUser.refreshToken.value : null;
 			
 			const user = User.create({
 				loginId: UserLoginId.create(foundUser.loginId.value).value,
-				password: UserPassword.create(request.password).value,
+				password: UserPassword.create(await hashing(request.password)).value,
 				name: UserName.create(request.name).value,
 				image: ImageUrl.create(request.image).value,
 				goalDistance: UserGoalDistance.create(request.goalDistance).value,
@@ -66,12 +80,14 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				totalTime: foundUser.totalTime,
 				createdAt: foundUser.createdAt,
 				updatedAt: new Date(),
+				refreshToken: request.refreshToken ? UserRefreshToken.create(await hashing(request.refreshToken)).value : null,
 			}, request.id).value;
 			
 			await this.userRepository.save(user);
 
 			return {
 				code: UpdateUserUseCaseCodes.SUCCESS,
+				user,
 			};
 		} catch {
 			return {
