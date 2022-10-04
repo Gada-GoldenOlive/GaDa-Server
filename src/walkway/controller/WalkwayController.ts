@@ -7,7 +7,7 @@ import { LineString } from 'geojson';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkRequest, CreateWalkwayRequest, UpdateWalkRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
+import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -21,6 +21,7 @@ import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/
 import { WalkwayOwnerGuard } from '../walkway-owner.guard';
 import { WalkOwnerGuard } from '../walk-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { GetWalkUseCase, GetWalkUseCaseCodes } from '../application/GetWalkUseCase/GetWalkUseCase';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -29,6 +30,12 @@ const getDistance = (p1: Point, p2: Point) => {
         'coordinates': [[p1.lat, p1.lng], [p2.lat, p2.lng]],
     }
     return +(geojsonLength(line)) ;
+}
+
+const getRate = (walkDistance, walkwayDistance) => {
+    let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+
+    return rate > 100 ? 100 : rate;
 }
 
 @Controller('walkways')
@@ -44,6 +51,7 @@ export class WalkwayController {
         private readonly createWalkUseCase: CreateWalkUseCase,
         private readonly getAllWalkUseCase: GetAllWalkUseCase,
         private readonly createWalkwayUseCase: CreateWalkwayUseCase,
+        private readonly getWalkUseCase: GetWalkUseCase,
     ) {}
 
     @Post()
@@ -238,12 +246,6 @@ export class WalkwayController {
             throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const getRate = (walkDistance, walkwayDistance) => {
-            let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
-
-            return rate > 100 ? 100 : rate;
-        }
-
         const walks = _.map(getAllWalkUseCaseResponse.walks, (walk) => ({
             id: walk.id,
             finishStatus: walk.finishStatus,
@@ -334,6 +336,45 @@ export class WalkwayController {
         return {
             walkway,
         };
+    }
+
+    @Get('/walks/:walkId')
+    @UseGuards(JwtAuthGuard)
+    @ApiResponse({
+        type: GetWalkResponse,
+    })
+    @ApiOperation({
+        summary: '개별 산책기록 조회',
+    })
+    async getWalk(
+        @Param('walkId') walkId: string,
+    ) {
+        const getWalkUseCaseResponse = await this.getWalkUseCase.execute({
+            id: walkId,
+        });
+
+        if (getWalkUseCaseResponse.code === GetWalkUseCaseCodes.NO_EXIST_WALK) {
+            throw new HttpException(getWalkUseCaseResponse.code, StatusCodes.NOT_FOUND);
+        }
+        if (getWalkUseCaseResponse.code !== GetWalkUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const walk = getWalkUseCaseResponse.walk;
+
+        return {
+            id: walk.id,
+            finishStatus: walk.finishStatus,
+            rate: getRate(walk.distance.value, walk.walkway.distance.value),
+            distance: walk.walkway.distance.value,
+            time: walk.walkway.time.value,
+            title: walk.walkway.title.value,
+            image: walk.walkway.image ? walk.walkway.image.value : null,
+            walkwayId: walk.walkway.id,
+            userId: walk.user.id,
+            createAt: walk.createdAt,
+            updatedAt: walk.updatedAt,
+        }
     }
 
     @Patch('/:walkwayId')
