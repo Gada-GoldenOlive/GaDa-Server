@@ -41,6 +41,27 @@ export class MysqlWalkRepository implements IWalkRepository {
         return MysqlWalkRepositoryMapper.toDomains(walks);
     }
 
+    async findOne(id: string) {
+        const walk = await this.walkRepository.findOne({
+            where : {
+                id,
+                status: WalkStatus.NORMAL,
+                user: {
+                    status: UserStatus.NORMAL,
+                },
+                walkway: {
+                    status: WalkwayStatus.NORMAL,
+                },
+            },
+            relations: [
+                'user',
+                'walkway',
+            ],
+       });
+
+       return MysqlWalkRepositoryMapper.toDomain(walk);
+    }
+
     async save(walk: Walk): Promise<boolean> {
         await this.walkRepository.save(
             MysqlWalkRepositoryMapper.toEntity(walk)
