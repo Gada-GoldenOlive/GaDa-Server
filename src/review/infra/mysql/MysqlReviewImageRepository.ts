@@ -1,5 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import _ from 'lodash';
 
 import { Image } from '../../../common/domain/Image/Image';
 import { ReviewStatus } from '../../domain/Review/ReviewStatus';
@@ -26,7 +27,7 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 
 		const query = this.reviewImageRepository
 		.createQueryBuilder('reviewImage')
-		.leftJoinAndSelect('image.review', 'review')
+		.leftJoinAndSelect('reviewImage.review', 'review')
 		.leftJoinAndSelect('review.walk', 'walk')
 		.leftJoinAndSelect('walk.user', 'user')
 		.where('review.status = :normal', { normal: ReviewStatus.NORMAL })
@@ -37,11 +38,11 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 			query.andWhereInIds(imageIds);
 		}
 
-		if (reviewIds) {
+		if (!_.isEmpty(reviewIds)) {
 			query.andWhere('reviewImage.reviewId IN (:reviewIds)', { reviewIds });
 		}
 
-		query.orderBy('image.createdAt', 'ASC');
+		query.orderBy('reviewImage.createdAt', 'ASC');
 
 		const images = await query.getMany();
 
