@@ -8,6 +8,7 @@ import { IReviewImageRepository } from '../IReviewImageRepository';
 import { WalkStatus } from '../../../walkway/domain/Walk/WalkStatus'
 import { UserStatus } from '../../../user/domain/User/UserStatus';
 import { MysqlReviewImageRepositoryMapper } from './mapper/MysqlReviewImageRepositoryMapper';
+import _ from 'lodash';
 
 export interface GetAllReviewImageOptions {
     reviewIds?: string[];
@@ -26,7 +27,7 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 
 		const query = this.reviewImageRepository
 		.createQueryBuilder('reviewImage')
-		.leftJoinAndSelect('image.review', 'review')
+		.leftJoinAndSelect('reviewImage.review', 'review')
 		.leftJoinAndSelect('review.walk', 'walk')
 		.leftJoinAndSelect('walk.user', 'user')
 		.where('review.status = :normal', { normal: ReviewStatus.NORMAL })
@@ -37,11 +38,11 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 			query.andWhereInIds(imageIds);
 		}
 
-		if (reviewIds) {
+		if (!_.isEmpty(reviewIds)) {
 			query.andWhere('reviewImage.reviewId IN (:reviewIds)', { reviewIds });
 		}
 
-		query.orderBy('image.createdAt', 'ASC');
+		query.orderBy('reviewImage.createdAt', 'ASC');
 
 		const images = await query.getMany();
 
