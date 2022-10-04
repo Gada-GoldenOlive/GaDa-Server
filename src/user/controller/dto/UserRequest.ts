@@ -36,3 +36,9 @@ export class CreateFriendRequest {
     @ApiProperty()
     friendLoginId: string;
 }
+
+export class LoginRequest {
+    @ApiProperty()
+    loginId: string;
+    password: string;
+}

@@ -94,9 +94,6 @@ export class WalkDto {
     walkwayId: string;
 
     @ApiProperty()
-    userId: string;
-
-    @ApiProperty()
     createdAt: Date;
 
     @ApiProperty()
