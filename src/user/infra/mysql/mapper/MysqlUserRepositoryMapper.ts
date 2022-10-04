@@ -7,6 +7,7 @@ import { UserGoalTime } from '../../../domain/User/UserGoalTime';
 import { UserLoginId } from '../../../domain/User/UserLoginId';
 import { UserName } from '../../../domain/User/UserName';
 import { UserPassword } from '../../../domain/User/UserPassword';
+import { UserRefreshToken } from '../../../domain/User/UserRefreshToken';
 import { UserTotalDistance } from '../../../domain/User/UserTotalDistance';
 import { UserTotalTime } from '../../../domain/User/UserTotalTime';
 import { UserEntity } from '../../../entity/User.entity';
@@ -28,6 +29,7 @@ export class MysqlUserRepositoryMapper {
                 totalDistance: UserTotalDistance.create(entity.totalDistance).value,
                 totalTime: UserTotalTime.create(entity.totalTime).value,
                 status: entity.status,
+                refreshToken: entity.refreshToken ? UserRefreshToken.create(entity.refreshToken).value : null,
                 createdAt: entity.createdAt,
                 updatedAt: entity.updatedAt,
             },
@@ -56,6 +58,7 @@ export class MysqlUserRepositoryMapper {
         entity.goalTime = user.goalTime ? user.goalTime.value : null;
         entity.totalDistance = user.totalDistance.value;
         entity.totalTime = user.totalTime.value;
+        entity.refreshToken = user.refreshToken ? user.refreshToken.value : null;
         entity.status = user.status;
         entity.createdAt = user.createdAt;
         entity.updatedAt = user.updatedAt;

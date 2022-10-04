@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AuthService } from '../auth/authServiece';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { LocalStrategy } from '../auth/local.strategy';
 import { GetAllPinUseCase } from '../pin/application/GetAllPinUseCase/GetAllPinUseCase';
@@ -33,7 +34,6 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
         ]),
         JwtModule.register({
             secret: process.env.JWT_SECRET,
-            signOptions: { expiresIn: '60s' },
         }),
     ],
     controllers: [ UserController ],
@@ -55,6 +55,7 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
         LocalStrategy,
         JwtStrategy,
         ConfigService,
+        AuthService,
         {
             provide: FRIEND_REPOSITORY,
             useClass: MysqlFriendRepository,

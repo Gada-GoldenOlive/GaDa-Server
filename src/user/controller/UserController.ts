@@ -2,8 +2,6 @@ import _ from 'lodash';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -15,6 +13,9 @@ import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/G
 import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { AuthService, JwtPayload } from '../../auth/authServiece';
+import { RefreshAuthGuard } from '../../auth/refresh-auth.guard';
+import { checkRefreshToken } from '../../auth/refresh.strategy';
 import { CreateFriendUseCase, CreateFriendUseCaseCodes } from '../application/CreateFriendUseCase/CreateFriendUseCase';
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
 
@@ -25,8 +26,7 @@ export class UserController {
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
-        private readonly jwtService: JwtService,
-        private readonly configServiece: ConfigService,
+        private readonly authService: AuthService,
         private readonly createFriendUseCase: CreateFriendUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
@@ -60,12 +60,45 @@ export class UserController {
 
         const user = createUserUseCaseResponse.user;
 
-        return {
-            access_token: this.jwtService.sign(
-                { username: user.loginId.value, sub: user.id }, 
-                { secret: this.configServiece.get('JWT_SECRET') }
-            ),
-        };
+        return await this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
+    }
+
+    @Post('/refresh')
+    @UseGuards(RefreshAuthGuard)
+    @ApiOperation({
+        summary: '토큰 리프레시',
+        description: '헤더로 받은 refresh token에 해당하는 유저의 토큰을 재생성해서 리턴함.'
+    })
+    async refreshToken(
+        @Request() request,
+    ): Promise<LoginOrSignUpUserResponse> {
+        const { refreshToken, sub, username } = request.user as JwtPayload;
+
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            id: sub,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+            throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+    
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (!(await checkRefreshToken(refreshToken, getUserUseCaseResponse.user))) {
+            throw new HttpException('INVALID REFREESH TOKEN', StatusCodes.UNAUTHORIZED);
+        }
+
+        const user = getUserUseCaseResponse.user;
+
+        return await this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
     }
 
     @Post('/friends')
@@ -180,12 +213,10 @@ export class UserController {
     ): Promise<LoginOrSignUpUserResponse> {
         const user = request.user;
 
-        return {
-            access_token: this.jwtService.sign(
-                { username: user.loginId.value, sub: user.id }, 
-                { secret: this.configServiece.get('JWT_SECRET') }
-            ),
-        };
+        return await this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
     }
     
     @Get('/detail')
@@ -254,7 +285,7 @@ export class UserController {
             throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
         }
 
-        if (updateUserUseCaseResponse.code == UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
             throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
         }
         
