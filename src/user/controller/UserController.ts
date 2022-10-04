@@ -89,7 +89,7 @@ export class UserController {
             throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        if (!!(await checkRefreshToken(refreshToken, getUserUseCaseResponse.user))) {
+        if (!(await checkRefreshToken(refreshToken, getUserUseCaseResponse.user))) {
             throw new HttpException('INVALID REFREESH TOKEN', StatusCodes.UNAUTHORIZED);
         }
 
@@ -285,7 +285,7 @@ export class UserController {
             throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
         }
 
-        if (updateUserUseCaseResponse.code == UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
             throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
         }
         

@@ -36,7 +36,7 @@ export class AuthService {
             throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
         }
 
-        if (updateUserUseCaseResponse.code == UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
             throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
         }
         
