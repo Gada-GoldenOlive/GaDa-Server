@@ -27,6 +27,7 @@ import { USER_REPOSITORY } from '../user/infra/IUserRepository';
 import { MysqlUserRepository } from '../user/infra/mysql/MysqlUserRepository';
 import { UserEntity } from '../user/entity/User.entity';
 import { GetAllWalkUseCase } from './application/GetAllWalkUseCase/GetAllWalkUseCase';
+import { GetWalkUseCase } from './application/GetWalkUseCase/GetWalkUseCase';
 
 @Module({
     imports: [
@@ -69,7 +70,8 @@ import { GetAllWalkUseCase } from './application/GetAllWalkUseCase/GetAllWalkUse
         {
             provide: USER_REPOSITORY,
             useClass: MysqlUserRepository
-        }
+        },
+        GetWalkUseCase,
     ],
 })
 
