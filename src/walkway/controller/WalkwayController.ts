@@ -384,6 +384,7 @@ export class WalkwayController {
         if (getWalkUseCaseResponse.code === GetWalkUseCaseCodes.NO_EXIST_WALK) {
             throw new HttpException(getWalkUseCaseResponse.code, StatusCodes.NOT_FOUND);
         }
+        
         if (getWalkUseCaseResponse.code !== GetWalkUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND WALK', StatusCodes.INTERNAL_SERVER_ERROR);
         }
@@ -402,7 +403,7 @@ export class WalkwayController {
             userId: walk.user.id,
             createAt: walk.createdAt,
             updatedAt: walk.updatedAt,
-        }
+        };
     }
 
     @Patch('/:walkwayId')
