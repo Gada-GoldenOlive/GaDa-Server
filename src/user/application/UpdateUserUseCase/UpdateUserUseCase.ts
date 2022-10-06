@@ -64,7 +64,7 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			if (!request.password) request.password = foundUser.password.value;
 			else request.password = await hashing(request.password);
 			if (!request.name) request.name = foundUser.name.value;
-			if (!request.image) request.image = foundUser.image.value;
+			if (!request.image) foundUser.image ? request.image = foundUser.image.value : request.image = null;
 			if (!request.goalDistance) request.goalDistance = foundUser.goalDistance.value;
 			if (!request.goalTime) request.goalTime = foundUser.goalTime.value;
 			if (!request.refreshToken) request.refreshToken = foundUser.refreshToken ? foundUser.refreshToken.value : null;
@@ -74,7 +74,7 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				loginId: UserLoginId.create(foundUser.loginId.value).value,
 				password: UserPassword.create(request.password).value,
 				name: UserName.create(request.name).value,
-				image: ImageUrl.create(request.image).value,
+				image: request.image ? ImageUrl.create(request.image).value : null,
 				goalDistance: UserGoalDistance.create(request.goalDistance).value,
 				goalTime: UserGoalTime.create(request.goalTime).value,
 				totalDistance: foundUser.totalDistance,

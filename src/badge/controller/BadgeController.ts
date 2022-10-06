@@ -13,7 +13,7 @@ import { BadgeCode } from '../domain/Badge/BadgeCode';
 import { BadgeOwnerGuard } from '../badge-owner.guard';
 import { CreateAchieveRequest, CreateAllBadgeRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
 import { GetAllBadgeResponse } from './dto/BadgeResponse';
-import { CreateAllBadgeUseCase, CreateAllBadgeUseCaseCodes } from '../application/CreateBadgesUseCase/CreateAllBadgeUseCase';
+import { CreateAllBadgeUseCase, CreateAllBadgeUseCaseCodes } from '../application/CreateAllBadgeUseCase/CreateAllBadgeUseCase';
 
 @Controller('badges')
 @ApiTags('배지')
