@@ -1,5 +1,4 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import _ from 'lodash';
 import { Repository } from 'typeorm';
 
 import { Badge } from '../../domain/Badge/Badge';
@@ -20,25 +19,11 @@ export class MysqlBadgeRepository implements IBadgeRepository {
 		@InjectRepository(BadgeEntity)
 		private readonly badgeRepository: Repository<BadgeEntity>,
 	) {}
+
 	async save(badge: Badge): Promise<boolean> {
 		await this.badgeRepository.save(
 			MysqlBadgeRepositoryMapper.toEntity(badge),
 		);
-
-		return true;
-	}
-
-	async saveAll(badges: Badge[]): Promise<boolean> {
-		if (_.isEmpty(badges)) {
-			return false;
-		}
-
-		await this.badgeRepository
-		.createQueryBuilder()
-		.insert()
-		.into('badge')
-		.values(MysqlBadgeRepositoryMapper.toEntities(badges))
-		.execute();
 
 		return true;
 	}

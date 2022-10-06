@@ -11,9 +11,8 @@ import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../application/GetA
 import { BadgeCategory } from '../domain/Badge/BadgeCategory';
 import { BadgeCode } from '../domain/Badge/BadgeCode';
 import { BadgeOwnerGuard } from '../badge-owner.guard';
-import { CreateAchieveRequest, CreateAllBadgeRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
+import { CreateAchieveRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
 import { GetAllBadgeResponse } from './dto/BadgeResponse';
-import { CreateAllBadgeUseCase, CreateAllBadgeUseCaseCodes } from '../application/CreateBadgesUseCase/CreateAllBadgeUseCase';
 
 @Controller('badges')
 @ApiTags('배지')
@@ -21,53 +20,29 @@ export class BadgeController {
 	constructor(
 		private readonly createBadgeUseCase: CreateBadgeUseCase,
 		private readonly getAllBadgeUseCase: GetAllBadgeUseCase,
-		private readonly createAllBadgeUseCase: CreateAllBadgeUseCase,
 	) {}
 
 	@Post()
+    @UseGuards(JwtAuthGuard)
 	@HttpCode(StatusCodes.CREATED)
 	@ApiCreatedResponse({
 		type: CommonResponse,
 	})
 	@ApiOperation({
-		summary: '배지 하나 생성(백엔드 용, 프론트는 쓸 일X)'
+		summary: '배지 생성(백엔드 용, 프론트는 쓸 일X)'
 	})
 	async create(
 		@Body() request: CreateBadgeRequest,
 	): Promise<CommonResponse> {
 		const createBadgeUseCaseResponse = await this.createBadgeUseCase.execute({
-			title: request.badge.title,
-			image: request.badge.image,
-			category: request.badge.category,
-			code: request.badge.code,
+			title: request.title,
+			image: request.image,
+			category: request.category,
+			code: request.code,
 		});
 
 		if (createBadgeUseCaseResponse.code !== CreateBadgeUseCaseCodes.SUCCESS) {
 			throw new HttpException('FAIL TO CREATE BADGE', StatusCodes.INTERNAL_SERVER_ERROR);
-		}
-
-		return {
-			code: StatusCodes.CREATED,
-			responseMessage: 'SUCCESS TO CREATE BADGE',
-		};
-	}
-
-	@Post('/all')
-	@ApiCreatedResponse({
-		type: CommonResponse,
-	})
-	@ApiOperation({
-		summary: '배지 한 번에 생성(백엔드 용, 프론트는 쓸 일X)'
-	})
-	async createAll(
-		@Body() request: CreateAllBadgeRequest,
-	): Promise<CommonResponse> {
-		const createAllBadgeUseCaseResponse = await this.createAllBadgeUseCase.execute({
-			badges: request.badges,
-		});
-
-		if (createAllBadgeUseCaseResponse.code !== CreateAllBadgeUseCaseCodes.SUCCESS) {
-			throw new HttpException('FAIL TO CREATE ALL BADGE', StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 
 		return {
