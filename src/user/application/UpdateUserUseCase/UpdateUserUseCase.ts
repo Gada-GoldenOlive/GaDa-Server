@@ -61,7 +61,6 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			}
 
 			// NOTE: request로 들어온 게 없으면 request에 기존 것들 넣어줌 (아래에서 통일성을 위해 작성한 코드)
-			// TODO: 비밀번호 변경하는 것도 암호화 처리되게 해줘야 함
 			if (!request.password) request.password = foundUser.password.value;
 			else request.password = await hashing(request.password);
 			if (!request.name) request.name = foundUser.name.value;
