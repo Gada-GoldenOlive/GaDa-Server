@@ -40,5 +40,7 @@ export class CreateFriendRequest {
 export class LoginRequest {
     @ApiProperty()
     loginId: string;
+
+    @ApiProperty()
     password: string;
 }
