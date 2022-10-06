@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CreateAllBadgeUseCase } from './application/CreateBadgesUseCase/CreateAllBadgeUseCase';
 
+import { CreateAllBadgeUseCase } from './application/CreateAllBadgeUseCase/CreateAllBadgeUseCase';
 import { CreateBadgeUseCase } from './application/CreateBadgeUseCase/CreateBadgeUseCase';
 import { GetAllBadgeUseCase } from './application/GetAllBadgeUseCase/GetAllBadgeUseCase';
 import { BadgeController } from './controller/BadgeController';

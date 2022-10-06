@@ -49,7 +49,7 @@ export class MysqlBadgeRepository implements IBadgeRepository {
 		
 		const query = this.badgeRepository
 		.createQueryBuilder('badge')
-		.where('badge.status = :normal', { normal: BadgeStatus.NORMAL })
+		.where('badge.status = :normal or badge.status = :hidden', { normal: BadgeStatus.NORMAL, hidden: BadgeStatus.HIDDEN });
 
 		if (category) query.andWhere('badge.category = :category', { category });
 		if (code) query.andWhere('badge.code = :code', { code });
