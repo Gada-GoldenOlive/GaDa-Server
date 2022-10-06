@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 import { Achieve } from '../../../domain/Achieve/Achieve';
 import { AchieveEntity } from '../../../entity/Achieve.entity';
@@ -30,11 +31,14 @@ export class MysqlAchieveRepositoryMapper {
 		}
 
 		const entity = new AchieveEntity();
+		entity.id = achieve.id;
+		entity.createdAt = achieve.createdAt;
+		entity.updatedAt = achieve.updatedAt;
 		entity.status = achieve.status;
 		entity.badge = MysqlBadgeRepositoryMapper.toEntity(achieve.badge);
 		entity.user = MysqlUserRepositoryMapper.toEntity(achieve.user);
-		entity.createdAt = achieve.createdAt;
-		entity.updatedAt = achieve.updatedAt;
+
+		return entity;
 	}
 
 	static toEntities(achieves: Achieve[]): AchieveEntity[] {

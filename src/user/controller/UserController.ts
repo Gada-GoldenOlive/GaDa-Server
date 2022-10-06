@@ -18,6 +18,8 @@ import { RefreshAuthGuard } from '../../auth/refresh-auth.guard';
 import { checkRefreshToken } from '../../auth/refresh.strategy';
 import { CreateFriendUseCase, CreateFriendUseCaseCodes } from '../application/CreateFriendUseCase/CreateFriendUseCase';
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
+import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../../badge/application/GetAllBadgeUseCase/GetAllBadgeUseCase';
+import { CreateAchievesUseCase } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -29,6 +31,8 @@ export class UserController {
         private readonly authService: AuthService,
         private readonly createFriendUseCase: CreateFriendUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
+        private readonly getAllBadgeUseCase: GetAllBadgeUseCase,
+        private readonly createAchievesUseCase: CreateAchievesUseCase,
     ) {}
 
     @Post()
@@ -57,8 +61,23 @@ export class UserController {
         if (createUserUseCaseResponse.code !== CreateUserUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }
-
+        
         const user = createUserUseCaseResponse.user;
+
+        // NOTE: 배지 전부 가져옴
+        const getAllBadgeUseCaseResponse = await this.getAllBadgeUseCase.execute({});
+
+        if (getAllBadgeUseCaseResponse.code !== GetAllBadgeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL BADGE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const badges = getAllBadgeUseCaseResponse.badges;
+
+        // NOTE: achieve들 유저랑 엮어서 생성 (기본 status: non_achieve)
+        const createAchievesUseCaseResponse = await this.createAchievesUseCase.execute({
+            badges,
+            user,
+        });
 
         return await this.authService.getToken({
             username: user.loginId.value,
