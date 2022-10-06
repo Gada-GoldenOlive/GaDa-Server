@@ -61,17 +61,18 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			}
 
 			// NOTE: request로 들어온 게 없으면 request에 기존 것들 넣어줌 (아래에서 통일성을 위해 작성한 코드)
-			// TODO: 비밀번호 변경하는 것도 암호화 처리되게 해줘야 함
 			if (!request.password) request.password = foundUser.password.value;
+			else request.password = await hashing(request.password);
 			if (!request.name) request.name = foundUser.name.value;
 			if (!request.image) request.image = foundUser.image.value;
 			if (!request.goalDistance) request.goalDistance = foundUser.goalDistance.value;
 			if (!request.goalTime) request.goalTime = foundUser.goalTime.value;
 			if (!request.refreshToken) request.refreshToken = foundUser.refreshToken ? foundUser.refreshToken.value : null;
-			
+			else request.refreshToken = await hashing(request.refreshToken);
+
 			const user = User.create({
 				loginId: UserLoginId.create(foundUser.loginId.value).value,
-				password: UserPassword.create(await hashing(request.password)).value,
+				password: UserPassword.create(request.password).value,
 				name: UserName.create(request.name).value,
 				image: ImageUrl.create(request.image).value,
 				goalDistance: UserGoalDistance.create(request.goalDistance).value,
@@ -80,7 +81,7 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				totalTime: foundUser.totalTime,
 				createdAt: foundUser.createdAt,
 				updatedAt: new Date(),
-				refreshToken: request.refreshToken ? UserRefreshToken.create(await hashing(request.refreshToken)).value : null,
+				refreshToken: request.refreshToken ? UserRefreshToken.create(request.refreshToken).value : null,
 			}, request.id).value;
 			
 			await this.userRepository.save(user);

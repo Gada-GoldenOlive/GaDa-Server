@@ -23,6 +23,7 @@ import { FRIEND_REPOSITORY } from './infra/IFriendRepository';
 import { USER_REPOSITORY } from './infra/IUserRepository';
 import { MysqlFriendRepository } from './infra/mysql/MysqlFriendRepository';
 import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
+import {RefreshStrategy} from "../auth/refresh.strategy";
 
 @Module({
     imports: [
@@ -54,6 +55,7 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUserRepository';
         JwtService,
         LocalStrategy,
         JwtStrategy,
+        RefreshStrategy,
         ConfigService,
         AuthService,
         {
