@@ -34,6 +34,7 @@ export class CreateReviewUseCase implements UseCase<ICreateReviewUseCaseRequest,
 
             return {
                 code: CreateReviewUseCaseCodes.SUCCESS,
+                review,
             };
         } catch {
             return {
