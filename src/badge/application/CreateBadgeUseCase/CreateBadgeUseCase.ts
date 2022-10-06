@@ -4,6 +4,7 @@ import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
 import { Badge } from '../../domain/Badge/Badge';
 import { BADGE_CATEGORY } from '../../domain/Badge/BadgeCategory';
+import { BADGE_CODE } from '../../domain/Badge/BadgeCode';
 import { BadgeTitle } from '../../domain/Badge/BadgeTitle';
 import { BADGE_REPOSITORY, IBadgeRepository } from '../../infra/IBadgeRepository';
 import { ICreateBadgeUseCaseRequest } from './dto/ICreateBadgeUseCaseRequest';
@@ -26,6 +27,7 @@ export class CreateBadgeUseCase implements UseCase<ICreateBadgeUseCaseRequest, I
 				title: BadgeTitle.create(request.title).value,
 				image: ImageUrl.create(request.image).value,
 				category: request.category as BADGE_CATEGORY,
+				code: request.code as BADGE_CODE,
 			}).value;
 
 			await this.badgeRepository.save(badge);

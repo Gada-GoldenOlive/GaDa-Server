@@ -3,8 +3,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BadgeStatus, BADGE_STATUS } from '../../domain/Badge/BadgeStatus';
 import { ACHIEVE_STATUS } from '../../domain/Achieve/AchieveStatus'
 import { BadgeCategory, BADGE_CATEGORY } from '../../domain/Badge/BadgeCategory';
+import { BadgeCode, BADGE_CODE } from '../../domain/Badge/BadgeCode';
 
-export class CreateBadgeRequest {
+export class BadgeDto {
 	@ApiProperty()
 	title: string;
 
@@ -14,7 +15,29 @@ export class CreateBadgeRequest {
 	@ApiProperty({
 		enum: BadgeCategory,
 	})
-	category: string;
+	category: BADGE_CATEGORY;
+
+	@ApiProperty({
+		enum: BadgeCode,
+	})
+	code: BADGE_CODE;
+
+	@ApiProperty({
+		enum: BadgeStatus,
+	})
+	status: BADGE_STATUS;
+}
+
+export class CreateBadgeRequest {
+	@ApiProperty()
+	badge: BadgeDto;
+}
+
+export class CreateAllBadgeRequest {
+	@ApiProperty({
+		type: [BadgeDto],
+	})
+	badges: BadgeDto[];
 }
 
 export class UpdateBadgeReqeust {
@@ -27,7 +50,12 @@ export class UpdateBadgeReqeust {
 	@ApiPropertyOptional({
 		enum: BadgeCategory,
 	})
-	badge?: BADGE_CATEGORY;
+	category?: BADGE_CATEGORY;
+
+	@ApiPropertyOptional({
+		enum: BadgeCode,
+	})
+	code?: BADGE_CODE;
 
 	@ApiPropertyOptional({
 		enum: BadgeStatus,
@@ -38,9 +66,6 @@ export class UpdateBadgeReqeust {
 export class CreateAchieveRequest {
 	@ApiProperty()
 	badgeId: string;
-
-	@ApiProperty()
-	userId: string;
 
 	@ApiPropertyOptional()
 	status?: ACHIEVE_STATUS;

@@ -34,6 +34,8 @@ export class CreateUserUseCase implements UseCase<ICreateUserUseCaseRequest, ICr
 				};
 			}
 
+			// TODO: 유저 생성할 때 닉네임(name) 중복검사 코드도 작성 요망
+
 			const user = User.createNew({
 				loginId: UserLoginId.create(request.loginId).value,
 				password: UserPassword.create(request.password).value,

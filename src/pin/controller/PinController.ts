@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -40,8 +40,8 @@ export class PinController {
     })
     async create(
         @Request() request,
+        @Body() body: CreatePinRequest,
     ): Promise<CommonResponse> {
-        const body: CreatePinRequest = request.body;
         const walkwayResponse = await this.getWalkwayUseCase.execute({
             id: body.walkwayId,
         });
@@ -80,8 +80,8 @@ export class PinController {
     })
     async createComment(
         @Request() request,
+        @Body() body: CreateCommentRequest,
     ): Promise<CommonResponse> {
-        const body: CreateCommentRequest = request.body;
         const pinResponse = await this.getPinUseCase.execute({
             id: body.pinId,
         });

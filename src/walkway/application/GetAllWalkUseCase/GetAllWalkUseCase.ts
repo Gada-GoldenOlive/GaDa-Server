@@ -13,12 +13,12 @@ export enum GetAllWalkUseCaseCodes {
 export class GetAllWalkUseCase implements UseCase<IGetAllWalkUseCaseRequest, IGetAllWalkUseCaseResponse> {
     constructor(
         @Inject(WALK_REPOSITORY)
-        private readonly walkwayRepository: IWalkRepository,
+        private readonly walkRepository: IWalkRepository,
     ) {}
 
     async execute(request: IGetAllWalkUseCaseRequest): Promise<IGetAllWalkUseCaseResponse> {
         try {
-            const walks = await this.walkwayRepository.findAll(request);
+            const walks = await this.walkRepository.findAll(request.user);
 
             return {
                 code: GetAllWalkUseCaseCodes.SUCCESS,

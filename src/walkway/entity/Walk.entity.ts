@@ -44,8 +44,4 @@ export class WalkEntity extends CoreEntity {
 
     @ManyToOne(() => WalkwayEntity, (walkwayEntity) => walkwayEntity.walks)
     walkway: WalkwayEntity;   
-
-    @OneToOne(() => ReviewEntity, (ReviewEntity) => ReviewEntity.walk)
-    @JoinColumn()
-    review: ReviewEntity;
 }

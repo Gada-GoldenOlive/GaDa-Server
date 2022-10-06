@@ -7,7 +7,7 @@ import { LineString } from 'geojson';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkRequest, CreateWalkwayRequest, UpdateWalkRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
+import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -21,6 +21,7 @@ import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/
 import { WalkwayOwnerGuard } from '../walkway-owner.guard';
 import { WalkOwnerGuard } from '../walk-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { GetWalkUseCase, GetWalkUseCaseCodes } from '../application/GetWalkUseCase/GetWalkUseCase';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -29,6 +30,12 @@ const getDistance = (p1: Point, p2: Point) => {
         'coordinates': [[p1.lat, p1.lng], [p2.lat, p2.lng]],
     }
     return +(geojsonLength(line)) ;
+}
+
+const getRate = (walkDistance, walkwayDistance) => {
+    let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+
+    return rate > 100 ? 100 : rate;
 }
 
 @Controller('walkways')
@@ -44,6 +51,7 @@ export class WalkwayController {
         private readonly createWalkUseCase: CreateWalkUseCase,
         private readonly getAllWalkUseCase: GetAllWalkUseCase,
         private readonly createWalkwayUseCase: CreateWalkwayUseCase,
+        private readonly getWalkUseCase: GetWalkUseCase,
     ) {}
 
     @Post()
@@ -57,8 +65,8 @@ export class WalkwayController {
     })
     async create(
         @Request() request,
+        @Body() body: CreateWalkwayRequest,
     ): Promise<CommonResponse> {
-        const body: CreateWalkwayRequest = request.body;
         const createWalkwayUseCaseResponse = await this.createWalkwayUseCase.execute({
             title: body.title,
             address: body.address,
@@ -118,8 +126,8 @@ export class WalkwayController {
     })
     async createWalk(
         @Request() request,
+        @Body() body: CreateWalkRequest,
     ): Promise<CommonResponse> {
-        const body: CreateWalkRequest = request.body;
         const walkwayResponse = await this.getWalkwayUseCase.execute({
             id: body.walkwayId,
         });
@@ -228,14 +236,36 @@ export class WalkwayController {
         @Request() request,
         @Query('option') option?: number,
     ) {
+        let walks;
         option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option
+
         const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
-            userId: request.user.id,
-            option: option,
+            user: request.user,
         });
 
         if (getAllWalkUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        walks = getAllWalkUseCaseResponse.walks;
+
+        // NOTE: 이미 리뷰를 작성한 walk를 필터링
+        if (option == GET_ALL_WALK_OPTION.USER_INFO) {
+            const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+                user: request.user,
+            });
+
+            if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO FIND ALL WALK BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+            const review_walkIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => 
+                review.walk.id
+            );
+
+            walks = _.filter(walks, (walk) => {
+                return !review_walkIds.includes(walk.id);
+            });
         }
 
         const getRate = (walkDistance, walkwayDistance) => {
@@ -244,7 +274,7 @@ export class WalkwayController {
             return rate > 100 ? 100 : rate;
         }
 
-        const walks = _.map(getAllWalkUseCaseResponse.walks, (walk) => ({
+        walks = _.map(walks, (walk) => ({
             id: walk.id,
             finishStatus: walk.finishStatus,
             rate: getRate(walk.distance.value, walk.walkway.distance.value),
@@ -333,6 +363,46 @@ export class WalkwayController {
 
         return {
             walkway,
+        };
+    }
+
+    @Get('/walks/:walkId')
+    @UseGuards(JwtAuthGuard)
+    @ApiResponse({
+        type: GetWalkResponse,
+    })
+    @ApiOperation({
+        summary: '개별 산책기록 조회',
+    })
+    async getWalk(
+        @Param('walkId') walkId: string,
+    ) {
+        const getWalkUseCaseResponse = await this.getWalkUseCase.execute({
+            id: walkId,
+        });
+
+        if (getWalkUseCaseResponse.code === GetWalkUseCaseCodes.NO_EXIST_WALK) {
+            throw new HttpException(getWalkUseCaseResponse.code, StatusCodes.NOT_FOUND);
+        }
+        
+        if (getWalkUseCaseResponse.code !== GetWalkUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const walk = getWalkUseCaseResponse.walk;
+
+        return {
+            id: walk.id,
+            finishStatus: walk.finishStatus,
+            rate: getRate(walk.distance.value, walk.walkway.distance.value),
+            distance: walk.walkway.distance.value,
+            time: walk.walkway.time.value,
+            title: walk.walkway.title.value,
+            image: walk.walkway.image ? walk.walkway.image.value : null,
+            walkwayId: walk.walkway.id,
+            userId: walk.user.id,
+            createAt: walk.createdAt,
+            updatedAt: walk.updatedAt,
         };
     }
 

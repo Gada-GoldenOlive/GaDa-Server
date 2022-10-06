@@ -7,8 +7,8 @@ export class UserDto {
     @ApiProperty()
     loginId: string;
     
-    @ApiProperty()
-    image: string;
+    @ApiPropertyOptional()
+    image?: string;
     
     @ApiProperty()
     name: string;
@@ -46,5 +46,8 @@ export class GetUserResponse {
 
 export class LoginOrSignUpUserResponse {
     @ApiProperty()
-    access_token: string;
+    accessToken: string;
+
+    @ApiProperty()
+    refreshToken: string;
 }

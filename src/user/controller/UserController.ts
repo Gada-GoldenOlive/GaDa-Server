@@ -2,19 +2,24 @@ import _ from 'lodash';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
-import { CreateFriendRequest, CreateUserRequest, UpdateUserRequest } from './dto/UserRequest';
+import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { AuthService, JwtPayload } from '../../auth/authServiece';
+import { RefreshAuthGuard } from '../../auth/refresh-auth.guard';
+import { checkRefreshToken } from '../../auth/refresh.strategy';
+import { CreateFriendUseCase, CreateFriendUseCaseCodes } from '../application/CreateFriendUseCase/CreateFriendUseCase';
+import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
+import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../../badge/application/GetAllBadgeUseCase/GetAllBadgeUseCase';
+import { CreateAchievesUseCase } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -23,8 +28,11 @@ export class UserController {
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly getUserUseCase: GetUserUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
-        private readonly jwtService: JwtService,
-        private readonly configServiece: ConfigService,
+        private readonly authService: AuthService,
+        private readonly createFriendUseCase: CreateFriendUseCase,
+        private readonly updateUserUseCase: UpdateUserUseCase,
+        private readonly getAllBadgeUseCase: GetAllBadgeUseCase,
+        private readonly createAchievesUseCase: CreateAchievesUseCase,
     ) {}
 
     @Post()
@@ -53,15 +61,66 @@ export class UserController {
         if (createUserUseCaseResponse.code !== CreateUserUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }
-
+        
         const user = createUserUseCaseResponse.user;
 
-        return {
-            access_token: this.jwtService.sign(
-                { username: user.loginId.value, sub: user.id }, 
-                { secret: this.configServiece.get('JWT_SECRET') }
-            ),
-        };
+        // NOTE: 배지 전부 가져옴
+        const getAllBadgeUseCaseResponse = await this.getAllBadgeUseCase.execute({});
+
+        if (getAllBadgeUseCaseResponse.code !== GetAllBadgeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL BADGE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const badges = getAllBadgeUseCaseResponse.badges;
+
+        // NOTE: achieve들 유저랑 엮어서 생성 (기본 status: non_achieve)
+        const createAchievesUseCaseResponse = await this.createAchievesUseCase.execute({
+            badges,
+            user,
+        });
+
+        return await this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
+    }
+
+    @Post('/refresh')
+    @UseGuards(RefreshAuthGuard)
+    @ApiOperation({
+        summary: '토큰 리프레시',
+        description: '헤더로 받은 refresh token에 해당하는 유저의 토큰을 재생성해서 리턴함.'
+    })
+    @ApiOkResponse({
+        type: LoginOrSignUpUserResponse,
+    })
+    async refreshToken(
+        @Request() request,
+    ): Promise<LoginOrSignUpUserResponse> {
+        const { refreshToken, sub, username } = request.user as JwtPayload;
+
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            id: sub,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+            throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+    
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (!(await checkRefreshToken(refreshToken, getUserUseCaseResponse.user))) {
+            throw new HttpException('INVALID REFREESH TOKEN', StatusCodes.UNAUTHORIZED);
+        }
+
+        const user = getUserUseCaseResponse.user;
+
+        return await this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
     }
 
     @Post('/friends')
@@ -71,10 +130,30 @@ export class UserController {
         type: CommonResponse,
     })
     async createFriend(
-        @Body() request: CreateFriendRequest,
+        @Body() body: CreateFriendRequest,
+        @Request() request,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
-        throw new Error('Method not implemented');
+        const userResponse = await this.getUserUseCase.execute({
+            loginId: body.friendLoginId,
+        });
+
+        if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE FRIEND BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const createFriendUseCaseResponse = await this.createFriendUseCase.execute({
+            user: request.user,
+            friend: userResponse.user,
+        });
+
+        if (createFriendUseCaseResponse.code !== CreateFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE FRIEND',
+        };
     }
 
     @Get()
@@ -97,9 +176,7 @@ export class UserController {
     @ApiOperation({
         description: 'userId(uuid)에 해당하는 유저의 친구 목록 리턴'
     })
-    async getAllFriends(
-        @Query('userId') userId: string,
-    ) {
+    async getAllFriends() {
         // TODO: 차후 Usecase 생성시 추가
         throw new Error('Method not implemented');
     }
@@ -126,7 +203,7 @@ export class UserController {
                 code: StatusCodes.CONFLICT,
                 responseMessage: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
                 isValid: false,
-            }
+            };
         }
 
         if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
@@ -134,7 +211,7 @@ export class UserController {
                 code: StatusCodes.OK,
                 responseMessage: 'Available User ID.',
                 isValid: true,
-            }
+            };
         }
 
         if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
@@ -153,16 +230,15 @@ export class UserController {
         description: 'loginId, password에 해당하는 유저가 존재한다면, 유저의 토큰을 리턴한다.'
     })
     async login(
-        @Request() request
+        @Request() request,
+        @Body() body: LoginRequest,
     ): Promise<LoginOrSignUpUserResponse> {
         const user = request.user;
 
-        return {
-            access_token: this.jwtService.sign(
-                { username: user.loginId.value, sub: user.id }, 
-                { secret: this.configServiece.get('JWT_SECRET') }
-            ),
-        };
+        return await this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
     }
     
     @Get('/detail')
@@ -177,42 +253,91 @@ export class UserController {
     })
     async getOne(
         @Request() request,
-    ) {
+    ): Promise<GetUserResponse> {
         const user = request.user;
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             user,
-        })
+        });
 
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         return {
-            id: user.id,
-            loginId: user.loginId.value,
-            image: user.image ? user.image.value : null,
-            name: user.name.value,
-            pinCount: getAllPinUseCaseResponse.pins.length,
-            goalDistance: user.goalDistance.value,
-            goalTime: user.goalTime.value,
-            totalDistnace: user.totalDistance.value,
-            totalTime: user.totalTime.value,
-        }
+            user: {
+                id: user.id,
+                loginId: user.loginId.value,
+                image: user.image ? user.image.value : null,
+                name: user.name.value,
+                pinCount: getAllPinUseCaseResponse.pins.length,
+                goalDistance: user.goalDistance.value,
+                goalTime: user.goalTime.value,
+                totalDistance: user.totalDistance.value,
+                totalTime: user.totalTime.value,
+            }
+        };
     }
 
     @Patch('/:userId')
     @UseGuards(UserOwnerGuard)
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiOperation({
+        summary: '비번 수정은 아직 안 되니까 쓰지 마세여. 나머진 다 됨'
+    })
     @ApiResponse({
-        type: CommonResponse,
+        type: GetUserResponse,
     })
     async update(
-        @Body() request: UpdateUserRequest,
-    ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+        @Param('userId') userId: string,
+        @Request() request,
+        @Body() body: UpdateUserRequest,
+    ): Promise<GetUserResponse> {
+        const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
+            id: userId,
+            password: body.password,
+            name: body.name,
+            image: body.image,
+            goalDistance: body.goalDistance,
+            goalTime: body.goalTime,
+        });
+
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.NO_EXIST_USER) {
+            throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+            throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
+        }
+        
+        if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }   
+
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE USER BY FAILING TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+        
+        const user = updateUserUseCaseResponse.user;
+
+        return {
+            user: {
+                id: user.id,
+                loginId: user.loginId.value,
+                image: user.image ? user.image.value : null,
+                name: user.image.value,
+                pinCount: getAllPinUseCaseResponse.pins.length,
+                goalDistance: user.goalDistance.value,
+                goalTime: user.goalTime.value,
+                totalDistance: user.totalDistance.value,
+                totalTime: user.totalTime.value,
+            }
+        };
     }
 
     @Delete('/:userId')
