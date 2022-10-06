@@ -11,7 +11,7 @@ import { UserStatus } from '../../../user/domain/User/UserStatus';
 import { MysqlReviewImageRepositoryMapper } from './mapper/MysqlReviewImageRepositoryMapper';
 
 export interface GetAllReviewImageOptions {
-    reviewIds?: string[];
+	reviewIds?: string[];
 	imageIds?: string[];
 }
 
@@ -47,5 +47,19 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 		const images = await query.getMany();
 
 		return MysqlReviewImageRepositoryMapper.toDomains(images);
+	}
+
+	async saveAll(reviewImages: Image[]): Promise<boolean> {
+		if (_.isEmpty(reviewImages))
+			return false;
+
+		await this.reviewImageRepository
+			.createQueryBuilder()
+			.insert()
+			.into('reviewimage')
+			.values(MysqlReviewImageRepositoryMapper.toEntities(reviewImages))
+			.execute();
+
+		return true;
 	}
 }

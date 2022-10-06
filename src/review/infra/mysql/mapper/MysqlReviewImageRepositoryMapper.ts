@@ -22,4 +22,23 @@ export class MysqlReviewImageRepositoryMapper {
 	static toDomains(entities: ReviewImageEntity[]): Image[] {
 		return _.map(entities, (entity) => MysqlReviewImageRepositoryMapper.toDomain(entity));
 	}
+
+	static toEntity(image: Image): ReviewImageEntity {
+		if (_.isNil(image)) {
+			return null;
+		}
+
+		const entity = new ReviewImageEntity();
+		entity.id = image.id;
+		entity.createdAt = image.createdAt;
+		entity.updatedAt = image.updatedAt;
+		entity.review = MysqlReviewRepositoryMapper.toEntity(image.review);
+		entity.url = image.url.value;
+
+		return entity;
+	}
+
+	static toEntities(images: Image[]): ReviewImageEntity[] {
+		return _.map(images, (image) => this.toEntity(image));
+	}
 }
