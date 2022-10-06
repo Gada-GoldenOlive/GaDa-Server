@@ -5,5 +5,6 @@ export const WALK_REPOSITORY = Symbol('WALK_REPOSITORY');
 
 export interface IWalkRepository {
     findAll(user: User): Promise<Walk[]>;
+    findOne(id: string);
     save(walk: Walk): Promise<boolean>;
 }
