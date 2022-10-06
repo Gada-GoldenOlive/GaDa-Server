@@ -72,6 +72,9 @@ export class UserController {
         summary: '토큰 리프레시',
         description: '헤더로 받은 refresh token에 해당하는 유저의 토큰을 재생성해서 리턴함.'
     })
+    @ApiOkResponse({
+        type: LoginOrSignUpUserResponse,
+    })
     async refreshToken(
         @Request() request,
     ): Promise<LoginOrSignUpUserResponse> {
