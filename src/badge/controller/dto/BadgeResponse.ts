@@ -2,25 +2,18 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class BadgeDto {
 	@ApiProperty()
-	id: string;
-
-	@ApiProperty()
 	title: string;
 	
     @ApiProperty()
     image: string;
+}
+
+export class AchieveDto {
+	@ApiProperty()
+	badge: BadgeDto;
 
 	@ApiProperty()
-	category: string;
-
-	@ApiProperty()
-	code: string;
-
-    @ApiProperty()
-    createdAt: Date;
-
-    @ApiProperty()
-    updatedAt: Date;
+	status: string;
 }
 
 export class GetAllBadgeResponse {
@@ -33,4 +26,11 @@ export class GetAllBadgeResponse {
 export class GetBadgeResponse {
 	@ApiPropertyOptional()
 	badge?: BadgeDto;
+}
+
+export class GetAllAchieveResponse {
+	@ApiProperty({
+		type: [AchieveDto],
+	})
+	userBadges?: AchieveDto[];
 }
