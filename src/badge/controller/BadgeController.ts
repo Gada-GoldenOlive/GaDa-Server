@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import _ from 'lodash';
@@ -12,8 +12,9 @@ import { BadgeCategory } from '../domain/Badge/BadgeCategory';
 import { BadgeCode } from '../domain/Badge/BadgeCode';
 import { BadgeOwnerGuard } from '../badge-owner.guard';
 import { CreateAchieveRequest, CreateAllBadgeRequest, CreateBadgeRequest, UpdateAchieveRequest, UpdateBadgeReqeust } from './dto/BadgeRequest';
-import { GetAllBadgeResponse } from './dto/BadgeResponse';
+import { AchieveDto, GetAllAchieveResponse, GetAllBadgeResponse } from './dto/BadgeResponse';
 import { CreateAllBadgeUseCase, CreateAllBadgeUseCaseCodes } from '../application/CreateAllBadgeUseCase/CreateAllBadgeUseCase';
+import { GetAllAchieveUseCase, GetAllAchieveUseCaseCodes } from '../application/GetAllAchieveUseCase/GetAllAchieveUseCase';
 
 @Controller('badges')
 @ApiTags('배지')
@@ -22,6 +23,7 @@ export class BadgeController {
 		private readonly createBadgeUseCase: CreateBadgeUseCase,
 		private readonly getAllBadgeUseCase: GetAllBadgeUseCase,
 		private readonly createAllBadgeUseCase: CreateAllBadgeUseCase,
+		private readonly getAllAchieveUseCase: GetAllAchieveUseCase,
 	) {}
 
 	@Post()
@@ -126,19 +128,43 @@ export class BadgeController {
 		};
 	}
 
-	@Get('/:userId')
+	@Get('/list')
+	@UseGuards(JwtAuthGuard)
 	@ApiOperation({
-		description: 'userId로 보낸 유저의 전체 배지 리턴'
+		description: '토큰으로 보낸 유저의 전체 배지 리턴'
 	})
 	@HttpCode(StatusCodes.OK)
 	@ApiResponse({
-		type: GetAllBadgeResponse,
+		type: GetAllAchieveResponse,
 	})
 	async getAllMyBadge(
-		@Param('userId') userId?: string,
-	): Promise<GetAllBadgeResponse> {
-		// TODO: 차후 UseCase 생성 시 추가
-		throw new Error('Method not implemented');
+		@Request() request,
+	): Promise<GetAllAchieveResponse> {
+		const user = request.user;
+
+		const getAllAchieveUSeCaseResponse = await this.getAllAchieveUseCase.execute({
+			user,
+		});
+
+		if (getAllAchieveUSeCaseResponse.code !== GetAllAchieveUseCaseCodes.SUCCESS) {
+			throw new HttpException('FAIL TO GET ALL USER BADGE', StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+
+		const achieves = getAllAchieveUSeCaseResponse.achieves;
+
+		const userBadges: AchieveDto[] = _.map(achieves, (achieve) => {
+			return {
+				badge: {
+					title: achieve.badge.title.value,
+					image: achieve.badge.image.value,
+				},
+				status: achieve.status,
+			};
+		});
+
+		return {
+			userBadges,
+		};
 	}
 
 	@Patch('/:badgeId')
