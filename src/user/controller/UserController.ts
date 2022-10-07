@@ -58,6 +58,10 @@ export class UserController {
             throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_AND_NAME_ERROR, StatusCodes.CONFLICT);
         }
 
+        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR) {
+            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR, StatusCodes.CONFLICT);
+        }
+
         if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_NAME_ERROR) {
             throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_NAME_ERROR, StatusCodes.CONFLICT);
         }
