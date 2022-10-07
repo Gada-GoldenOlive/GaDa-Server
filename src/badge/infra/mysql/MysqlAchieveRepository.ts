@@ -46,7 +46,7 @@ export class MysqlAchieveRepository implements IAchieveRepository {
 		// TODO: 순서 제대로 나오게 할 방법 강구해봐야 할 듯..
 		query.orderBy('achieve.status', 'ASC')
 		.addOrderBy('badge.category', 'DESC')
-		.addOrderBy('badge.title', 'ASC');
+		.addOrderBy('badge.code', 'ASC');
 
 		const achieves = await query.getMany();
 
