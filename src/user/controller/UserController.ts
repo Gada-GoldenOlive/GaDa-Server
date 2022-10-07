@@ -54,8 +54,12 @@ export class UserController {
             image: request.image,
         });
 
-        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
-            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
+        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_AND_NAME_ERROR) {
+            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_AND_NAME_ERROR, StatusCodes.CONFLICT);
+        }
+
+        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_NAME_ERROR) {
+            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_NAME_ERROR, StatusCodes.CONFLICT);
         }
 
         if (createUserUseCaseResponse.code !== CreateUserUseCaseCodes.SUCCESS) {
@@ -198,10 +202,48 @@ export class UserController {
             isCheckDuplicated: true,
         });
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR) {
             return {
                 code: StatusCodes.CONFLICT,
-                responseMessage: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
+                responseMessage: GetUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR,
+                isValid: false,
+            };
+        }
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+            return {
+                code: StatusCodes.OK,
+                responseMessage: 'Available User ID.',
+                isValid: true,
+            };
+        }
+
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER ID', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('/checked-name')
+    @HttpCode(StatusCodes.OK)
+    @ApiOperation({
+        summary: '닉네임 중복체크',
+        description: '회원가입 시 닉네임이 사용 가능한지 중복 체크해주는 API'
+    })
+    @ApiOkResponse({
+        type: CommonResponse
+    })
+    async checkName(
+        @Query('name') name: string,
+    ): Promise<CommonResponse> {
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            name: name,
+            isCheckDuplicated: true,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.DUPLICATE_NAME_ERROR) {
+            return {
+                code: StatusCodes.CONFLICT,
+                responseMessage: GetUserUseCaseCodes.DUPLICATE_NAME_ERROR,
                 isValid: false,
             };
         }
@@ -275,7 +317,7 @@ export class UserController {
                 goalTime: user.goalTime.value,
                 totalDistance: user.totalDistance.value,
                 totalTime: user.totalTime.value,
-            }
+            },
         };
     }
 
