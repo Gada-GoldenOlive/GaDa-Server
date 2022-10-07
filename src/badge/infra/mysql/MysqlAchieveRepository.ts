@@ -43,7 +43,6 @@ export class MysqlAchieveRepository implements IAchieveRepository {
 		if (options.user) query.andWhere('user.id = :userId', { userId: options.user.id });
 
 		// NOTE: achieve 먼저 나열하고 이후 non-achieve
-		// TODO: 순서 제대로 나오게 할 방법 강구해봐야 할 듯..
 		query.orderBy('achieve.status', 'ASC')
 		.addOrderBy('badge.category', 'DESC')
 		.addOrderBy('badge.code', 'ASC');
