@@ -71,7 +71,11 @@ export class MysqlAchieveRepository implements IAchieveRepository {
 	}
 
 	async save(achieve: Achieve): Promise<boolean> {
-		throw new Error('Method not implemented.');
+		await this.achieveRepository.save(
+			MysqlAchieveRepositoryMapper.toEntity(achieve),
+		);
+
+		return true;
 	}
 
 	async saveAll(achieves: Achieve[]): Promise<boolean> {
