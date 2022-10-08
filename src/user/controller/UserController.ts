@@ -111,8 +111,8 @@ export class UserController {
             id: sub,
         });
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
-            throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
+            throw new HttpException(GetUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
         }
     
         if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
@@ -214,7 +214,7 @@ export class UserController {
             };
         }
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
             return {
                 code: StatusCodes.OK,
                 responseMessage: 'Available User ID.',
@@ -252,7 +252,7 @@ export class UserController {
             };
         }
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
             return {
                 code: StatusCodes.OK,
                 responseMessage: 'Available User Name.',

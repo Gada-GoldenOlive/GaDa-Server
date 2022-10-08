@@ -10,7 +10,7 @@ import { IUpdateAchieveUseCaseResponse } from './dto/IUpdateAchieveUseCaseRespon
 export enum UpdateAchieveUseCaseCodes {
 	SUCCESS = 'SUCCESS',
 	FAILURE = 'FAILURE',
-	NOT_EXIST_ACHIEVE = 'Corresponding user does not exist.',
+	NOT_EXIST_ACHIEVE = 'Corresponding achieve does not exist.',
 }
 
 export class UpdateAchieveUseCase implements UseCase<IUpdateAchieveUseCaseRequest, IUpdateAchieveUseCaseResponse> {

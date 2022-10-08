@@ -9,7 +9,7 @@ import { IGetWalkUseCaseRequest } from './dto/IGetWalkUseCaseRequest';
 export enum GetWalkUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
-    NO_EXIST_WALK = 'NO_EXIST_WALK'
+    NOT_EXIST_WALK = 'NOT_EXIST_WALK'
 }
 
 export class GetWalkUseCase implements UseCase<IGetWalkUseCaseRequest, IGetWalkUseCaseResponse> {
@@ -26,7 +26,7 @@ export class GetWalkUseCase implements UseCase<IGetWalkUseCaseRequest, IGetWalkU
 
             if (!walk) {
                 return {
-                    code: GetWalkUseCaseCodes.NO_EXIST_WALK,
+                    code: GetWalkUseCaseCodes.NOT_EXIST_WALK,
                 };
             }
             

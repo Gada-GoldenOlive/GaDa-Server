@@ -15,7 +15,7 @@ export class WalkwayOwnerGuard implements CanActivate {
                 id: request.params.walkwayId,
             });
             
-            if (getWalkwayUseCaseResponse.code === GetWalkwayUseCaseCodes.NO_EXIST_WALKWAY)
+            if (getWalkwayUseCaseResponse.code === GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY)
                 throw new HttpException('NO EXIST WALKWAY', StatusCodes.NOT_FOUND);
 
             if (getWalkwayUseCaseResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {

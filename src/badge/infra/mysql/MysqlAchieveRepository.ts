@@ -7,15 +7,15 @@ import { Achieve } from '../../domain/Achieve/Achieve';
 import { AchieveEntity } from '../../entity/Achieve.entity';
 import { IAchieveRepository } from '../IAchieveRepository';
 import { MysqlAchieveRepositoryMapper } from './mapper/MysqlAchieveRepository.mapper';
-import { BadgeCategory } from '../../domain/Badge/BadgeCategory';
-import { BadgeCode } from '../../domain/Badge/BadgeCode';
+import { BADGE_CATEGORY } from '../../domain/Badge/BadgeCategory';
+import { BADGE_CODE } from '../../domain/Badge/BadgeCode';
 import { AchieveStatus } from '../../domain/Achieve/AchieveStatus';
 import { Badge } from '../../domain/Badge/Badge';
 
 export interface GetOneAchieveOptions {
 	id?: string;
-	category?: BadgeCategory;
-	code?: BadgeCode;
+	category?: BADGE_CATEGORY;
+	code?: BADGE_CODE;
 	user?: User;
 	badge?: Badge;  // NOTE: 얘는 쓰일 일 없긴 한데 언제 필요한 일 있을지도 모르니까 넣어둠. 정석은 넣는 게 맞으니까,,
 }
