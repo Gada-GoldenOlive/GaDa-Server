@@ -41,7 +41,9 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
             // NOTE: login id만 들어왔을 때
             if (!request.id && request.loginId && !request.name) {
-                const foundUser = await this.userRepository.findOne(request);
+                const foundUser = await this.userRepository.findOne({
+                    loginId: request.loginId,
+                });
 
                 if(foundUser && request.isCheckDuplicated) {  // NOTE: 회원가입 때 아이디 중복 검사
                     return {
@@ -54,7 +56,9 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
             // NOTE: name만 들어왔을 때
             if (!request.id && !request.loginId && request.name) {
-                const foundUser = await this.userRepository.findOne(request);
+                const foundUser = await this.userRepository.findOne({
+                    name: request.name,
+                });
 
                 if(foundUser && request.isCheckDuplicated) { // NOTE: 회원가입 때 닉네임 중복 검사
                     return {
