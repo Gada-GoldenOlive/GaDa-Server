@@ -14,7 +14,9 @@ import { ICreateUserUseCaseResponse } from './dto/ICreateUserUseCaseResponse';
 export enum CreateUserUseCaseCodes {
 	SUCCESS = 'SUCCESS',
 	FAILURE = 'FAILURE',
-	DUPLICATE_USER_ID_ERROR = 'Request user id is duplicated.',
+	DUPLICATE_LOGIN_ID_ERROR = 'Request user login id is duplicated.',
+	DUPLICATE_NAME_ERROR = 'Request user name is duplicated.',
+	DUPLICATE_LOGIN_ID_AND_NAME_ERROR = 'Request user login id and name are duplicated.',
 }
 
 
@@ -26,15 +28,31 @@ export class CreateUserUseCase implements UseCase<ICreateUserUseCaseRequest, ICr
 
 	async execute(request: ICreateUserUseCaseRequest): Promise<ICreateUserUseCaseResponse> {
 		try {
-			const foundUser = await this.userRepository.findOne(request);
+			const foundUserWithLoginId = await this.userRepository.findOne({
+				loginId: request.loginId,
+			});
 
-			if (foundUser) {
+			const foundUserWithName = await this.userRepository.findOne({
+				name: request.name,
+			});
+
+			if (foundUserWithLoginId && foundUserWithName) {
 				return {
-					code: CreateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
+					code: CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_AND_NAME_ERROR,
 				};
 			}
 
-			// TODO: 유저 생성할 때 닉네임(name) 중복검사 코드도 작성 요망
+			if (foundUserWithLoginId) {
+				return {
+					code: CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR,
+				};
+			}
+
+			if (foundUserWithName) {
+				return {
+					code: CreateUserUseCaseCodes.DUPLICATE_NAME_ERROR,
+				};
+			}
 
 			const user = User.createNew({
 				loginId: UserLoginId.create(request.loginId).value,
