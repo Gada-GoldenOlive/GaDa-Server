@@ -8,7 +8,7 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateUserRequest } from './dto/UserRequest';
-import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, GetAllFriendResponse, FriendDto } from './dto/UserResponse';
+import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, GetAllFriendResponse, FriendDto, GetAllFriendRequestResponse, FriendRequestDto } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
@@ -199,30 +199,24 @@ export class UserController {
     @ApiOperation({
         summary: '친구 목록 조회',
         description: '토큰에 해당하는 유저의 친구 목록 리턴. / '
-        + 'isRank가 true이면 랭킹, 본인을 포함한 친구목록을 그 주의 달성거리 순으로 정렬해서 리턴. 본인의 경우 id를 null로 설정 / '
-        + 'isRank가 true가 아니라면 친구신청 내역, 친구신청 목록을 최신순으로 정렬해서 리턴. / '
+        + '본인을 포함한 친구목록을 그 주의 달성거리 순으로 정렬해서 리턴. 본인의 경우 id를 null로 설정 / '
         + '읽지 않은 친구신청이 있는지 여부도 함께 리턴함.'
     })
     async getAllFriends(
-        @Query('isRank') _isRank: string,
         @Request() request,
     ): Promise<GetAllFriendResponse> {
-        let isRank = _isRank === 'true' ? true : false; 
-
         const getAllFriendUseCaseResponse = await this.getAllFriendUseCase.execute({
             userId: request.user.id,
-            isRank,
+            isRank: true,
         });
 
         if (getAllFriendUseCaseResponse.code !== GetAllFriendUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL FRIENDS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        //NOTE: 랭킹의 경우 accepted인 friend만 필터링하고 / friend user1, user2 중 친구를 찾아서 friendId와 함께 리턴.
+        //NOTE: accepted인 friend만 필터링하고 / friend user1, user2 중 친구를 찾아서 friendId와 함께 리턴.
         let _friends = _.map(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
-            if (isRank) return friend.status === FriendStatus.ACCEPTED;
-
-            return true;
+            return friend.status === FriendStatus.ACCEPTED;
         }), (friend) => {
             let user = friend.user1;
 
@@ -236,51 +230,95 @@ export class UserController {
             };
         });
 
-        if (isRank) {
-            _friends.push({
-                id: null,
-                user: request.user,
-            });
+        _friends.push({
+            id: null,
+            user: request.user,
+        });
 
-            _friends = _friends.sort((a, b) => {
-                // TODO: 일단 totalDistance로 정렬 했는데, record관련 usecase 구현하고 나면 record.distance로 수정해야함.
-                return b.user.totalDistance.value - a.user.totalDistance.value;
-            });
-        }
+        _friends = _friends.sort((a, b) => {
+            // TODO: 일단 totalDistance로 정렬 했는데, record관련 usecase 구현하고 나면 record.distance로 수정해야함.
+            return b.user.totalDistance.value - a.user.totalDistance.value;
+        });
 
         const friends = _.map(_friends, function(friend): FriendDto {
             return {
                 id: friend.id,
                 userId: friend.user.id,
                 name: friend.user.name.value,
-                loginId: friend.user.loginId.value,
                 image: friend.user.image.value,
                 // TODO: 얘도 record 구현하고 나면 record.distance로 수정해야함.
                 distance: friend.user.totalDistance.value,
             };
         });
 
-        const unread_requests = _.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+        const is_exist_unread_request = !_.isEmpty(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
             return (friend.user2.id === request.user.id && friend.status === FriendStatus.REQUESTED);
-        });
-        if (!isRank) {
-            await Promise.all(_.map(unread_requests, async (friend) => {
-                const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
-                    id: friend.id,
-                    status: FriendStatus.READ,
-                });
-
-                if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
-                    throw new HttpException('FAIL TO UPDATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
-                }
-            }));
-        }
+        }));
 
         return {
             friends,
-            is_exist_unread_request: !_.isEmpty(unread_requests),
+            is_exist_unread_request,
         };
     }
+
+    @Get('/friend-requests')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: GetAllFriendRequestResponse,
+    })
+    @ApiOperation({
+        summary: '친구 신청 목록 조회',
+        description: '토큰에 해당하는 유저의 친구신청 목록을 최신순으로 정렬해서 리턴.'
+    })
+    async getAllFriendRequests(
+        @Request() request,
+    ): Promise<GetAllFriendRequestResponse> {
+        const getAllFriendUseCaseResponse = await this.getAllFriendUseCase.execute({
+            userId: request.user.id,
+            isRank: false,
+        });
+
+        if (getAllFriendUseCaseResponse.code !== GetAllFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FRIEND REQUESTS', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const requests = _.map((getAllFriendUseCaseResponse.friends), function(friend): FriendRequestDto {
+            let user = friend.user1;
+
+            if (friend.user1.id === request.user.id) {
+                user = friend.user2;
+            }
+
+            return {
+                id: friend.id,
+                userId: user.id,
+                name: user.name.value,
+                image: user.image.value,
+                loginId: user.loginId.value,
+            };
+        });
+
+        const unread_requests = _.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+            return (friend.status === FriendStatus.REQUESTED);
+        });
+
+        await Promise.all(_.map(unread_requests, async (friend) => {
+            const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
+                id: friend.id,
+                status: FriendStatus.READ,
+            });
+
+            if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO UPDATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        }));
+
+        return {
+            requests,
+        };
+    }
+
 
     @Get('/checked-id')
     @HttpCode(StatusCodes.OK)

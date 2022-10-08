@@ -63,9 +63,6 @@ export class FriendDto {
     name: string;
 
     @ApiProperty()
-    loginId: string;
-
-    @ApiProperty()
     image: string;
 
     @ApiProperty()
@@ -78,6 +75,30 @@ export class GetAllFriendResponse {
     })
     friends?: FriendDto[];
 
-    @ApiPropertyOptional()
-    is_exist_unread_request?: boolean;
+    @ApiProperty()
+    is_exist_unread_request: boolean;
+}
+
+export class FriendRequestDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    userId: string;
+
+    @ApiProperty()
+    loginId: string;
+
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    image: string;
+}
+
+export class GetAllFriendRequestResponse {
+    @ApiProperty({
+        type: [FriendRequestDto],
+    })
+    requests?: FriendRequestDto[];
 }
