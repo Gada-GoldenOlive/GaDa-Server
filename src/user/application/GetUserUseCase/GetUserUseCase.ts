@@ -10,7 +10,8 @@ import { IGetUserUseCaseResponse } from './dto/IGetUserUseCaseResponse';
 export enum GetUserUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
-    DUPLICATE_USER_ID_ERROR = 'Request user id is duplicated.',
+    DUPLICATE_LOGIN_ID_ERROR = 'Request user\'s login id is duplicated.',
+    DUPLICATE_NAME_ERROR = 'Request user\'s nickname is duplicated.',
     NO_EXIST_USER = 'NO_EXIST_USER',
 }
 
@@ -22,7 +23,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
     async execute(request: IGetUserUseCaseRequest): Promise<IGetUserUseCaseResponse> {
         try {
-            if (_.isNil(request.id) && _.isNil(request.loginId)) {
+            if (_.isNil(request.id) && _.isNil(request.loginId) && _.isNil(request.name)) {
                 return {
                     code: GetUserUseCaseCodes.NO_EXIST_USER,
                 };
@@ -30,25 +31,41 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
             let user: User;
 
-            if (request.id && !request.loginId) {
-                const foundUser = await this.userRepository.findOne(request);
+            if (request.id && !request.loginId && !request.name) {
+                const foundUser = await this.userRepository.findOne({
+                    id: request.id,
+                });
 
                 user = foundUser;
             }
 
             // NOTE: login id만 들어왔을 때
-            if (!request.id && request.loginId) {
-                const foundUser = await this.userRepository.findOne(request);
+            if (!request.id && request.loginId && !request.name) {
+                const foundUser = await this.userRepository.findOne({
+                    loginId: request.loginId,
+                });
 
                 if(foundUser && request.isCheckDuplicated) {  // NOTE: 회원가입 때 아이디 중복 검사
                     return {
-                        code: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
+                        code: GetUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR,
                     };
                 }
 
                 user = foundUser;
             }
 
+            // NOTE: name만 들어왔을 때
+            if (!request.id && !request.loginId && request.name) {
+                const foundUser = await this.userRepository.findOne({
+                    name: request.name,
+                });
+
+                if(foundUser && request.isCheckDuplicated) { // NOTE: 회원가입 때 닉네임 중복 검사
+                    return {
+                        code: GetUserUseCaseCodes.DUPLICATE_NAME_ERROR,
+                    };
+                }
+            }
             
             if (!user) {
                 return {
