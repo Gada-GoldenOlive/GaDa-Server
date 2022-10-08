@@ -15,7 +15,7 @@ export class ReviewOwnerGuard implements CanActivate {
                 id: request.params.reviewId,
             });
 
-            if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NO_EXIST_REVIEW)
+            if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NOT_EXIST_REVIEW)
                 throw new HttpException('NO EXIST REVIEW', StatusCodes.NOT_FOUND);
 
             if (getReviewUseCaseResponse.code !== GetReviewUseCaseCodes.SUCCESS) {

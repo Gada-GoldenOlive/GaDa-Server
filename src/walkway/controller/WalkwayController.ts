@@ -381,7 +381,7 @@ export class WalkwayController {
             id: walkId,
         });
 
-        if (getWalkUseCaseResponse.code === GetWalkUseCaseCodes.NO_EXIST_WALK) {
+        if (getWalkUseCaseResponse.code === GetWalkUseCaseCodes.NOT_EXIST_WALK) {
             throw new HttpException(getWalkUseCaseResponse.code, StatusCodes.NOT_FOUND);
         }
         

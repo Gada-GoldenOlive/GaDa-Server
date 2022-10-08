@@ -9,7 +9,7 @@ import { IGetWalkwayUseCaseRequest } from './dto/GetWalkwayUseCaseRequest';
 export enum GetWalkwayUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
-    NO_EXIST_WALKWAY = 'NO_EXIST_WALKWAY'
+    NOT_EXIST_WALKWAY = 'NOT_EXIST_WALKWAY'
 }
 
 export class GetWalkwayUseCase implements UseCase<
@@ -27,7 +27,7 @@ IGetWalkwayUseCaseRequest, IGetWalkwayUseCaseResponse> {
 
             if (!walkway) {
                 return {
-                    code: GetWalkwayUseCaseCodes.NO_EXIST_WALKWAY,
+                    code: GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY,
                 };
             }
             
