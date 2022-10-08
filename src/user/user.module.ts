@@ -32,6 +32,7 @@ import { ACHIEVE_REPOSITORY } from '../badge/infra/IAchieveRepository';
 import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveRepository';
 import { BadgeEntity } from '../badge/entity/Badge.entity';
 import { AchieveEntity } from '../badge/entity/Achieve.entity';
+import { GetAllUserUseCase } from './application/GetAllUserUseCase/GetAllUserUseCase';
 
 @Module({
     imports: [
@@ -53,6 +54,7 @@ import { AchieveEntity } from '../badge/entity/Achieve.entity';
         GetUserUseCase,
         LoginUseCase,
         UpdateUserUseCase,
+        GetAllUserUseCase,
         {
             provide: USER_REPOSITORY,
             useClass: MysqlUserRepository,
