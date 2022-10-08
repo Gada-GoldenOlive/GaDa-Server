@@ -38,8 +38,12 @@ export class MysqlReviewRepository implements IReviewRepository {
         return MysqlReviewRepositoryMapper.toDomain(review);
     }
 
-    save(review: Review): Promise<boolean> {
-        throw new Error('Method not implemented.');
+    async save(review: Review): Promise<boolean> {
+        await this.reviewRepository.save(
+            MysqlReviewRepositoryMapper.toEntity(review),
+        );
+
+        return true;
     }
 
     async getAll(options: GetAllReviewOptions): Promise<Review[]> {

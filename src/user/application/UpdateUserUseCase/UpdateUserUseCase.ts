@@ -19,7 +19,7 @@ export enum UpdateUserUseCaseCodes {
 	SUCCESS = 'SUCCESS',
 	FAILURE = 'FAILURE',
 	NO_EXIST_USER = 'Corresponding user does not exist.',
-	DUPLICATE_USER_ID_ERROR = 'Request user id is duplicated.',
+	DUPLICATE_USER_NAME_ERROR = 'Request user name is duplicated.',
 }
 
 async function hashing(refreshToken: string): Promise<string> {
@@ -51,11 +51,11 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 
 			// NOTE: name이 있다면 name을 바꾸겠다는 뜻 -> 중복 검사 (닉네임도 중복 안 됨.)
 			if (request.name) {
-				const foundDuplicatedUserLoginId = await this.userRepository.findOne({ name: request.name });
+				const foundDuplicatedUserWithName = await this.userRepository.findOne({ name: request.name });
 
-				if (foundDuplicatedUserLoginId) {
+				if (foundDuplicatedUserWithName) {
 					return {
-						code: UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
+						code: UpdateUserUseCaseCodes.DUPLICATE_USER_NAME_ERROR,
 					};
 				}
 			}
