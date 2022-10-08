@@ -369,8 +369,8 @@ export class UserController {
             status: body.status, 
         });
 
-        if (updateFriendUseCaseResponse.code === UpdateFriendUseCaseCodes.NO_EXIST_FRIEND) {
-            throw new HttpException(UpdateFriendUseCaseCodes.NO_EXIST_FRIEND, StatusCodes.NOT_FOUND);
+        if (updateFriendUseCaseResponse.code === UpdateFriendUseCaseCodes.NOT_EXIST_FRIEND) {
+            throw new HttpException(UpdateFriendUseCaseCodes.NOT_EXIST_FRIEND, StatusCodes.NOT_FOUND);
         }
 
         if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
@@ -409,8 +409,8 @@ export class UserController {
             id: friendId,
         });
 
-        if (deleteFriendUseCaseResponse.code === DeleteFriendUseCaseCodes.NO_EXIST_FRIEND) {
-            throw new HttpException(DeleteFriendUseCaseCodes.NO_EXIST_FRIEND, StatusCodes.NOT_FOUND);
+        if (deleteFriendUseCaseResponse.code === DeleteFriendUseCaseCodes.NOT_EXIST_FRIEND) {
+            throw new HttpException(DeleteFriendUseCaseCodes.NOT_EXIST_FRIEND, StatusCodes.NOT_FOUND);
         }
 
         if (deleteFriendUseCaseResponse.code !== DeleteFriendUseCaseCodes.SUCCESS) {
