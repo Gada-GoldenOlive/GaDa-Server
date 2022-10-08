@@ -25,6 +25,12 @@ import { REVIEW_REPOSITORY } from './infra/IReviewRepository';
 import { MysqlLikeRepository } from './infra/mysql/MysqlLikeRepository';
 import { MysqlReviewImageRepository } from './infra/mysql/MysqlReviewImageRepository';
 import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
+import { GetWalkUseCase } from '../walkway/application/GetWalkUseCase/GetWalkUseCase';
+import { CreateAllReviewImageUseCase } from './application/CreateAllReviewImageUseCase/CreateAllReviewImageUseCase';
+import { WALK_REPOSITORY } from '../walkway/infra/IWalkRepository';
+import { MysqlWalkRepository } from '../walkway/infra/mysql/MysqlWalkRepository';
+import { WalkEntity } from '../walkway/entity/Walk.entity';
+import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
 
 
 @Module({
@@ -35,12 +41,14 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
         WalkwayEntity,
         LikeEntity,
         ReviewImageEntity,
+        WalkEntity,
     ])
   ],
   controllers: [ ReviewController ],
   providers: [
       GetAllReviewUseCase,
       GetReviewUseCase,
+      CreateReviewUseCase,
       {
           provide: REVIEW_REPOSITORY,
           useClass: MysqlReviewRepository,
@@ -63,9 +71,15 @@ import { MysqlReviewRepository } from './infra/mysql/MysqlReviewRepository';
         useClass: MysqlLikeRepository,
       },
       GetAllReviewImageUseCase,
+      CreateAllReviewImageUseCase,
       {
         provide: REVIEW_IMAGE_REPOSITORY,
         useClass: MysqlReviewImageRepository,
+      },
+      GetWalkUseCase,
+      {
+        provide: WALK_REPOSITORY,
+        useClass: MysqlWalkRepository,
       },
   ],
 })
