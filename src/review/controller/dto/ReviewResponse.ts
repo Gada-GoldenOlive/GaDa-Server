@@ -86,7 +86,7 @@ export class GetFeedResponse {
     feed: FeedDto;
 }
 
-export class GetAllFeedReseponse {
+export class GetAllFeedResponse {
     @ApiProperty({
         type: [FeedDto],
     })
