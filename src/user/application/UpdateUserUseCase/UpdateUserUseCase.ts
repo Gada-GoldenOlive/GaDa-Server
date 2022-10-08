@@ -18,7 +18,7 @@ import { IUpdateUserUseCaseResponse } from './dto/IUpdateUserUseCaseResponse';
 export enum UpdateUserUseCaseCodes {
 	SUCCESS = 'SUCCESS',
 	FAILURE = 'FAILURE',
-	NO_EXIST_USER = 'Corresponding user does not exist.',
+	NOT_EXIST_USER = 'Corresponding user does not exist.',
 	DUPLICATE_USER_NAME_ERROR = 'Request user name is duplicated.',
 }
 
@@ -40,12 +40,12 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 
 	async execute(request: IUpdateUserUseCaseRequest): Promise<IUpdateUserUseCaseResponse> {
 		try {
-			// NOTE: 업데이트 요청한 유저가 존재하지 않는 경우
 			const foundUser = await this.userRepository.findOne({ id: request.id });
 
+			// NOTE: 업데이트 요청한 유저가 존재하지 않는 경우
 			if (!foundUser) {
 				return {
-					code: UpdateUserUseCaseCodes.NO_EXIST_USER,
+					code: UpdateUserUseCaseCodes.NOT_EXIST_USER,
 				};
 			}
 
