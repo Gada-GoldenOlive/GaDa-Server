@@ -22,6 +22,7 @@ import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../../badge/applica
 import { CreateAchievesUseCase } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
 import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { FriendStatus } from '../domain/Friend/FriendStatus';
+import { DeleteFriendUseCase, DeleteFriendUseCaseCodes } from '../application/DeleteFriendUseCase/DeleteFriendUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -36,6 +37,7 @@ export class UserController {
         private readonly getAllBadgeUseCase: GetAllBadgeUseCase,
         private readonly createAchievesUseCase: CreateAchievesUseCase,
         private readonly updateFriendUseCase: UpdateFriendUseCase,
+        private readonly deleteFriendUseCase: DeleteFriendUseCase,
     ) {}
 
     @Post()
@@ -369,16 +371,15 @@ export class UserController {
     async deleteFriend(
         @Param('friendId') friendId: string,
     ): Promise<CommonResponse> {
-        const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
+        const deleteFriendUseCaseResponse = await this.deleteFriendUseCase.execute({
             id: friendId,
-            status: FriendStatus.DELETE,
         });
 
-        if (updateFriendUseCaseResponse.code === UpdateFriendUseCaseCodes.NO_EXIST_FRIEND) {
-            throw new HttpException(UpdateFriendUseCaseCodes.NO_EXIST_FRIEND, StatusCodes.NOT_FOUND);
+        if (deleteFriendUseCaseResponse.code === DeleteFriendUseCaseCodes.NO_EXIST_FRIEND) {
+            throw new HttpException(DeleteFriendUseCaseCodes.NO_EXIST_FRIEND, StatusCodes.NOT_FOUND);
         }
 
-        if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
+        if (deleteFriendUseCaseResponse.code !== DeleteFriendUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO DELETE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
