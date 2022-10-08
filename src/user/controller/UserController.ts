@@ -59,8 +59,16 @@ export class UserController {
             image: request.image,
         });
 
-        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
-            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
+        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_AND_NAME_ERROR) {
+            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_AND_NAME_ERROR, StatusCodes.CONFLICT);
+        }
+
+        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR) {
+            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR, StatusCodes.CONFLICT);
+        }
+
+        if (createUserUseCaseResponse.code === CreateUserUseCaseCodes.DUPLICATE_NAME_ERROR) {
+            throw new HttpException(CreateUserUseCaseCodes.DUPLICATE_NAME_ERROR, StatusCodes.CONFLICT);
         }
 
         if (createUserUseCaseResponse.code !== CreateUserUseCaseCodes.SUCCESS) {
@@ -207,10 +215,10 @@ export class UserController {
             isCheckDuplicated: true,
         });
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR) {
             return {
                 code: StatusCodes.CONFLICT,
-                responseMessage: GetUserUseCaseCodes.DUPLICATE_USER_ID_ERROR,
+                responseMessage: GetUserUseCaseCodes.DUPLICATE_LOGIN_ID_ERROR,
                 isValid: false,
             };
         }
@@ -225,6 +233,44 @@ export class UserController {
 
         if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET USER ID', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('/checked-name')
+    @HttpCode(StatusCodes.OK)
+    @ApiOperation({
+        summary: '닉네임 중복체크',
+        description: '회원가입 시 닉네임이 사용 가능한지 중복 체크해주는 API'
+    })
+    @ApiOkResponse({
+        type: CommonResponse
+    })
+    async checkName(
+        @Query('name') name: string,
+    ): Promise<CommonResponse> {
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            name: name,
+            isCheckDuplicated: true,
+        });
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.DUPLICATE_NAME_ERROR) {
+            return {
+                code: StatusCodes.CONFLICT,
+                responseMessage: GetUserUseCaseCodes.DUPLICATE_NAME_ERROR,
+                isValid: false,
+            };
+        }
+
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+            return {
+                code: StatusCodes.OK,
+                responseMessage: 'Available User Name.',
+                isValid: true,
+            };
+        }
+
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER NAME', StatusCodes.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -284,7 +330,7 @@ export class UserController {
                 goalTime: user.goalTime.value,
                 totalDistance: user.totalDistance.value,
                 totalTime: user.totalTime.value,
-            }
+            },
         };
     }
 
@@ -316,8 +362,8 @@ export class UserController {
             throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
         }
 
-        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR) {
-            throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_ID_ERROR, StatusCodes.CONFLICT);
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_NAME_ERROR) {
+            throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_NAME_ERROR, StatusCodes.CONFLICT);
         }
         
         if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
@@ -401,6 +447,9 @@ export class UserController {
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
+    })
+    @ApiOperation({
+        summary: '친구 삭제',
     })
     async deleteFriend(
         @Param('friendId') friendId: string,
