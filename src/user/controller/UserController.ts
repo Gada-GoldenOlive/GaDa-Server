@@ -23,7 +23,6 @@ import { CreateAchievesUseCase } from '../../badge/application/CreateAchievesUse
 import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { FriendStatus } from '../domain/Friend/FriendStatus';
 import { GetAllFriendUseCase, GetAllFriendUseCaseCodes } from '../application/GetAllFriendUseCase/GetAllFriendUseCase';
-import { userInfo } from 'os';
 import { DeleteFriendUseCase, DeleteFriendUseCaseCodes } from '../application/DeleteFriendUseCase/DeleteFriendUseCase';
 
 @Controller('users')
@@ -213,8 +212,7 @@ export class UserController {
 
         //NOTE: 랭킹의 경우 accepted인 friend만 필터링하고 / friend user1, user2 중 친구를 찾아서 friendId와 함께 리턴.
         let _friends = _.map(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
-            if (isRank)
-                return friend.status === FriendStatus.ACCEPTED;
+            if (isRank) return friend.status === FriendStatus.ACCEPTED;
 
             return true;
         }), (friend) => {
@@ -227,7 +225,7 @@ export class UserController {
             return {
                 id: friend.id,
                 user: user,
-            }
+            };
         });
 
         if (isRank) {
@@ -251,7 +249,7 @@ export class UserController {
                 image: friend.user.image.value,
                 // TODO: 얘도 record 구현하고 나면 record.distance로 수정해야함.
                 distance: friend.user.totalDistance.value,
-            }
+            };
         });
 
         const unread_requests = _.filter(getAllFriendUseCaseResponse.friends, (friend) => {
@@ -273,7 +271,7 @@ export class UserController {
         return {
             friends,
             is_exist_unread_request: !_.isEmpty(unread_requests),
-        }
+        };
     }
 
     @Get('/checked-id')
