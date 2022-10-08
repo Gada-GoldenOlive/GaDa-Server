@@ -8,7 +8,7 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateUserRequest } from './dto/UserRequest';
-import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse } from './dto/UserResponse';
+import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, GetAllFriendResponse, FriendDto } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
@@ -22,6 +22,8 @@ import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../../badge/applica
 import { CreateAchievesUseCase } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
 import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { FriendStatus } from '../domain/Friend/FriendStatus';
+import { GetAllFriendUseCase, GetAllFriendUseCaseCodes } from '../application/GetAllFriendUseCase/GetAllFriendUseCase';
+import { userInfo } from 'os';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -36,6 +38,7 @@ export class UserController {
         private readonly getAllBadgeUseCase: GetAllBadgeUseCase,
         private readonly createAchievesUseCase: CreateAchievesUseCase,
         private readonly updateFriendUseCase: UpdateFriendUseCase,
+        private readonly getAllFriendUseCase: GetAllFriendUseCase,
     ) {}
 
     @Post()
@@ -178,14 +181,81 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
-        type: GetAllUserResponse,
+        type: GetAllFriendResponse,
     })
     @ApiOperation({
-        description: 'userId(uuid)에 해당하는 유저의 친구 목록 리턴'
+        summary: '친구 목록 조회',
+        description: '토큰에 해당하는 유저의 친구 목록 리턴. / '
+        + 'isRank가 true이면 랭킹, 본인을 포함한 친구목록을 그 주의 달성거리 순으로 정렬해서 리턴. 본인의 경우 id를 null로 설정 / '
+        + 'isRank가 true가 아니라면 친구신청 내역, 친구신청 목록을 최신순으로 정렬해서 리턴. / '
+        + '읽지 않은 친구신청이 있는지 여부도 함께 리턴함.'
     })
-    async getAllFriends() {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+    async getAllFriends(
+        @Query('isRank') _isRank: string,
+        @Request() request,
+    ): Promise<GetAllFriendResponse> {
+        let isRank = _isRank === 'true' ? true : false; 
+
+        const getAllFriendUseCaseResponse = await this.getAllFriendUseCase.execute({
+            userId: request.user.id,
+            isRank,
+        });
+
+        if (getAllFriendUseCaseResponse.code !== GetAllFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FRIENDS', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        //NOTE: 랭킹의 경우 accepted인 friend만 필터링하고 / friend user1, user2 중 친구를 찾아서 friendId와 함께 리턴.
+        let _friends = _.map(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+            if (isRank)
+                return friend.status === FriendStatus.ACCEPTED;
+
+            return true;
+        }), (friend) => {
+            let user = friend.user1;
+
+            if (friend.user1.id === request.user.id) {
+                user = friend.user2;
+            }
+
+            return {
+                id: friend.id,
+                user: user,
+            }
+        });
+
+        if (isRank) {
+            _friends.push({
+                id: null,
+                user: request.user,
+            });
+
+            _friends = _friends.sort((a, b) => {
+                // TODO: 일단 totalDistance로 정렬 했는데, record관련 usecase 구현하고 나면 record.distance로 수정해야함.
+                return b.user.totalDistance.value - a.user.totalDistance.value;
+            });
+        }
+
+        const friends = _.map(_friends, function(friend): FriendDto {
+            return {
+                id: friend.id,
+                userId: friend.user.id,
+                name: friend.user.name.value,
+                loginId: friend.user.loginId.value,
+                image: friend.user.image.value,
+                // TODO: 얘도 record 구현하고 나면 record.distance로 수정해야함.
+                distance: friend.user.totalDistance.value,
+            }
+        });
+
+        const is_exist_unread_request = !_.isEmpty(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+            return (friend.user2.id === request.user.id && friend.status === FriendStatus.REQUESTED);
+        }));
+
+        return {
+            friends,
+            is_exist_unread_request,
+        }
     }
 
     @Get('/checked-id')

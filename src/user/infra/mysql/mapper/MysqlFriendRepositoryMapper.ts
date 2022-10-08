@@ -24,6 +24,10 @@ export class MysqlFriendRepositoryMapper {
         return friend;
     }
 
+    static toDomains(entities: FriendEntity[]): Friend[] {
+        return _.map(entities, this.toDomain);
+    }
+
     static toEntity(friend: Friend): FriendEntity {
         if (_.isNil(friend)) {
             return null;
