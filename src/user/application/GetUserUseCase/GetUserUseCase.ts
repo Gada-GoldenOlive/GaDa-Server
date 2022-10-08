@@ -23,7 +23,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
 
     async execute(request: IGetUserUseCaseRequest): Promise<IGetUserUseCaseResponse> {
         try {
-            if (_.isNil(request.id) && _.isNil(request.loginId)) {
+            if (_.isNil(request.id) && _.isNil(request.loginId) && _.isNil(request.name)) {
                 return {
                     code: GetUserUseCaseCodes.NO_EXIST_USER,
                 };

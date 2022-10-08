@@ -255,13 +255,13 @@ export class UserController {
         if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
             return {
                 code: StatusCodes.OK,
-                responseMessage: 'Available User ID.',
+                responseMessage: 'Available User Name.',
                 isValid: true,
             };
         }
 
         if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET USER ID', StatusCodes.INTERNAL_SERVER_ERROR);
+            throw new HttpException('FAIL TO GET USER NAME', StatusCodes.INTERNAL_SERVER_ERROR);
         }
     }
 
