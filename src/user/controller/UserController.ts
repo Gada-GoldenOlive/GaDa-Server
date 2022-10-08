@@ -368,6 +368,9 @@ export class UserController {
     @ApiResponse({
         type: CommonResponse
     })
+    @ApiOperation({
+        summary: '친구 삭제',
+    })
     async deleteFriend(
         @Param('friendId') friendId: string,
     ): Promise<CommonResponse> {
