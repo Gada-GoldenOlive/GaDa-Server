@@ -5,6 +5,25 @@ import { FriendEntity } from "../../../entity/Friend.entity";
 import { MysqlUserRepositoryMapper } from "./MysqlUserRepositoryMapper";
 
 export class MysqlFriendRepositoryMapper {
+    static toDomain(entity: FriendEntity): Friend {
+        if (_.isNil(entity)) {
+            return null;
+        }
+
+        const friend = Friend.create(
+            {
+                status: entity.status,
+                user1: MysqlUserRepositoryMapper.toDomain(entity.user1),
+                user2: MysqlUserRepositoryMapper.toDomain(entity.user2),
+                createdAt: entity.createdAt,
+                updatedAt: entity.updatedAt,
+            },
+            entity.id,
+        ).value;
+
+        return friend;
+    }
+
     static toEntity(friend: Friend): FriendEntity {
         if (_.isNil(friend)) {
             return null;
