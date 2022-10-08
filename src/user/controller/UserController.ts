@@ -139,6 +139,10 @@ export class UserController {
         @Body() body: CreateFriendRequest,
         @Request() request,
     ): Promise<CommonResponse> {
+        if (request.user.loginId.value === body.friendLoginId) {
+            throw new HttpException('CANNOT MAKE FRIEND WITH YOURSELF', StatusCodes.BAD_REQUEST);
+        }
+
         const userResponse = await this.getUserUseCase.execute({
             loginId: body.friendLoginId,
         });
@@ -248,13 +252,25 @@ export class UserController {
             }
         });
 
-        const is_exist_unread_request = !_.isEmpty(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+        const unread_requests = _.filter(getAllFriendUseCaseResponse.friends, (friend) => {
             return (friend.user2.id === request.user.id && friend.status === FriendStatus.REQUESTED);
-        }));
+        });
+        if (!isRank) {
+            await Promise.all(_.map(unread_requests, async (friend) => {
+                const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
+                    id: friend.id,
+                    status: FriendStatus.READ,
+                });
+
+                if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            }));
+        }
 
         return {
             friends,
-            is_exist_unread_request,
+            is_exist_unread_request: !_.isEmpty(unread_requests),
         }
     }
 
