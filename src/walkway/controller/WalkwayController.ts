@@ -394,7 +394,7 @@ export class WalkwayController {
             image: getWalkUseCaseResponse.walk.walkway.image ? getWalkUseCaseResponse.walk.walkway.image.value : null,
             walkwayId: getWalkUseCaseResponse.walk.walkway.id,
             createdAt: getWalkUseCaseResponse.walk.createdAt,
-        }
+        };
 
         return {
             walk,
