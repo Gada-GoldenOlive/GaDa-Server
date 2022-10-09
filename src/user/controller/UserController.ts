@@ -507,6 +507,7 @@ export class UserController {
     ): Promise<GetUserResponse> {
         const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
             id: userId,
+            originPassword: body.originPassword,
             password: body.password,
             name: body.name,
             image: body.image,
@@ -520,6 +521,10 @@ export class UserController {
 
         if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_NAME_ERROR) {
             throw new HttpException(UpdateUserUseCaseCodes.DUPLICATE_USER_NAME_ERROR, StatusCodes.CONFLICT);
+        }
+        
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.WRONG_PASSWORD) {
+            throw new HttpException(UpdateUserUseCaseCodes.WRONG_PASSWORD, StatusCodes.BAD_REQUEST);
         }
         
         if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
