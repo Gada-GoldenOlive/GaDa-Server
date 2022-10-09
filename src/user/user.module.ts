@@ -33,6 +33,7 @@ import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveReposit
 import { BadgeEntity } from '../badge/entity/Badge.entity';
 import { AchieveEntity } from '../badge/entity/Achieve.entity';
 import { UpdateFriendUseCase } from './application/UpdateFriendUseCase/UpdateFriendUseCase';
+import { GetAllFriendUseCase } from './application/GetAllFriendUseCase/GetAllFriendUseCase';
 import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFriendUseCase';
 
 @Module({
@@ -72,6 +73,7 @@ import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFri
         AuthService,
         CreateFriendUseCase,
         UpdateFriendUseCase,
+        GetAllFriendUseCase,
         DeleteFriendUseCase,
         {
             provide: FRIEND_REPOSITORY,

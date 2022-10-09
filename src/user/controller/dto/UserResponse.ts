@@ -51,3 +51,54 @@ export class LoginOrSignUpUserResponse {
     @ApiProperty()
     refreshToken: string;
 }
+
+export class FriendDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    userId: string;
+
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    image: string;
+
+    @ApiProperty()
+    distance: number;
+}
+
+export class GetAllFriendResponse {
+    @ApiProperty({
+        type: [FriendDto],
+    })
+    friends?: FriendDto[];
+
+    @ApiProperty()
+    is_exist_unread_request: boolean;
+}
+
+export class FriendRequestDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    userId: string;
+
+    @ApiProperty()
+    loginId: string;
+
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    image: string;
+}
+
+export class GetAllFriendRequestResponse {
+    @ApiProperty({
+        type: [FriendRequestDto],
+    })
+    requests?: FriendRequestDto[];
+}
