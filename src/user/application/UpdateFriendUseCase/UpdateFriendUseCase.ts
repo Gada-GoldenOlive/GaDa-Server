@@ -9,7 +9,7 @@ import { IUpdateFriendUseCaseResponse } from './dto/IUpdateFriendUseCaseResponse
 export enum UpdateFriendUseCaseCodes {
 	SUCCESS = 'SUCCESS',
 	FAILURE = 'FAILURE',
-	NO_EXIST_FRIEND = 'Corresponding friend does not exist.',
+	NOT_EXIST_FRIEND = 'Corresponding friend does not exist.',
 }
 
 export class UpdateFriendUseCase implements UseCase<IUpdateFriendUseCaseRequest, IUpdateFriendUseCaseResponse> {
@@ -25,7 +25,7 @@ export class UpdateFriendUseCase implements UseCase<IUpdateFriendUseCaseRequest,
 
 			if (!foundFriend) {
 				return {
-					code: UpdateFriendUseCaseCodes.NO_EXIST_FRIEND,
+					code: UpdateFriendUseCaseCodes.NOT_EXIST_FRIEND,
 				};
 			}
 

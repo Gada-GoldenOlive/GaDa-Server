@@ -7,8 +7,8 @@ import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
-import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateUserRequest } from './dto/UserRequest';
-import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, UserDto } from './dto/UserResponse';
+import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateFriendRequest, UpdateUserRequest } from './dto/UserRequest';
+import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, GetAllFriendResponse, FriendDto, GetAllFriendRequestResponse, FriendRequestDto, UserDto } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
@@ -24,6 +24,7 @@ import { GetAllUserUseCase, GetAllUserUseCaseCodes } from '../application/GetAll
 import { User } from '../domain/User/User';
 import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { FriendStatus } from '../domain/Friend/FriendStatus';
+import { GetAllFriendUseCase, GetAllFriendUseCaseCodes } from '../application/GetAllFriendUseCase/GetAllFriendUseCase';
 import { DeleteFriendUseCase, DeleteFriendUseCaseCodes } from '../application/DeleteFriendUseCase/DeleteFriendUseCase';
 
 @Controller('users')
@@ -40,6 +41,7 @@ export class UserController {
         private readonly createAchievesUseCase: CreateAchievesUseCase,
         private readonly getAllUserUseCase: GetAllUserUseCase,
         private readonly updateFriendUseCase: UpdateFriendUseCase,
+        private readonly getAllFriendUseCase: GetAllFriendUseCase,
         private readonly deleteFriendUseCase: DeleteFriendUseCase,
     ) {}
 
@@ -171,6 +173,10 @@ export class UserController {
         @Body() body: CreateFriendRequest,
         @Request() request,
     ): Promise<CommonResponse> {
+        if (request.user.loginId.value === body.friendLoginId) {
+            throw new HttpException('CANNOT MAKE FRIEND WITH YOURSELF', StatusCodes.BAD_REQUEST);
+        }
+
         const userResponse = await this.getUserUseCase.execute({
             loginId: body.friendLoginId,
         });
@@ -235,15 +241,131 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
-        type: GetAllUserResponse,
+        type: GetAllFriendResponse,
     })
     @ApiOperation({
-        description: 'userId(uuid)에 해당하는 유저의 친구 목록 리턴'
+        summary: '친구 목록 조회',
+        description: '토큰에 해당하는 유저의 친구 목록 리턴. / '
+        + '본인을 포함한 친구목록을 그 주의 달성거리 순으로 정렬해서 리턴. 본인의 경우 id를 null로 설정 / '
+        + '읽지 않은 친구신청이 있는지 여부도 함께 리턴함.'
     })
-    async getAllFriends() {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+    async getAllFriends(
+        @Request() request,
+    ): Promise<GetAllFriendResponse> {
+        const getAllFriendUseCaseResponse = await this.getAllFriendUseCase.execute({
+            userId: request.user.id,
+            isRank: true,
+        });
+
+        if (getAllFriendUseCaseResponse.code !== GetAllFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FRIENDS', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        //NOTE: accepted인 friend만 필터링하고 / friend user1, user2 중 친구를 찾아서 friendId와 함께 리턴.
+        let _friends = _.map(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+            return friend.status === FriendStatus.ACCEPTED;
+        }), (friend) => {
+            let user = friend.user1;
+
+            if (friend.user1.id === request.user.id) {
+                user = friend.user2;
+            }
+
+            return {
+                id: friend.id,
+                user: user,
+            };
+        });
+
+        _friends.push({
+            id: null,
+            user: request.user,
+        });
+
+        _friends = _friends.sort((a, b) => {
+            // TODO: 일단 totalDistance로 정렬 했는데, record관련 usecase 구현하고 나면 record.distance로 수정해야함.
+            return b.user.totalDistance.value - a.user.totalDistance.value;
+        });
+
+        const friends = _.map(_friends, function(friend): FriendDto {
+            return {
+                id: friend.id,
+                userId: friend.user.id,
+                name: friend.user.name.value,
+                image: friend.user.image.value,
+                // TODO: 얘도 record 구현하고 나면 record.distance로 수정해야함.
+                distance: friend.user.totalDistance.value,
+            };
+        });
+
+        const is_exist_unread_request = !_.isEmpty(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+            return (friend.user2.id === request.user.id && friend.status === FriendStatus.REQUESTED);
+        }));
+
+        return {
+            friends,
+            is_exist_unread_request,
+        };
     }
+
+    @Get('/friend-requests')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: GetAllFriendRequestResponse,
+    })
+    @ApiOperation({
+        summary: '친구 신청 목록 조회',
+        description: '토큰에 해당하는 유저의 친구신청 목록을 최신순으로 정렬해서 리턴.'
+    })
+    async getAllFriendRequests(
+        @Request() request,
+    ): Promise<GetAllFriendRequestResponse> {
+        const getAllFriendUseCaseResponse = await this.getAllFriendUseCase.execute({
+            userId: request.user.id,
+            isRank: false,
+        });
+
+        if (getAllFriendUseCaseResponse.code !== GetAllFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FRIEND REQUESTS', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const requests = _.map((getAllFriendUseCaseResponse.friends), function(friend): FriendRequestDto {
+            let user = friend.user1;
+
+            if (friend.user1.id === request.user.id) {
+                user = friend.user2;
+            }
+
+            return {
+                id: friend.id,
+                userId: user.id,
+                name: user.name.value,
+                image: user.image.value,
+                loginId: user.loginId.value,
+            };
+        });
+
+        const unread_requests = _.filter(getAllFriendUseCaseResponse.friends, (friend) => {
+            return (friend.status === FriendStatus.REQUESTED);
+        });
+
+        await Promise.all(_.map(unread_requests, async (friend) => {
+            const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
+                id: friend.id,
+                status: FriendStatus.READ,
+            });
+
+            if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO UPDATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        }));
+
+        return {
+            requests,
+        };
+    }
+
 
     @Get('/checked-id')
     @HttpCode(StatusCodes.OK)
@@ -406,6 +528,40 @@ export class UserController {
         };
     }
 
+    @Patch('/friends/:friendId')
+    @UseGuards(FriendOwnerGuard)
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiResponse({
+        type: CommonResponse
+    })
+    @ApiOperation({
+        summary: '친구 수정',
+        description: '[status] \'ACCEPTED\': 수락 / \'REJECTED\': 거절 / \'DELETE\': 삭제'
+    })
+    async updateFriend(
+        @Param('friendId') friendId: string,
+        @Body() body: UpdateFriendRequest,
+    ): Promise<CommonResponse> {
+        const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
+            id: friendId,
+            status: body.status, 
+        });
+
+        if (updateFriendUseCaseResponse.code === UpdateFriendUseCaseCodes.NOT_EXIST_FRIEND) {
+            throw new HttpException(UpdateFriendUseCaseCodes.NOT_EXIST_FRIEND, StatusCodes.NOT_FOUND);
+        }
+
+        if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO UPDATE FRIEND',
+        };
+    }
+
     @Delete('/:userId')
     @UseGuards(UserOwnerGuard)
     @UseGuards(JwtAuthGuard)
@@ -435,8 +591,8 @@ export class UserController {
             id: friendId,
         });
 
-        if (deleteFriendUseCaseResponse.code === DeleteFriendUseCaseCodes.NO_EXIST_FRIEND) {
-            throw new HttpException(DeleteFriendUseCaseCodes.NO_EXIST_FRIEND, StatusCodes.NOT_FOUND);
+        if (deleteFriendUseCaseResponse.code === DeleteFriendUseCaseCodes.NOT_EXIST_FRIEND) {
+            throw new HttpException(DeleteFriendUseCaseCodes.NOT_EXIST_FRIEND, StatusCodes.NOT_FOUND);
         }
 
         if (deleteFriendUseCaseResponse.code !== DeleteFriendUseCaseCodes.SUCCESS) {
