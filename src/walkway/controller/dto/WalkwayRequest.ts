@@ -57,6 +57,9 @@ export class CreateWalkRequest {
     @ApiProperty()
     distance: number;
 
+    @ApiProperty()
+    pinCount: number;
+
     @ApiProperty({
         enum: WalkFinishStatus
     })

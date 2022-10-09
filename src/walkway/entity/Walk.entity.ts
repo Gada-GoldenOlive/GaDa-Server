@@ -23,6 +23,13 @@ export class WalkEntity extends CoreEntity {
 
     @Column({
         nullable: false,
+        type: 'int',
+        default: 0,
+    })
+    pinCount: number;
+
+    @Column({
+        nullable: false,
         type: 'enum',
         enum: WalkFinishStatus,
         default: WalkFinishStatus.UNFINISHED,

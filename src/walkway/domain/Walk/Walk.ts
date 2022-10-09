@@ -1,6 +1,5 @@
 import _ from 'lodash';
 
-import { Review } from 'src/review/domain/Review/Review';
 import { AggregateRoot } from '../../../common/domain/AggregateRoot';
 import { PROPS_VALUES_ARE_REQUIRED } from '../../../common/domain/Image/Image';
 import { Result } from '../../../common/presentationals/Result';
@@ -8,12 +7,14 @@ import { User } from '../../../user/domain/User/User';
 import { Walkway } from '../Walkway/Walkway';
 import { WalkDistance } from './WalkDistance';
 import { WALK_FINISH_STATUS } from './WalkFinishStatus';
+import { WalkPinCount } from './WalkPinCount';
 import { WalkStatus, WALK_STATUS } from './WalkStatus';
 import { WalkTime } from './WalkTime';
 
 export interface WalkNewProps {
     time: WalkTime,
     distance: WalkDistance,
+    pinCount: WalkPinCount,
     finishStatus: WALK_FINISH_STATUS,
     walkway: Walkway;
     user: User;
@@ -53,6 +54,10 @@ export class Walk extends AggregateRoot<WalkProps> {
 
     get distance(): WalkDistance {
         return this.props.distance;
+    }
+
+    get pinCount(): WalkPinCount {
+        return this.props.pinCount;
     }
 
     get finishStatus(): WALK_FINISH_STATUS {

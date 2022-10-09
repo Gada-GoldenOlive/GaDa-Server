@@ -3,6 +3,7 @@ import { Inject } from '@nestjs/common';
 import { UseCase } from '../../../common/application/UseCase';
 import { Walk } from '../../domain/Walk/Walk';
 import { WalkDistance } from '../../domain/Walk/WalkDistance';
+import { WalkPinCount } from '../../domain/Walk/WalkPinCount';
 import { WalkTime } from '../../domain/Walk/WalkTime';
 import { IWalkRepository, WALK_REPOSITORY } from '../../infra/IWalkRepository';
 import { ICreateWalkUseCaseRequest } from './dto/CreateWalkUseCaseRequest';
@@ -25,6 +26,7 @@ export class CreateWalkUseCase implements UseCase<ICreateWalkUseCaseRequest, ICr
                 time: WalkTime.create(request.time).value,
                 distance: WalkDistance.create(request.distance).value,
                 finishStatus: request.finishStatus,
+                pinCount: WalkPinCount.create(request.pinCount).value,
                 walkway: request.walkway,
                 user: request.user,
             }).value;
