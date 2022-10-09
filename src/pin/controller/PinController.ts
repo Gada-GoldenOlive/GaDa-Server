@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -134,26 +134,11 @@ export class PinController {
             }),
         ]);
 
-        Logger.log(walkwayResponse.code);
-        Logger.log(userResponse.code);
-
-        // if (userResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
-        //     throw new HttpException(GetUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
-        // }
-
-        // if (userResponse.code !== GetUserUseCaseCodes.SUCCESS) {
-        //     throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        // }
-
-        // if (walkwayResponse.code === GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY) {
-        //     throw new HttpException(GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY, StatusCodes.NOT_FOUND);
-        // }
-
-        // if (walkwayResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
-        //     throw new HttpException('FAIL TO GET WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
-        // }
-
         let getAllPinUseCaseResponse: IGetAllPinUseCaseResponse;
+
+        if (walkwayResponse.walkway && userResponse.user) {
+            throw new HttpException('산책로 아이디, 유저 아이디 둘 중 하나만 보내주세요', StatusCodes.BAD_REQUEST);
+        }
 
         if (walkwayResponse.walkway && !userResponse.user) {
             getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({

@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IPinRepository, PIN_REPOSITORY } from '../../infra/IPinRepository';
@@ -24,8 +24,7 @@ export class GetAllPinUseCase implements UseCase<IGetAllPinUseCaseRequest, IGetA
                 code: GetAllPinUseCaseCodes.SUCCESS,
                 pins,
             };
-        } catch (e) {
-            Logger.log(e);
+        } catch {
             return {
                 code: GetAllPinUseCaseCodes.FAILURE,
             };

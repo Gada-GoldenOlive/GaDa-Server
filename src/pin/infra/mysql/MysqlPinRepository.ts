@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LineString } from 'geojson';
 import { Repository } from 'typeorm';
@@ -61,8 +60,6 @@ export class MysqlPinRepository implements IPinRepository {
         const user = options.user;
         const curLocation = options.curLocation;
 
-        Logger.log(walkway, user, curLocation, 'ddd');
-
         const query = this.pinRepository
         .createQueryBuilder('pin')
         .leftJoinAndSelect('pin.walkway', 'walkway')
@@ -87,22 +84,16 @@ export class MysqlPinRepository implements IPinRepository {
                 standardPoint = walkway.endPoint.value;
             }
 
-            Logger.log(walkway.id);
-
             query.andWhere('walkway.id = :walkwayId', { walkwayId: walkway.id })
             .setParameter('standardPoint', MysqlWalkwayRepositoryMapper.pointToString(standardPoint))
             .orderBy(('st_distance_sphere_1(ST_GeomFromText(:standardPoint, 4326), pin.location)'));
-            Logger.log('뭐야');
         }
 
         if (user) {
             query.andWhere('user.id = :userId', { userId: user.id })
             .orderBy('pin.createdAt', 'DESC');
         }
-        Logger.log('??');
         const pins = await query.getMany();
-
-        Logger.log('pins');
 
         return MysqlPinRepositoryMapper.toDomains(pins);
     }
