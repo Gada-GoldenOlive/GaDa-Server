@@ -168,6 +168,9 @@ export class UserController {
     @Post('/friends')
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
+    @ApiOperation({
+        summary: 'loginId에 해당하는 유저에게 친구 신청',
+    })
     @ApiCreatedResponse({
         type: CommonResponse,
     })
