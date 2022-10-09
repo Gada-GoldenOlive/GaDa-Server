@@ -73,16 +73,10 @@ export class WalkDto {
     @ApiProperty()
     distance: number;
 
-    @ApiProperty()
-    time: number
-
     @ApiProperty({
         enum: WalkFinishStatus
     })
     finishStatus: WALK_FINISH_STATUS;
-
-    @ApiProperty()
-    rate: number;
 
     @ApiProperty()
     title: string;
@@ -91,23 +85,33 @@ export class WalkDto {
     image: string;
 
     @ApiProperty()
-    walkwayId: string;
-
-    @ApiProperty()
     createdAt: Date;
+}
+
+export class WalkListDto extends WalkDto {
+    @ApiProperty()
+    rate: number;
+}
+
+export class WalkDetailDto extends WalkDto {
+    @ApiProperty()
+    time: number;
 
     @ApiProperty()
-    updatedAt: Date;
+    pinCount: number;
+
+    @ApiProperty()
+    walkwayId: string;
 }
 
 export class GetAllWalkResponse {
     @ApiProperty({
-        type: [WalkDto],
+        type: [WalkListDto],
     })
-    walks?: WalkDto[];
+    walks?: WalkListDto[];
 }
 
 export class GetWalkResponse {
     @ApiProperty()
-    walk?: WalkDto;
+    walk?: WalkDetailDto;
 }
