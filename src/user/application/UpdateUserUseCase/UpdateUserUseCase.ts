@@ -20,6 +20,7 @@ export enum UpdateUserUseCaseCodes {
 	FAILURE = 'FAILURE',
 	NOT_EXIST_USER = 'Corresponding user does not exist.',
 	DUPLICATE_USER_NAME_ERROR = 'Request user name is duplicated.',
+	WRONG_PASSWORD = 'Invalid password',
 }
 
 async function hashing(refreshToken: string): Promise<string> {
@@ -60,6 +61,14 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				}
 			}
 
+			if (request.originPassword) {
+				if(!(await UpdateUserUseCase.checkPassword(request.originPassword, foundUser))) {
+					return {
+						code: UpdateUserUseCaseCodes.WRONG_PASSWORD,
+					};
+				}
+			}
+
 			// NOTE: request로 들어온 게 없으면 request에 기존 것들 넣어줌 (아래에서 통일성을 위해 작성한 코드)
 			if (!request.password) request.password = foundUser.password.value;
 			else request.password = await hashing(request.password);
@@ -90,10 +99,18 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				code: UpdateUserUseCaseCodes.SUCCESS,
 				user,
 			};
-		} catch {
+		} catch (e){
+			console.log(e)
 			return {
 				code: UpdateUserUseCaseCodes.FAILURE,
 			};
 		}
+	}
+
+	private static async checkPassword(
+		requestPassword: string,
+		user: User,
+	): Promise<boolean> {
+		return await bcrypt.compare(requestPassword, user.password.value);
 	}
 }
