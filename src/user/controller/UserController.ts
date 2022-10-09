@@ -7,7 +7,7 @@ import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
-import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateUserRequest } from './dto/UserRequest';
+import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateFriendRequest, UpdateUserRequest } from './dto/UserRequest';
 import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, GetAllFriendResponse, FriendDto, GetAllFriendRequestResponse, FriendRequestDto } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { UserOwnerGuard } from '../user-owner.guard';
@@ -517,6 +517,40 @@ export class UserController {
         };
     }
 
+    @Patch('/friends/:friendId')
+    @UseGuards(FriendOwnerGuard)
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(StatusCodes.NO_CONTENT)
+    @ApiResponse({
+        type: CommonResponse
+    })
+    @ApiOperation({
+        summary: '친구 수정',
+        description: '[status] \'ACCEPTED\': 수락 / \'REJECTED\': 거절 / \'DELETE\': 삭제'
+    })
+    async updateFriend(
+        @Param('friendId') friendId: string,
+        @Body() body: UpdateFriendRequest,
+    ): Promise<CommonResponse> {
+        const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
+            id: friendId,
+            status: body.status, 
+        });
+
+        if (updateFriendUseCaseResponse.code === UpdateFriendUseCaseCodes.NOT_EXIST_FRIEND) {
+            throw new HttpException(UpdateFriendUseCaseCodes.NOT_EXIST_FRIEND, StatusCodes.NOT_FOUND);
+        }
+
+        if (updateFriendUseCaseResponse.code !== UpdateFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO UPDATE FRIEND',
+        };
+    }
+
     @Delete('/:userId')
     @UseGuards(UserOwnerGuard)
     @UseGuards(JwtAuthGuard)
@@ -546,8 +580,8 @@ export class UserController {
             id: friendId,
         });
 
-        if (deleteFriendUseCaseResponse.code === DeleteFriendUseCaseCodes.NO_EXIST_FRIEND) {
-            throw new HttpException(DeleteFriendUseCaseCodes.NO_EXIST_FRIEND, StatusCodes.NOT_FOUND);
+        if (deleteFriendUseCaseResponse.code === DeleteFriendUseCaseCodes.NOT_EXIST_FRIEND) {
+            throw new HttpException(DeleteFriendUseCaseCodes.NOT_EXIST_FRIEND, StatusCodes.NOT_FOUND);
         }
 
         if (deleteFriendUseCaseResponse.code !== DeleteFriendUseCaseCodes.SUCCESS) {
