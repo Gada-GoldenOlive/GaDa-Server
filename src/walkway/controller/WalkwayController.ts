@@ -204,7 +204,7 @@ export class WalkwayController {
             let creator = walkway.user ? walkway.user.name.value : '스마트서울맵';
             let creatorId = walkway.user ? walkway.user.id : null;
             
-            if (walkway.user.status === UserStatus.DELETE) {
+            if (walkway.user && walkway.user.status === UserStatus.DELETE) {
                 creator = '탈퇴한 회원';
                 creatorId = '  ';
             }
