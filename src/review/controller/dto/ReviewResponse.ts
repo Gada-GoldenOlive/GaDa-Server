@@ -89,3 +89,8 @@ export class GetAllFeedResponse {
     })
     feeds?: FeedDto[];
 }
+
+export class CreatePreSignedUrlResponse {
+    @ApiProperty()
+    url: string;
+}
