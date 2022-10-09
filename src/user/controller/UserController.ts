@@ -297,7 +297,7 @@ export class UserController {
                 id: friend.id,
                 userId: friend.user.id,
                 name: friend.user.name.value,
-                image: friend.user.image.value,
+                image: friend.user.image ? friend.user.image.value : null,
                 // TODO: 얘도 record 구현하고 나면 record.distance로 수정해야함.
                 distance: friend.user.totalDistance.value,
             };
