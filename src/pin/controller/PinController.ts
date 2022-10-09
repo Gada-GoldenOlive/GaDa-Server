@@ -7,7 +7,7 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateCommentRequest, CreatePinRequest, UpdateCommentReqeust, UpdatePinRequest } from './dto/PinRequest';
 import { GetAllCommentResponse, GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
-import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
+import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
@@ -136,7 +136,11 @@ export class PinController {
 
         let getAllPinUseCaseResponse: IGetAllPinUseCaseResponse;
 
-        if (walkwayResponse) {
+        if (walkwayResponse.walkway && userResponse.user) {
+            throw new HttpException('산책로 아이디, 유저 아이디 둘 중 하나만 보내주세요', StatusCodes.BAD_REQUEST);
+        }
+
+        if (walkwayResponse.walkway && !userResponse.user) {
             getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 walkway: walkwayResponse.walkway,
                 curLocation: {
@@ -146,13 +150,13 @@ export class PinController {
             });
         };
 
-        if (userResponse) {
+        if (!walkwayResponse.walkway && userResponse.user) {
             getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 user: userResponse.user,
             });
         }
 
-        if (!walkwayResponse && !userResponse) {
+        if (!walkwayResponse.walkway && !userResponse.user) {
             getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({});
         }
 

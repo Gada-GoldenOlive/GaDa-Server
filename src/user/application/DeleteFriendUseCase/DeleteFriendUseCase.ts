@@ -10,7 +10,7 @@ import { IDeleteFriendUseCaseResponse } from './dto/IDeleteFriendUseCaseResponse
 export enum DeleteFriendUseCaseCodes {
 	SUCCESS = 'SUCCESS',
 	FAILURE = 'FAILURE',
-	NO_EXIST_FRIEND = 'Corresponding friend does not exist.',
+	NOT_EXIST_FRIEND = 'Corresponding friend does not exist.',
 }
 
 export class DeleteFriendUseCase implements UseCase<IDeleteFriendUseCaseRequest, IDeleteFriendUseCaseResponse> {
@@ -26,7 +26,7 @@ export class DeleteFriendUseCase implements UseCase<IDeleteFriendUseCaseRequest,
 
 			if (!foundFriend) {
 				return {
-					code: DeleteFriendUseCaseCodes.NO_EXIST_FRIEND,
+					code: DeleteFriendUseCaseCodes.NOT_EXIST_FRIEND,
 				};
 			}
 

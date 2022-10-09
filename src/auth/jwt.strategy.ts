@@ -24,8 +24,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         id: payload.sub,
     });
 
-    if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
-        throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+    if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
+        throw new HttpException(GetUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
     }
 
     if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
