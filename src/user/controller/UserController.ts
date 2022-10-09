@@ -26,6 +26,7 @@ import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/Up
 import { FriendStatus } from '../domain/Friend/FriendStatus';
 import { GetAllFriendUseCase, GetAllFriendUseCaseCodes } from '../application/GetAllFriendUseCase/GetAllFriendUseCase';
 import { DeleteFriendUseCase, DeleteFriendUseCaseCodes } from '../application/DeleteFriendUseCase/DeleteFriendUseCase';
+import { DeleteUserUseCase, DeleteUserUseCaseCodes } from '../application/DeleteUserUseCase/DeleteUserUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -43,6 +44,7 @@ export class UserController {
         private readonly updateFriendUseCase: UpdateFriendUseCase,
         private readonly getAllFriendUseCase: GetAllFriendUseCase,
         private readonly deleteFriendUseCase: DeleteFriendUseCase,
+        private readonly deleteUserUseCase: DeleteUserUseCase,
     ) {}
 
     private async convertToUserDto(user: User): Promise<UserDto> {
@@ -569,9 +571,26 @@ export class UserController {
     @ApiResponse({
         type: CommonResponse,
     })
-    async delete(): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+    async delete(
+        @Param('userId') userId: string,
+        @Request() request,
+    ): Promise<CommonResponse> {
+        const deleteUserUsecaseResponse = await this.deleteUserUseCase.execute({
+            user: request.user,
+        });
+
+        if (deleteUserUsecaseResponse.code === DeleteUserUseCaseCodes.NOT_EXIST_USER) {
+            throw new HttpException(DeleteUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+
+        if (deleteUserUsecaseResponse.code !== DeleteUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE USER',
+        };
     }
 
     @Delete('/friends/:friendId')

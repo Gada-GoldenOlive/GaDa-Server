@@ -47,10 +47,7 @@ export class ReviewDto {
     updatedAt: Date;
 }
 
-export class FeedDto {
-    @ApiProperty()
-    review: ReviewDto;
-
+export class FeedDto extends ReviewDto {
     @ApiProperty()
     time: number;
 

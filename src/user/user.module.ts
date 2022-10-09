@@ -36,6 +36,7 @@ import { GetAllUserUseCase } from './application/GetAllUserUseCase/GetAllUserUse
 import { UpdateFriendUseCase } from './application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { GetAllFriendUseCase } from './application/GetAllFriendUseCase/GetAllFriendUseCase';
 import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFriendUseCase';
+import { DeleteUserUseCase } from './application/DeleteUserUseCase/DeleteUserUseCase';
 
 @Module({
     imports: [
@@ -57,6 +58,7 @@ import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFri
         GetUserUseCase,
         LoginUseCase,
         UpdateUserUseCase,
+        DeleteUserUseCase,
         GetAllUserUseCase,
         {
             provide: USER_REPOSITORY,

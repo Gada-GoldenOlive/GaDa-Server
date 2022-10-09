@@ -31,8 +31,7 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 		.leftJoinAndSelect('review.walk', 'walk')
 		.leftJoinAndSelect('walk.user', 'user')
 		.where('review.status = :normal', { normal: ReviewStatus.NORMAL })
-		.andWhere('walk.status = :normal', { normal: WalkStatus.NORMAL })
-		.andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
+		.andWhere('walk.status = :normal', { normal: WalkStatus.NORMAL });
 
 		if (imageIds) {
 			query.andWhereInIds(imageIds);
