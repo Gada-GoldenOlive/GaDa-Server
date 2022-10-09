@@ -21,7 +21,11 @@ IGetWalkwayUseCaseRequest, IGetWalkwayUseCaseResponse> {
 
     async execute(request?: IGetWalkwayUseCaseRequest): Promise<IGetWalkwayUseCaseResponse> {
         try {
-            if (_.isNil(request.id)) return null;
+            if (_.isNil(request.id)) {
+                return {
+                    code: GetWalkwayUseCaseCodes.NO_EXIST_WALKWAY,
+                };
+            }
             
             const walkway = await this.walkwayRepository.findOne(request.id);
 
