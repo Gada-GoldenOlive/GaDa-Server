@@ -8,7 +8,7 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateUserUseCase, CreateUserUseCaseCodes } from '../application/CreateUserUseCase/CreateUserUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../application/GetUserUseCase/GetUserUseCase';
 import { CreateFriendRequest, CreateUserRequest, LoginRequest, UpdateFriendRequest, UpdateUserRequest } from './dto/UserRequest';
-import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, GetAllFriendResponse, FriendDto, GetAllFriendRequestResponse, FriendRequestDto } from './dto/UserResponse';
+import { LoginOrSignUpUserResponse, GetAllUserResponse, GetUserResponse, GetAllFriendResponse, FriendDto, GetAllFriendRequestResponse, FriendRequestDto, UserDto } from './dto/UserResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { UserOwnerGuard } from '../user-owner.guard';
 import { FriendOwnerGuard } from '../friend-owner.guard';
@@ -20,10 +20,13 @@ import { CreateFriendUseCase, CreateFriendUseCaseCodes } from '../application/Cr
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
 import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../../badge/application/GetAllBadgeUseCase/GetAllBadgeUseCase';
 import { CreateAchievesUseCase } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
+import { GetAllUserUseCase, GetAllUserUseCaseCodes } from '../application/GetAllUserUseCase/GetAllUserUseCase';
+import { User } from '../domain/User/User';
 import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { FriendStatus } from '../domain/Friend/FriendStatus';
 import { GetAllFriendUseCase, GetAllFriendUseCaseCodes } from '../application/GetAllFriendUseCase/GetAllFriendUseCase';
 import { DeleteFriendUseCase, DeleteFriendUseCaseCodes } from '../application/DeleteFriendUseCase/DeleteFriendUseCase';
+import { DeleteUserUseCase, DeleteUserUseCaseCodes } from '../application/DeleteUserUseCase/DeleteUserUseCase';
 
 @Controller('users')
 @ApiTags('사용자')
@@ -37,10 +40,34 @@ export class UserController {
         private readonly updateUserUseCase: UpdateUserUseCase,
         private readonly getAllBadgeUseCase: GetAllBadgeUseCase,
         private readonly createAchievesUseCase: CreateAchievesUseCase,
+        private readonly getAllUserUseCase: GetAllUserUseCase,
         private readonly updateFriendUseCase: UpdateFriendUseCase,
         private readonly getAllFriendUseCase: GetAllFriendUseCase,
         private readonly deleteFriendUseCase: DeleteFriendUseCase,
+        private readonly deleteUserUseCase: DeleteUserUseCase,
     ) {}
+
+    private async convertToUserDto(user: User): Promise<UserDto> {
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            user,
+        });
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            id: user.id,
+            loginId: user.loginId.value,
+            image: user.image ? user.image.value : null,
+            name: user.name.value,
+            pinCount: getAllPinUseCaseResponse.pins.length,
+            goalDistance: user.goalDistance.value,
+            goalTime: user.goalTime.value,
+            totalDistance: user.totalDistance.value,
+            totalTime: user.totalTime.value,
+        };
+    }
 
     @Post()
     @HttpCode(StatusCodes.CREATED)
@@ -156,7 +183,7 @@ export class UserController {
             loginId: body.friendLoginId,
         });
 
-        if (userResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+        if (userResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
             throw new HttpException('FAIL TO FIND FRIEND BY LOGIN ID', StatusCodes.INTERNAL_SERVER_ERROR);
         }
         
@@ -185,9 +212,31 @@ export class UserController {
     @ApiOkResponse({
         type: GetAllUserResponse,
     })
-    async getAll() {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+    @ApiOperation({
+        summary: '유저 목록 조회',
+        description: 'loginId를 주면 loginId에 해당 string을 포함하는, 본인을 제외한 유저 목록을 리턴. / '
+        + 'loginId가 주어지지 않으면 전체 유저 목록을 리턴.'
+    })
+    async getAll(
+        @Query('loginId') loginId: string,
+        @Request() request,
+    ) {
+        const getAllUserUseCaseResponse = await this.getAllUserUseCase.execute({
+            userId: request.user.id,
+            loginId: loginId,
+        });
+
+        if (getAllUserUseCaseResponse.code !== GetAllUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const users: UserDto[] = await Promise.all(_.map(getAllUserUseCaseResponse.users, (user) => {
+            return this.convertToUserDto(user);
+        }));
+
+        return {
+            users,
+        };
     }
 
     @Get('/friends')
@@ -433,26 +482,8 @@ export class UserController {
     ): Promise<GetUserResponse> {
         const user = request.user;
 
-        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
-            user,
-        });
-
-        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
         return {
-            user: {
-                id: user.id,
-                loginId: user.loginId.value,
-                image: user.image ? user.image.value : null,
-                name: user.name.value,
-                pinCount: getAllPinUseCaseResponse.pins.length,
-                goalDistance: user.goalDistance.value,
-                goalTime: user.goalTime.value,
-                totalDistance: user.totalDistance.value,
-                totalTime: user.totalTime.value,
-            },
+            user: await this.convertToUserDto(user),
         };
     }
 
@@ -490,30 +521,12 @@ export class UserController {
         
         if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO UPDATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
-        }   
-
-        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
-            user: request.user,
-        });
-
-        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO UPDATE USER BY FAILING TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
-        
+
         const user = updateUserUseCaseResponse.user;
 
         return {
-            user: {
-                id: user.id,
-                loginId: user.loginId.value,
-                image: user.image ? user.image.value : null,
-                name: user.image.value,
-                pinCount: getAllPinUseCaseResponse.pins.length,
-                goalDistance: user.goalDistance.value,
-                goalTime: user.goalTime.value,
-                totalDistance: user.totalDistance.value,
-                totalTime: user.totalTime.value,
-            }
+            user: await this.convertToUserDto(user),
         };
     }
 
@@ -558,9 +571,26 @@ export class UserController {
     @ApiResponse({
         type: CommonResponse,
     })
-    async delete(): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+    async delete(
+        @Param('userId') userId: string,
+        @Request() request,
+    ): Promise<CommonResponse> {
+        const deleteUserUsecaseResponse = await this.deleteUserUseCase.execute({
+            user: request.user,
+        });
+
+        if (deleteUserUsecaseResponse.code === DeleteUserUseCaseCodes.NOT_EXIST_USER) {
+            throw new HttpException(DeleteUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+
+        if (deleteUserUsecaseResponse.code !== DeleteUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE USER',
+        };
     }
 
     @Delete('/friends/:friendId')

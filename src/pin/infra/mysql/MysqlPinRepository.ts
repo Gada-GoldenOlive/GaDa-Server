@@ -66,8 +66,7 @@ export class MysqlPinRepository implements IPinRepository {
         .leftJoinAndSelect('walkway.user', 'user_walkway')
         .leftJoinAndSelect('pin.user', 'user')
         .where('pin.status = :normal', { normal: PinStatus.NORMAL })
-        .andWhere('walkway.status = :normal', { normal: WalkwayStatus.NORMAL })
-        .andWhere('user.status = :normal', { normal: UserStatus.NORMAL });
+        .andWhere('walkway.status = :normal', { normal: WalkwayStatus.NORMAL });
 
         if (walkway) {
             const getDistanceFromCurLocation = (p: Point) => {
@@ -76,8 +75,8 @@ export class MysqlPinRepository implements IPinRepository {
                     'type': 'LineString',
                     'coordinates': [[p.lat, p.lng], [curLocation.lat, curLocation.lng]],
                 }
-                return +(geojsonLength(line)) ;
-            }
+                return +(geojsonLength(line));
+            };
 
             let standardPoint = walkway.startPoint.value;
             if (getDistanceFromCurLocation(walkway.startPoint.value) > getDistanceFromCurLocation(walkway.endPoint.value)) {

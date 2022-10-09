@@ -22,21 +22,22 @@ import { WalkwayOwnerGuard } from '../walkway-owner.guard';
 import { WalkOwnerGuard } from '../walk-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { GetWalkUseCase, GetWalkUseCaseCodes } from '../application/GetWalkUseCase/GetWalkUseCase';
+import { UserStatus } from '../../user/domain/User/UserStatus';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
     const line: LineString = {
         'type': 'LineString',
         'coordinates': [[p1.lat, p1.lng], [p2.lat, p2.lng]],
-    }
-    return +(geojsonLength(line)) ;
-}
+    };
+    return +(geojsonLength(line));
+};
 
 const getRate = (walkDistance, walkwayDistance) => {
     let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
 
     return rate > 100 ? 100 : rate;
-}
+};
 
 @Controller('walkways')
 @ApiTags('산책로')
@@ -75,7 +76,7 @@ export class WalkwayController {
             path: body.path,
             image: body.image,
             user: request.user,
-        })
+        });
 
         if (createWalkwayUseCaseResponse.code !== CreateWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
@@ -84,7 +85,7 @@ export class WalkwayController {
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE WALKWAY'
-        }
+        };
     }
 
     @Post('/seoulmap')
@@ -101,10 +102,12 @@ export class WalkwayController {
     })
     async createSeoulmapWalkways(): Promise<CommonResponse> {
         const values = await this.getSeoulmapWalkwayUseCase.execute();
+
         if (values.length == 0) {
             throw new HttpException('FAIL TO GET SEOUL MAP WALKWAY DATA', 500);
         }
         const createSeoulmapResponse = await this.createSeoulmapWalkwaysUseCase.execute({ values: values });
+
         if (createSeoulmapResponse.code !== CreateSeoulmapWalkwaysUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE SEOUL MAP WALKWAYS', 500);
         }
@@ -112,7 +115,7 @@ export class WalkwayController {
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE SEOUL MAP WALKWAYS',
-        }
+        };
     }
 
     @Post('/walks')
@@ -143,7 +146,7 @@ export class WalkwayController {
             finishStatus: body.finishStatus,
             user: request.user,
             walkway: walkwayResponse.walkway,
-        })
+        });
 
         if (createWalkUseCaseResponse.code != CreateWalkUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE WALK', StatusCodes.INTERNAL_SERVER_ERROR);
@@ -152,7 +155,7 @@ export class WalkwayController {
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE WALK',
-        }
+        };
     }
 
     @Get()
@@ -166,16 +169,17 @@ export class WalkwayController {
     })
     async getAll(
         @Query('lat') lat: number,
-        @Query('lng') lng: number
+        @Query('lng') lng: number,
     ) {
         const getAllWalkwayResponse = await this.getAllWalkwayUseCase.execute({
             coordinates: { lat, lng },
         });
+
         if (getAllWalkwayResponse.code !== GetAllWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND NEAR WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        let walkways = []
+        let walkways = [];
         for (const walkway of getAllWalkwayResponse.walkways) {
             const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
                 walkway: walkway,
@@ -184,17 +188,27 @@ export class WalkwayController {
                     lng,
                 }
             });
+
             if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
             }
     
             const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
                 walkway: walkway,
-            })
+            });
+
             if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
             }
-    
+  
+            let creator = walkway.user ? walkway.user.name.value : '스마트서울맵';
+            let creatorId = walkway.user ? walkway.user.id : null;
+            
+            if (walkway.user.status === UserStatus.DELETE) {
+                creator = '탈퇴한 회원';
+                creatorId = '  ';
+            }
+            
             let tmp = {
                 id: walkway.id,
                 title: walkway.title.value,
@@ -205,9 +219,10 @@ export class WalkwayController {
                 averageStar: getAllReviewUseCaseResponse.averageStar,
                 path: walkway.path.value,
                 image: walkway.image ? walkway.image.value : null,
-                creater: walkway.user ? walkway.user.name.value : '스마트서울맵',
-                creatorId: walkway.user ? walkway.user.id : null,
-            }
+                creator,
+                creatorId,
+            };
+
             if (getDistance(walkway.startPoint.value, {lat, lng}) < getDistance(walkway.endPoint.value, {lat, lng})) {
                 tmp['startPoint'] = walkway.startPoint.value;
             }
@@ -219,7 +234,7 @@ export class WalkwayController {
         }
         return {
             walkways,
-        }
+        };
     }
 
     @Get('/walks')
@@ -238,7 +253,7 @@ export class WalkwayController {
         @Query('option') option?: number,
     ): Promise<GetAllWalkResponse> {
         let walks;
-        option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option
+        option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option;
 
         const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
             user: request.user,
@@ -303,11 +318,12 @@ export class WalkwayController {
         const getWalkwayUseCaseResponse = await this.getWalkwayUseCase.execute({
             id: walkwayId,
         });
+        
         if (getWalkwayUseCaseResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
-        if (_.isNil(getWalkwayUseCaseResponse.walkway))
-            return {};
+
+        if (_.isNil(getWalkwayUseCaseResponse.walkway)) return {};
 
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
             walkway: getWalkwayUseCaseResponse.walkway,
@@ -315,14 +331,16 @@ export class WalkwayController {
                 lat,
                 lng,
             }
-        })
+        });
+
         if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
             walkway: getWalkwayUseCaseResponse.walkway,
-        })
+        });
+
         if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
@@ -330,14 +348,16 @@ export class WalkwayController {
         let startPoint = {
             lat: getWalkwayUseCaseResponse.walkway.startPoint.value.lat,
             lng: getWalkwayUseCaseResponse.walkway.startPoint.value.lng,
-        }
+        };
+
         let path: PointDto[] = getWalkwayUseCaseResponse.walkway.path.value;
+
         if (getDistance(getWalkwayUseCaseResponse.walkway.startPoint.value, {lat, lng})
             > getDistance(getWalkwayUseCaseResponse.walkway.endPoint.value, {lat, lng})) {
             startPoint = {
                 lat: getWalkwayUseCaseResponse.walkway.endPoint.value.lat,
                 lng: getWalkwayUseCaseResponse.walkway.endPoint.value.lng,
-            }
+            };
             path = path.reverse();
         }
 
