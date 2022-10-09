@@ -4,6 +4,7 @@ import { MysqlReviewRepositoryMapper } from '../../../../review/infra/mysql/mapp
 import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 import { Walk } from '../../../domain/Walk/Walk';
 import { WalkDistance } from '../../../domain/Walk/WalkDistance';
+import { WalkPinCount } from '../../../domain/Walk/WalkPinCount';
 import { WalkTime } from '../../../domain/Walk/WalkTime';
 import { WalkEntity } from '../../../entity/Walk.entity';
 import { MysqlWalkwayRepositoryMapper } from './MysqlWalkwayRepository.mapper';
@@ -18,6 +19,7 @@ export class MysqlWalkRepositoryMapper {
             {
                 distance: WalkDistance.create(entity.distance).value,
                 time: WalkTime.create(entity.time).value,
+                pinCount: WalkPinCount.create(entity.pinCount).value,
                 finishStatus: entity.finishStatus,
                 walkway: MysqlWalkwayRepositoryMapper.toDomain(entity.walkway),
                 user: MysqlUserRepositoryMapper.toDomain(entity.user),
@@ -38,17 +40,18 @@ export class MysqlWalkRepositoryMapper {
             return null;
         }
 
-        const entity: WalkEntity = {
-            id: walk.id,
-            distance: walk.distance.value,
-            time: walk.time.value,
-            finishStatus: walk.finishStatus,
-            status: walk.status,
-            user: MysqlUserRepositoryMapper.toEntity(walk.user),
-            walkway: MysqlWalkwayRepositoryMapper.toEntity(walk.walkway),
-            createdAt: walk.createdAt,
-            updatedAt: walk.updatedAt,
-        };
+        const entity = new WalkEntity();
+
+        entity.id = walk.id;
+        entity.distance = walk.distance.value;
+        entity.time = walk.time.value;
+        entity.pinCount = walk.pinCount.value;
+        entity.finishStatus = walk.finishStatus;
+        entity.status = walk.status;
+        entity.user = MysqlUserRepositoryMapper.toEntity(walk.user);
+        entity.walkway = MysqlWalkwayRepositoryMapper.toEntity(walk.walkway);
+        entity.createdAt = walk.createdAt;
+        entity.updatedAt = walk.updatedAt;
 
         return entity;
     }

@@ -7,7 +7,7 @@ import { LineString } from 'geojson';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkRequest, CreateWalkwayRequest, UpdateWalkRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkwayDto } from './dto/WalkwayResponse';
+import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkDetailDto, WalkListDto, WalkwayDto } from './dto/WalkwayResponse';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -139,6 +139,7 @@ export class WalkwayController {
         const createWalkUseCaseResponse = await this.createWalkUseCase.execute({
             time: body.time,
             distance: body.distance,
+            pinCount: body.pinCount,
             finishStatus: body.finishStatus,
             user: request.user,
             walkway: walkwayResponse.walkway,
@@ -235,7 +236,7 @@ export class WalkwayController {
     async getAllWalk(
         @Request() request,
         @Query('option') option?: number,
-    ) {
+    ): Promise<GetAllWalkResponse> {
         let walks;
         option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option
 
@@ -260,7 +261,7 @@ export class WalkwayController {
             }
 
             const review_walkIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => 
-                review.walk.id
+                review.walk.id,
             );
 
             walks = _.filter(walks, (walk) => {
@@ -268,27 +269,21 @@ export class WalkwayController {
             });
         }
 
-        const getRate = (walkDistance, walkwayDistance) => {
-            let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+        walks = _.map(walks, function(walk): WalkListDto {
+            return {
+                id: walk.id,
+                finishStatus: walk.finishStatus,
+                rate: getRate(walk.distance.value, walk.walkway.distance.value),
+                distance: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.distance.value : walk.distance.value,
+                title: walk.walkway.title.value,
+                image: walk.walkway.image ? walk.walkway.image.value : null,
+                createdAt: walk.createdAt,
+            };
+        });
 
-            return rate > 100 ? 100 : rate;
-        }
-
-        walks = _.map(walks, (walk) => ({
-            id: walk.id,
-            finishStatus: walk.finishStatus,
-            rate: getRate(walk.distance.value, walk.walkway.distance.value),
-            distance: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.distance.value : walk.distance.value,
-            time: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.time.value : walk.time.value,
-            title: walk.walkway.title.value,
-            image: walk.walkway.image ? walk.walkway.image.value : null,
-            walkwayId: walk.walkway.id,
-            userId: walk.user.id,
-            createAt: walk.createdAt,
-            updatedAt: walk.updatedAt,
-        }));
-
-        return walks;
+        return {
+            walks,
+        };
     }
 
     @Get('/:walkwayId')
@@ -376,7 +371,7 @@ export class WalkwayController {
     })
     async getWalk(
         @Param('walkId') walkId: string,
-    ) {
+    ): Promise<GetWalkResponse> {
         const getWalkUseCaseResponse = await this.getWalkUseCase.execute({
             id: walkId,
         });
@@ -389,20 +384,20 @@ export class WalkwayController {
             throw new HttpException('FAIL TO FIND WALK', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const walk = getWalkUseCaseResponse.walk;
+        const walk: WalkDetailDto = {
+            id: getWalkUseCaseResponse.walk.id,
+            finishStatus: getWalkUseCaseResponse.walk.finishStatus,
+            distance: getWalkUseCaseResponse.walk.distance.value,
+            time: getWalkUseCaseResponse.walk.time.value,
+            pinCount: getWalkUseCaseResponse.walk.pinCount.value,
+            title: getWalkUseCaseResponse.walk.walkway.title.value,
+            image: getWalkUseCaseResponse.walk.walkway.image ? getWalkUseCaseResponse.walk.walkway.image.value : null,
+            walkwayId: getWalkUseCaseResponse.walk.walkway.id,
+            createdAt: getWalkUseCaseResponse.walk.createdAt,
+        }
 
         return {
-            id: walk.id,
-            finishStatus: walk.finishStatus,
-            rate: getRate(walk.distance.value, walk.walkway.distance.value),
-            distance: walk.walkway.distance.value,
-            time: walk.walkway.time.value,
-            title: walk.walkway.title.value,
-            image: walk.walkway.image ? walk.walkway.image.value : null,
-            walkwayId: walk.walkway.id,
-            userId: walk.user.id,
-            createAt: walk.createdAt,
-            updatedAt: walk.updatedAt,
+            walk,
         };
     }
 
