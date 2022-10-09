@@ -28,6 +28,7 @@ import { MysqlUserRepository } from '../user/infra/mysql/MysqlUserRepository';
 import { UserEntity } from '../user/entity/User.entity';
 import { GetAllWalkUseCase } from './application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GetWalkUseCase } from './application/GetWalkUseCase/GetWalkUseCase';
+import { UpdateUserUseCase } from '../user/application/UpdateUserUseCase/UpdateUserUseCase';
 
 @Module({
     imports: [
@@ -51,6 +52,7 @@ import { GetWalkUseCase } from './application/GetWalkUseCase/GetWalkUseCase';
         CreateWalkUseCase,
         GetUserUseCase,
         GetAllWalkUseCase,
+        UpdateUserUseCase,
         {
             provide: WALKWAY_REPOSITORY,
             useClass: MysqlWalkwayRepository
