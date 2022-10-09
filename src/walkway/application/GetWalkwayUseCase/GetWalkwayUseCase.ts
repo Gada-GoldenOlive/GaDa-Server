@@ -23,7 +23,7 @@ IGetWalkwayUseCaseRequest, IGetWalkwayUseCaseResponse> {
         try {
             if (_.isNil(request.id)) {
                 return {
-                    code: GetWalkwayUseCaseCodes.NO_EXIST_WALKWAY,
+                    code: GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY,
                 };
             }
             

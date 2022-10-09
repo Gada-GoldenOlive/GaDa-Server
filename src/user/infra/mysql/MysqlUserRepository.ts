@@ -58,7 +58,7 @@ export class MysqlUserRepository implements IUserRepository {
 
         if (loginId) {
             query.andWhere('user.id != :userId', { userId })
-            .andWhere('user.loginId like :loginId', { loginId: '%' + loginId + '%'});
+            .andWhere('user.loginId like :loginId', { loginId: `%${loginId}%` });
         }
 
         const users = await query.getMany();

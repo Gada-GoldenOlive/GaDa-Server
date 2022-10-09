@@ -181,7 +181,7 @@ export class UserController {
             loginId: body.friendLoginId,
         });
 
-        if (userResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+        if (userResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
             throw new HttpException('FAIL TO FIND FRIEND BY LOGIN ID', StatusCodes.INTERNAL_SERVER_ERROR);
         }
         
