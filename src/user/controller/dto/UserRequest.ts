@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import { FriendStatus } from '../../domain/Friend/FriendStatus';
 
 export class CreateUserRequest {
