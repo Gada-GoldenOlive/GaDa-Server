@@ -22,7 +22,7 @@ export class ImageController {
 		private readonly config: ConfigService,
 	) {
 		const region = process.env.AWS_REGION;
-		
+
 		AWS.config.update({
 			region,
 			credentials: {
