@@ -143,8 +143,8 @@ export class UserController {
             id: sub,
         });
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
-            throw new HttpException(GetUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
+            throw new HttpException(GetUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
         }
     
         if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
@@ -392,7 +392,7 @@ export class UserController {
             };
         }
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
             return {
                 code: StatusCodes.OK,
                 responseMessage: 'Available User ID.',
@@ -430,7 +430,7 @@ export class UserController {
             };
         }
 
-        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NO_EXIST_USER) {
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
             return {
                 code: StatusCodes.OK,
                 responseMessage: 'Available User Name.',
@@ -490,7 +490,7 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiOperation({
-        summary: '비번 수정은 아직 안 되니까 쓰지 마세여. 나머진 다 됨'
+        summary: '유저 수정 (프로필 수정), 유저 수정되면 수정된 유저 리턴해줍니다. 비번 수정도 됨'
     })
     @ApiResponse({
         type: GetUserResponse,
@@ -509,8 +509,8 @@ export class UserController {
             goalTime: body.goalTime,
         });
 
-        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.NO_EXIST_USER) {
-            throw new HttpException(UpdateUserUseCaseCodes.NO_EXIST_USER, StatusCodes.NOT_FOUND);
+        if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.NOT_EXIST_USER) {
+            throw new HttpException(UpdateUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
         }
 
         if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.DUPLICATE_USER_NAME_ERROR) {

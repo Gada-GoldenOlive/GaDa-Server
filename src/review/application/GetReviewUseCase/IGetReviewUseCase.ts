@@ -9,7 +9,7 @@ import { IGetReviewUseCaseRequest } from './dto/GetReviewUseCaseRequest';
 export enum GetReviewUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
-    NO_EXIST_REVIEW = 'NO_EXIST_REVIEW'
+    NOT_EXIST_REVIEW = 'NOT_EXIST_REVIEW'
 }
 
 export class GetReviewUseCase implements UseCase<
@@ -23,14 +23,14 @@ IGetReviewUseCaseRequest, IGetReviewUseCaseResponse> {
         try {
             if (_.isNil(request.id))
                 return {
-                    code: GetReviewUseCaseCodes.NO_EXIST_REVIEW,
+                    code: GetReviewUseCaseCodes.NOT_EXIST_REVIEW,
                 };
             
             const review = await this.reviewRepository.getOne(request.id);
 
             if (!review) {
                 return {
-                    code: GetReviewUseCaseCodes.NO_EXIST_REVIEW,
+                    code: GetReviewUseCaseCodes.NOT_EXIST_REVIEW,
                 };
             }
             

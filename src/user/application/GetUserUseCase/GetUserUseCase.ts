@@ -12,7 +12,7 @@ export enum GetUserUseCaseCodes {
     FAILURE = 'FAILURE',
     DUPLICATE_LOGIN_ID_ERROR = 'Request user\'s login id is duplicated.',
     DUPLICATE_NAME_ERROR = 'Request user\'s nickname is duplicated.',
-    NO_EXIST_USER = 'NO_EXIST_USER',
+    NOT_EXIST_USER = 'NOT_EXIST_USER',
 }
 
 export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserUseCaseResponse> {
@@ -25,7 +25,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
         try {
             if (_.isNil(request.id) && _.isNil(request.loginId) && _.isNil(request.name)) {
                 return {
-                    code: GetUserUseCaseCodes.NO_EXIST_USER,
+                    code: GetUserUseCaseCodes.NOT_EXIST_USER,
                 };
             }
 
@@ -69,7 +69,7 @@ export class GetUserUseCase implements UseCase<IGetUserUseCaseRequest, IGetUserU
             
             if (!user) {
                 return {
-                    code: GetUserUseCaseCodes.NO_EXIST_USER,
+                    code: GetUserUseCaseCodes.NOT_EXIST_USER,
                 }
             }
 

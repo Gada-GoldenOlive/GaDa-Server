@@ -182,10 +182,14 @@ export class BadgeController {
 		throw new Error('Method not implemented');
 	}
 
+	// NOTE: 근데 이거 필요 없을 거 같음 그냥 우리가 다른 api에서 달성한 achieve 생기면 거기서 바꿔주면 될듯 삭제해두 될거가틈
 	@Patch('/achievement/:achieveId')
     @UseGuards(JwtAuthGuard)
     @UseGuards(AchieveOwnerGuard)
 	@HttpCode(StatusCodes.NO_CONTENT)
+	@ApiOperation({
+		summary: 'achieve의 상태값수정. NON_ACHIEVE나 HIDDEN을 ACHIEVE로 변경할 때 사용하는 API'
+	})
 	@ApiResponse({
 		type: CommonResponse,
 	})
