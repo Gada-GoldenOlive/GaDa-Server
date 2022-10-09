@@ -55,7 +55,7 @@ export class MysqlReviewRepository implements IReviewRepository {
         .leftJoinAndSelect('review.walk', 'walk')
         .leftJoinAndSelect('walk.user', 'user_walk')
         .leftJoinAndSelect('walk.walkway', 'walkway_walk')
-        .where('review.status = :normal', { normal: ReviewStatus.NORMAL })
+        .where('review.status = :normal', { normal: ReviewStatus.NORMAL });
 
         if (walkway) query.andWhere('walkway_walk.id = :walkwayId', { walkwayId: walkway.id });
         if (user) query.andWhere('user_walk.id = :userId', { userId: user.id });

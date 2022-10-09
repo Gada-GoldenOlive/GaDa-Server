@@ -20,6 +20,10 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { CreateReviewUseCase, CreateReviewUseCaseCodes } from '../application/CreateReviewUseCase/CreateReviewUseCase';
 import { GetWalkUseCase, GetWalkUseCaseCodes } from '../../walkway/application/GetWalkUseCase/GetWalkUseCase';
 import { CreateAllReviewImageUseCase, CreateAllReviewImageUseCaseCodes } from '../application/CreateAllReviewImageUseCase/CreateAllReviewImageUseCase';
+import { Review } from '../domain/Review/Review';
+import { Image } from '../../common/domain/Image/Image';
+import { User } from '../../user/domain/User/User';
+import { UserStatus } from '../../user/domain/User/UserStatus';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -51,21 +55,27 @@ export class ReviewController {
         return like;
     }
 
-    private async convertToFeedDto(review, images, user): Promise<FeedDto> {
+    private async convertToFeedDto(review: Review, images: Image[], user: User): Promise<FeedDto> {
+        let userImage = review.walk.user.image ? review.walk.user.image.value : null;
+        let userName = review.walk.user.name.value;
+
+        if (review.walk.user.status === UserStatus.DELETE) {
+            userImage = null;
+            userName = '탈퇴한 회원';
+        }
+
         return ({
-            review: {
-                id: review.id,
-                title: review.title.value,
-                vehicle: review.vehicle,
-                star: review.star.value,
-                content: review.content.value,
-                userImage: review.walk.user.image.value,
-                userName: review.walk.user.name.value,
-                walkwayId: review.walk.walkway.id,
-                walkwayTitle: review.walk.walkway.title.value,
-                createdAt: review.createdAt,
-                updatedAt: review.updatedAt,
-            },
+            id: review.id,
+            title: review.title.value,
+            vehicle: review.vehicle,
+            star: review.star.value,
+            content: review.content.value,
+            userImage,
+            userName,
+            walkwayId: review.walk.walkway.id,
+            walkwayTitle: review.walk.walkway.title.value,
+            createdAt: review.createdAt,
+            updatedAt: review.updatedAt,
             time: review.walk.time.value,
             distance: review.walk.distance.value,
             walkwayImage: review.walk.walkway.image ? review.walk.walkway.image.value : null,
@@ -191,7 +201,7 @@ export class ReviewController {
         @Query('walkwayId') walkwayId?: string,
     ): Promise<GetAllReviewResponse> {
         const walkwayResponse = await this.getWalkwayUseCase.execute({
-                id: walkwayId,
+            id: walkwayId,
         });
 
         let getAllReviewUseCaseResponse: IGetAllReviewUseCaseResponse;
@@ -201,7 +211,7 @@ export class ReviewController {
                 return {
                     reviews: [],
                     averageStar: 0,
-                }
+                };
             }
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
                 walkway: walkwayResponse.walkway,
@@ -213,32 +223,42 @@ export class ReviewController {
         }
 
         if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR)
+            throw new HttpException('FAIL TO GET ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviews = _.map(getAllReviewUseCaseResponse.reviews, 
-            (review) => ({
+        const reviews = _.map(getAllReviewUseCaseResponse.reviews, (review) => {
+            let userId = review.walk.user.id;
+            let userImage = review.walk.user.image ? review.walk.user.image.value : null;
+            let userName = review.walk.user.name.value;
+
+            if (review.walk.user.status === UserStatus.DELETE) {
+                userId = 'jonjaehaji-aneum';
+                userImage = null;
+                userName = '탈퇴한 회원';
+            }
+            
+            return {
                 id: review.id,
                 title: review.title.value,
                 vehicle: review.vehicle,
                 star: review.star.value,
                 content: review.content.value,
-                userImage: review.walk.user.image ? review.walk.user.image.value : null,
-                userId: review.walk.user.id,
-                userName: review.walk.user.name.value,
+                userImage,
+                userId,
+                userName,
                 walkwayId: review.walk.walkway.id,
                 walkwayTitle: review.walk.walkway.title.value,
                 createdAt: review.createdAt,
                 updatedAt: review.updatedAt,
-            })
-        );
+            };
+        });
 
         const averageStar = getAllReviewUseCaseResponse.averageStar;
 
         return {
             reviews,
             averageStar,
-        }
+        };
     }
 
     @Get('/like-reviews')
@@ -256,7 +276,7 @@ export class ReviewController {
     ): Promise<GetAllFeedResponse> {
         const getAllLikeUseCaseResponse = await this.getAllLikeUseCase.execute({
             user: request.user,
-        })
+        });
 
         if (getAllLikeUseCaseResponse.code !== GetLikeUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL LIKES',StatusCodes.INTERNAL_SERVER_ERROR);
@@ -279,7 +299,7 @@ export class ReviewController {
 
         return {
             feeds,
-        }
+        };
     }
 
     @Get('/feeds')
@@ -330,7 +350,7 @@ export class ReviewController {
 
         return {
             feeds,
-        }
+        };
     }
 
     @Get('/:reviewId')

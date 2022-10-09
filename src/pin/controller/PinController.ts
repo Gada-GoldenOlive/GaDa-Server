@@ -16,6 +16,7 @@ import { CreateCommentUseCase, CreateCommentUseCaseCodes } from '../application/
 import { PinOwnerGuard } from '../pin-owner.guard';
 import { CommentOwnerGuard } from '../comment-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
+import { UserStatus } from '../../user/domain/User/UserStatus';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -166,7 +167,7 @@ export class PinController {
             content: pin.content.value,
             image: pin.image ? pin.image.value : null,
             location: pin.location.value,
-            userId: pin.user.id,
+            userId: pin.user.status === UserStatus.NORMAL ? pin.user.id : '  ',
             walkwayId: pin.walkway.id,
             createdAt: pin.createdAt,
             updatedAt: pin.updatedAt,
@@ -217,16 +218,24 @@ export class PinController {
             throw new HttpException('FAIL TO GET PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
+        const foundPin = getPinUseCaseResponse.pin;
+
+        let userId = foundPin.user.id;
+
+        if (foundPin.user.status === UserStatus.DELETE) {
+            userId = 'jonjaehaji-aneum';
+        }
+
         const pin = {
-            id: getPinUseCaseResponse.pin.id,
-            title: getPinUseCaseResponse.pin.title.value,
-            content: getPinUseCaseResponse.pin.content.value,
-            image: getPinUseCaseResponse.pin.image ? getPinUseCaseResponse.pin.image.value : null,
-            location: getPinUseCaseResponse.pin.location.value,
-            userId: getPinUseCaseResponse.pin.user.id,
-            walkwayId: getPinUseCaseResponse.pin.walkway.id,
-            createdAt: getPinUseCaseResponse.pin.createdAt,
-            updatedAt: getPinUseCaseResponse.pin.updatedAt,
+            id: foundPin.id,
+            title: foundPin.title.value,
+            content: foundPin.content.value,
+            image: foundPin.image ? foundPin.image.value : null,
+            location: foundPin.location.value,
+            userId,
+            walkwayId: foundPin.walkway.id,
+            createdAt: foundPin.createdAt,
+            updatedAt: foundPin.updatedAt,
         };
 
         return {

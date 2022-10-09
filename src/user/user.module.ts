@@ -34,6 +34,7 @@ import { BadgeEntity } from '../badge/entity/Badge.entity';
 import { AchieveEntity } from '../badge/entity/Achieve.entity';
 import { UpdateFriendUseCase } from './application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFriendUseCase';
+import { DeleteUserUseCase } from './application/DeleteUserUseCase/DeleteUserUseCase';
 
 @Module({
     imports: [
@@ -55,6 +56,7 @@ import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFri
         GetUserUseCase,
         LoginUseCase,
         UpdateUserUseCase,
+        DeleteUserUseCase,
         {
             provide: USER_REPOSITORY,
             useClass: MysqlUserRepository,
