@@ -11,6 +11,7 @@ import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
 import { CreateCommentUseCase } from './application/CreateCommentUseCase/CreateCommentUseCase';
 import { CreatePinUseCase } from './application/CreatePinUseCase/CreatePinUseCase';
+import { GetAllCommentUseCase } from './application/GetAllCommentUseCase/GetAllCommentUseCase';
 import { GetAllPinUseCase } from './application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetPinUseCase } from './application/GetPinUseCase/GetPinUseCase';
 import { PinController } from './controller/PinController';
@@ -50,6 +51,7 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
       useClass: MysqlWalkwayRepository,
     },
     CreateCommentUseCase,
+    GetAllCommentUseCase,
     {
       provide: COMMENT_REPOSITORY,
       useClass: MysqlCommentRepository,

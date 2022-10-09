@@ -103,8 +103,7 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				code: UpdateUserUseCaseCodes.SUCCESS,
 				user,
 			};
-		} catch (e){
-			console.log(e)
+		} catch {
 			return {
 				code: UpdateUserUseCaseCodes.FAILURE,
 			};

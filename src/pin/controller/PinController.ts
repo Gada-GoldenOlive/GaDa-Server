@@ -5,7 +5,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateCommentRequest, CreatePinRequest, UpdateCommentReqeust, UpdatePinRequest } from './dto/PinRequest';
-import { GetAllCommentResponse, GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
+import { CommentDto, GetAllCommentResponse, GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
@@ -17,6 +17,7 @@ import { PinOwnerGuard } from '../pin-owner.guard';
 import { CommentOwnerGuard } from '../comment-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { UserStatus } from '../../user/domain/User/UserStatus';
+import { GetAllCommentUseCase, GetAllCommentUseCaseCodes } from '../application/GetAllCommentUseCase/GetAllCommentUseCase';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -28,6 +29,7 @@ export class PinController {
         private readonly createPinUseCase: CreatePinUseCase,
         private readonly getPinUseCase: GetPinUseCase,
         private readonly createCommentUseCase: CreateCommentUseCase,
+        private readonly getAllCommentUseCase: GetAllCommentUseCase,
     ) {}
 
     @Post()
@@ -185,18 +187,38 @@ export class PinController {
     @Get('/comments')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
-        description: "query parameter로 userId만 보낼 경우: 해당하는 유저의 모든 댓글 리턴. || pinId만 보낼 경우: 해당하는 핀의 모든 댓글 리턴."
+        summary: '핀 목록 조회',
+        description: 'pinId에 해당하는 핀의 모든 댓글 리턴.'
     })
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
         type: GetAllCommentResponse,
     })
     async getAllComment(
-        @Query('userId') userId?: string, // NOTE: 해당하는 유저의 모든 댓글 불러오기
-        @Query('pinId') pinId?: string, // NOTE: 해당하는 핀의 모든 댓글 불러오기
+        @Query('pinId') pinId: string,
     ): Promise<GetAllCommentResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
-        throw new Error('Method not implemented');
+        const getAllCommentUseCaseResponse = await this.getAllCommentUseCase.execute({
+            pinId,
+        });
+
+        if (getAllCommentUseCaseResponse.code !== GetAllCommentUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET COMMENT', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const comments: CommentDto[] = _.map(getAllCommentUseCaseResponse.comments, function(comment): CommentDto {
+            return {
+                id: comment.id,
+                content: comment.content.value,
+                creator: comment.user.name.value,
+                creatorId: comment.user.id,
+                createdAt: comment.createdAt,
+                updatedAt: comment.updatedAt,
+            };
+        });
+
+        return {
+            comments,
+        };
     }
 
     @Get('/:pinId')
