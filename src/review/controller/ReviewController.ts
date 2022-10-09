@@ -105,7 +105,7 @@ export class ReviewController {
             id: body.walkId,
         });
 
-        if (getWalkUseCaseResponse.code === GetWalkUseCaseCodes.NO_EXIST_WALK) {
+        if (getWalkUseCaseResponse.code === GetWalkUseCaseCodes.NOT_EXIST_WALK) {
             throw new HttpException(getWalkUseCaseResponse.code, StatusCodes.NOT_FOUND);
         }
         if (getWalkUseCaseResponse.code !== GetWalkUseCaseCodes.SUCCESS) {
@@ -370,7 +370,7 @@ export class ReviewController {
             id: reviewId,
         });
           
-        if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NO_EXIST_REVIEW) {
+        if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NOT_EXIST_REVIEW) {
             throw new HttpException('NO EXIST REVIEW', StatusCodes.NOT_FOUND);
         }
 

@@ -92,7 +92,6 @@ export class MysqlPinRepository implements IPinRepository {
             query.andWhere('user.id = :userId', { userId: user.id })
             .orderBy('pin.createdAt', 'DESC');
         }
-        
         const pins = await query.getMany();
 
         return MysqlPinRepositoryMapper.toDomains(pins);

@@ -9,7 +9,7 @@ import { IGetWalkwayUseCaseRequest } from './dto/GetWalkwayUseCaseRequest';
 export enum GetWalkwayUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
-    NO_EXIST_WALKWAY = 'NO_EXIST_WALKWAY'
+    NOT_EXIST_WALKWAY = 'NOT_EXIST_WALKWAY'
 }
 
 export class GetWalkwayUseCase implements UseCase<
@@ -21,13 +21,17 @@ IGetWalkwayUseCaseRequest, IGetWalkwayUseCaseResponse> {
 
     async execute(request?: IGetWalkwayUseCaseRequest): Promise<IGetWalkwayUseCaseResponse> {
         try {
-            if (_.isNil(request.id)) return null;
+            if (_.isNil(request.id)) {
+                return {
+                    code: GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY,
+                };
+            }
             
             const walkway = await this.walkwayRepository.findOne(request.id);
 
             if (!walkway) {
                 return {
-                    code: GetWalkwayUseCaseCodes.NO_EXIST_WALKWAY,
+                    code: GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY,
                 };
             }
             
