@@ -23,6 +23,7 @@ import { WalkOwnerGuard } from '../walk-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { GetWalkUseCase, GetWalkUseCaseCodes } from '../application/GetWalkUseCase/GetWalkUseCase';
 import { UserStatus } from '../../user/domain/User/UserStatus';
+import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../../user/application/UpdateUserUseCase/UpdateUserUseCase';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -53,6 +54,7 @@ export class WalkwayController {
         private readonly getAllWalkUseCase: GetAllWalkUseCase,
         private readonly createWalkwayUseCase: CreateWalkwayUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
+        private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
 
     @Post()
@@ -150,6 +152,16 @@ export class WalkwayController {
 
         if (createWalkUseCaseResponse.code != CreateWalkUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
+            id: request.user.id,
+            totalDistance: request.user.totalDistance.value + body.distance,
+            totalTime: request.user.totalTime.value + body.time,
+        });
+
+        if (updateUserUseCaseResponse.code != UpdateUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         return {

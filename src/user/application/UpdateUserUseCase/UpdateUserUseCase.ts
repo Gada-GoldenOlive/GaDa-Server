@@ -14,6 +14,8 @@ import { UserRefreshToken } from '../../domain/User/UserRefreshToken';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
 import { IUpdateUserUseCaseRequest } from './dto/IUpdateUserUseCaseRequest';
 import { IUpdateUserUseCaseResponse } from './dto/IUpdateUserUseCaseResponse';
+import { UserTotalTime } from '../../domain/User/UserTotalTime';
+import { UserTotalDistance } from '../../domain/User/UserTotalDistance';
 
 export enum UpdateUserUseCaseCodes {
 	SUCCESS = 'SUCCESS',
@@ -76,6 +78,8 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			if (!request.image) foundUser.image ? request.image = foundUser.image.value : request.image = null;
 			if (!request.goalDistance) request.goalDistance = foundUser.goalDistance.value;
 			if (!request.goalTime) request.goalTime = foundUser.goalTime.value;
+			if (!request.totalDistance) request.totalDistance = foundUser.totalDistance.value;
+			if (!request.totalTime) request.totalTime = foundUser.totalTime.value;
 			if (!request.refreshToken) request.refreshToken = foundUser.refreshToken ? foundUser.refreshToken.value : null;
 			else request.refreshToken = await hashing(request.refreshToken);
 
@@ -86,8 +90,8 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				image: request.image ? ImageUrl.create(request.image).value : null,
 				goalDistance: UserGoalDistance.create(request.goalDistance).value,
 				goalTime: UserGoalTime.create(request.goalTime).value,
-				totalDistance: foundUser.totalDistance,
-				totalTime: foundUser.totalTime,
+				totalDistance: UserTotalDistance.create(request.totalDistance).value,
+				totalTime: UserTotalTime.create(request.totalTime).value,
 				createdAt: foundUser.createdAt,
 				updatedAt: new Date(),
 				refreshToken: request.refreshToken ? UserRefreshToken.create(request.refreshToken).value : null,
