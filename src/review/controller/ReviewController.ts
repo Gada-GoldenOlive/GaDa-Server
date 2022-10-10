@@ -4,7 +4,6 @@ import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, P
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import * as AWS from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -28,10 +27,6 @@ import { Image } from '../../common/domain/Image/Image';
 import { User } from '../../user/domain/User/User';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 
-const s3 = new AWS.S3({ useAccelerateEndpoint: true });
-const BucketName = 'golden-olive-gada';
-const Expires = 3600;
-
 @Controller('reviews')
 @ApiTags('리뷰')
 export class ReviewController {
@@ -47,19 +42,7 @@ export class ReviewController {
         private readonly getWalkUseCase: GetWalkUseCase,
         private readonly createAllReviewImageUseCase: CreateAllReviewImageUseCase,
         private readonly config: ConfigService,
-    ) {
-        const region = this.config.get('AWS_REGION');
-
-        AWS.config.update({
-            region,
-            credentials: {
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.AWS_SECRET_KEY,
-            },
-            apiVersion: '2006-03-01',
-            signatureVersion: 'v4',
-        });
-    }
+    ) {}
 
     private async is_like_exist(review: Review, user: User): Promise<boolean> {
         let like = false;
@@ -463,33 +446,5 @@ export class ReviewController {
 		// TODO: 차후 UseCase 생성 시 추가
 		throw new Error('Method not implemented');
 	}
-
-    @Post('/pre-signed-url')
-    @HttpCode(StatusCodes.CREATED)
-    @ApiCreatedResponse({
-        type: CreatePreSignedUrlResponse,
-    })
-    async getPreSignedUrl(
-        @Body() body: CreatePreSignedUrlResponse,
-    ): Promise<CreatePreSignedUrlResponse> {
-        const imageId = uuidv4();
-        // const key = `${imageId}`;
-        const fileName: string = `${imageId}.png`;
-
-        const params = {
-            Bucket: BucketName,
-            Key: fileName,
-            Expires,
-            ACL: 'public-read',
-        };
-
-        // TODO: 이미지 엔티티로 만들어서 DB에 저장
-
-        const url = await s3.getSignedUrlPromise('putObject', params);
-        
-        return {
-            url,
-        };
-    }
 }
 
