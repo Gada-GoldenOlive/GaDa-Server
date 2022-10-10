@@ -2,8 +2,6 @@ import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import * as AWS from 'aws-sdk';
-import { ConfigService } from '@nestjs/config';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -26,6 +24,12 @@ import { Review } from '../domain/Review/Review';
 import { Image } from '../../common/domain/Image/Image';
 import { User } from '../../user/domain/User/User';
 import { UserStatus } from '../../user/domain/User/UserStatus';
+import { Achieve } from '../../badge/domain/Achieve/Achieve';
+import { BadgeCategory, BADGE_CATEGORY } from '../../badge/domain/Badge/BadgeCategory';
+import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
+import { GetAchieveUseCase, GetAchieveUseCaseCodes } from '../../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase, UpdateAchieveUseCaseCodes } from '../../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -41,8 +45,32 @@ export class ReviewController {
         private readonly createReviewUseCase: CreateReviewUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
         private readonly createAllReviewImageUseCase: CreateAllReviewImageUseCase,
-        private readonly config: ConfigService,
+        private readonly getAchieveUseCase: GetAchieveUseCase,
+        private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
+
+    private achieves: Achieve[] = [];
+
+    private async pushAchieve(user: User, category: BadgeCategory, code: BadgeCode, achieves: Achieve[]): Promise<boolean> {
+        const getAchieveUseCaseResponse = await this.getAchieveUseCase.execute({
+            user,
+            category: category as BADGE_CATEGORY,
+            code: code as BADGE_CODE,
+        });
+
+        // NOTE: not_exist_achieve는 있을 수 있으니까 failure일때만으로 설정함
+        if (getAchieveUseCaseResponse.code === GetAchieveUseCaseCodes.FAILURE) {
+            throw new HttpException('FAIL TO GET ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const achieve = getAchieveUseCaseResponse.achieve;
+
+        if (getAchieveUseCaseResponse.code !== GetAchieveUseCaseCodes.NOT_EXIST_ACHIEVE) {
+            achieves.unshift(achieve);
+        }
+
+        return true;
+    }
 
     private async is_like_exist(review: Review, user: User): Promise<boolean> {
         let like = false;
@@ -148,7 +176,67 @@ export class ReviewController {
 
         const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseReponse.images, request.user);
 
+        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+            user: request.user,
+        });
+
+        const reviews = getAllReviewUseCaseResponse.reviews;
+
+        if (reviews.length >= 100) {
+            await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.HUNDRED, this.achieves);
+        }
+        if (reviews.length >= 20) {
+            await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.TWENTY, this.achieves);
+        }
+        if (reviews.length >= 10) {
+            await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.TEN, this.achieves);
+        }
+        if (reviews.length >= 5) {
+            await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.FIVE, this.achieves);
+        }
+        if (reviews.length >= 3) {
+            await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.THREE, this.achieves);
+        }
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+
+                return {
+                    badge: {
+                        title: achieve.badge.title.value,
+                        image: achieve.badge.image.value,
+                    },
+                    status: achieve.status,
+                }
+            });
+
+            return {
+                code: StatusCodes.CREATED,
+                responseMessage: 'SUCCESS TO CREATE WALK AND GET BADGE',
+                feed,
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
+        }
+
         return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE REVEIW',
             feed,
         };
     }
@@ -362,8 +450,8 @@ export class ReviewController {
         type: GetFeedResponse,
     })
     @ApiOperation({
-        summary: '개별 리뷰 정보 가져오기',
-        description: '피드>산책로게시물 페이지에 보여질 리뷰 정보 get' 
+        summary: '개별 리뷰 정보(피드 게시글) 가져오기',
+        description: '피드에 보여질 피드 게시글 정보 get',
     })
     async getReview(
         @Param('reviewId') reviewId: string,
@@ -394,6 +482,8 @@ export class ReviewController {
         const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseReponse.images, request.user);
 
         return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO GET FEED',
             feed,
         };
     }

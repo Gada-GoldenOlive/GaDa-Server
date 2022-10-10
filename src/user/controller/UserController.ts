@@ -156,7 +156,7 @@ export class UserController {
             throw new HttpException('FAIL TO CREATE ACHIEVES', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        this.pushAchieve(user, BadgeCategory.USER, BadgeCode.FIRST, this.achieves);
+        await this.pushAchieve(user, BadgeCategory.USER, BadgeCode.FIRST, this.achieves);
 
         const { accessToken, refreshToken } = await this.authService.getToken({
             username: user.loginId.value,
