@@ -5,5 +5,4 @@ export interface IUpdatePinUseCaseRequest {
     title?: string;
     content?: string;
     image?: string;
-    status?: PIN_STATUS;
 }

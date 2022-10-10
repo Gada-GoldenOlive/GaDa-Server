@@ -37,13 +37,12 @@ export class UpdatePinUseCase implements UseCase<IUpdatePinUseCaseRequest, IUpda
 			if (!request.title) request.title = foundPin.title.value;
 			if (!request.content) request.content = foundPin.content.value;
 			if (!request.image) foundPin.image ? request.image = foundPin.image.value : request.image = null;
-			if (!request.status) request.status = foundPin.status;
 			
 			const pin = Pin.create({
 				title: PinTitle.create(request.title).value,
 				content: PinContent.create(request.content).value,
 				image: request.image ? ImageUrl.create(request.image).value : null,
-				status: request.status,
+				status: foundPin.status,
 				location: PinLocation.create(foundPin.location.value).value,
 				walkway: foundPin.walkway,
 				user: foundPin.user,
