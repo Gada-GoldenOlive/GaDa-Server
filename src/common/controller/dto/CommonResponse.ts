@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AchieveDto } from '../../../badge/controller/dto/BadgeResponse';
 
 export class CommonResponse {
     @ApiProperty()
@@ -9,4 +10,7 @@ export class CommonResponse {
 
     @ApiPropertyOptional()
     isValid?: boolean;
+
+    @ApiPropertyOptional()
+    achieves?: AchieveDto[];
 }

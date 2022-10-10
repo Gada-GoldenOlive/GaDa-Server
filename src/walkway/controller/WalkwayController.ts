@@ -24,6 +24,14 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { GetWalkUseCase, GetWalkUseCaseCodes } from '../application/GetWalkUseCase/GetWalkUseCase';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../../user/application/UpdateUserUseCase/UpdateUserUseCase';
+import { GetAchieveUseCase, GetAchieveUseCaseCodes } from '../../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase, UpdateAchieveUseCaseCodes } from '../../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { BadgeCategory, BADGE_CATEGORY } from '../../badge/domain/Badge/BadgeCategory';
+import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
+import { Achieve } from '../../badge/domain/Achieve/Achieve';
+import { User } from '../../user/domain/User/User';
+import { AchieveDto } from '../../badge/controller/dto/BadgeResponse';
+import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -55,7 +63,30 @@ export class WalkwayController {
         private readonly createWalkwayUseCase: CreateWalkwayUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
+        private readonly getAchieveUseCase: GetAchieveUseCase,
+        private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
+
+    private async pushAchieve(user: User, category: BADGE_CATEGORY, code: BADGE_CODE, achieves: Achieve[]): Promise<boolean> {
+        const getAchieveUseCaseResponse = await this.getAchieveUseCase.execute({
+            user,
+            category: category as BADGE_CATEGORY,
+            code: code as BADGE_CODE,
+        });
+
+        // NOTE: not_exist_achieve는 있을 수 있으니까 failure일때만으로 설정함
+        if (getAchieveUseCaseResponse.code === GetAchieveUseCaseCodes.FAILURE) {
+            throw new HttpException('FAIL TO GET ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const achieve = getAchieveUseCaseResponse.achieve;
+
+        if (getAchieveUseCaseResponse.code !== GetAchieveUseCaseCodes.NOT_EXIST_ACHIEVE) {
+            achieves.unshift(achieve);
+        }
+
+        return true;
+    }
 
     @Post()
     @UseGuards(JwtAuthGuard)
@@ -150,7 +181,7 @@ export class WalkwayController {
             walkway: walkwayResponse.walkway,
         });
 
-        if (createWalkUseCaseResponse.code != CreateWalkUseCaseCodes.SUCCESS) {
+        if (createWalkUseCaseResponse.code !== CreateWalkUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE WALK', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
@@ -160,8 +191,71 @@ export class WalkwayController {
             totalTime: request.user.totalTime.value + body.time,
         });
 
-        if (updateUserUseCaseResponse.code != UpdateUserUseCaseCodes.SUCCESS) {
+        if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO UPDATE USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const user = updateUserUseCaseResponse.user;
+        const achieves: Achieve[] = [];
+
+        if (user.totalDistance.value >= 50000) {
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.FIFTY, achieves);
+        }
+        
+        if (user.totalDistance.value >= 20000) {
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.TWENTY, achieves);
+        }
+        if (user.totalDistance.value >= 10000) {
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.TEN, achieves);
+        }
+        if (user.totalDistance.value >= 5000) {
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.FIVE, achieves);
+        }
+        if (user.totalDistance.value >= 3000) {
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.THREE, achieves);   
+        }
+
+        if (user.totalTime.value >= 180000) {
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.FIFTY, achieves);
+        }
+        if (user.totalTime.value >= 72000) {
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.TWENTY, achieves);
+        }
+        if (user.totalTime.value >= 36000) {
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.TEN, achieves);
+        }
+        if (user.totalTime.value >= 18000) {
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.FIVE, achieves);
+        }
+        if (user.totalTime.value >= 10800) {
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.THREE, achieves);  
+        }
+
+        if (achieves.length !== 0) {
+            _.map(achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+
+            return {
+                code: StatusCodes.CREATED,
+                responseMessage: 'SUCCESS TO CREATE WALK AND GET BADGE',
+                achieves: _.map(achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
         }
 
         return {
