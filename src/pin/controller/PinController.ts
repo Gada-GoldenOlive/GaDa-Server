@@ -77,6 +77,8 @@ export class PinController {
         @Request() request,
         @Body() body: CreatePinRequest,
     ): Promise<CommonResponse> {
+        this.achieves = [];
+
         const walkwayResponse = await this.getWalkwayUseCase.execute({
             id: body.walkwayId,
         });
@@ -171,6 +173,8 @@ export class PinController {
         @Request() request,
         @Body() body: CreateCommentRequest,
     ): Promise<CommonResponse> {
+        this.achieves = [];
+        
         const pinResponse = await this.getPinUseCase.execute({
             id: body.pinId,
         });
