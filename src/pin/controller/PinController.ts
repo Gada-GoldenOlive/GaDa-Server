@@ -7,7 +7,7 @@ import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateCommentRequest, CreatePinRequest, UpdateCommentReqeust, UpdatePinRequest } from './dto/PinRequest';
 import { CommentDto, GetAllCommentResponse, GetAllPinResponse, GetPinResponse } from './dto/PinResponse';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../application/GetAllPinUseCase/GetAllPinUseCase';
-import { GetUserUseCase, GetUserUseCaseCodes } from '../../user/application/GetUserUseCase/GetUserUseCase';
+import { GetUserUseCase } from '../../user/application/GetUserUseCase/GetUserUseCase';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllPinUseCaseResponse } from '../application/GetAllPinUseCase/dto/IGetAllPinUseCaseResponse';
 import { CreatePinUseCase, CreatePinUseCaseCodes } from '../application/CreatePinUseCase/CreatePinUseCase';
@@ -18,6 +18,13 @@ import { CommentOwnerGuard } from '../comment-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { GetAllCommentUseCase, GetAllCommentUseCaseCodes } from '../application/GetAllCommentUseCase/GetAllCommentUseCase';
+import { Achieve } from '../../badge/domain/Achieve/Achieve';
+import { BadgeCategory, BADGE_CATEGORY } from '../../badge/domain/Badge/BadgeCategory';
+import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
+import { GetAchieveUseCase, GetAchieveUseCaseCodes } from '../../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase, UpdateAchieveUseCaseCodes } from '../../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { User } from '../../user/domain/User/User';
+import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -30,7 +37,32 @@ export class PinController {
         private readonly getPinUseCase: GetPinUseCase,
         private readonly createCommentUseCase: CreateCommentUseCase,
         private readonly getAllCommentUseCase: GetAllCommentUseCase,
+        private readonly getAchieveUseCase: GetAchieveUseCase,
+        private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
+
+    private achieves: Achieve[] = [];
+
+    private async pushAchieve(user: User, category: BadgeCategory, code: BadgeCode, achieves: Achieve[]): Promise<boolean> {
+        const getAchieveUseCaseResponse = await this.getAchieveUseCase.execute({
+            user,
+            category: category as BADGE_CATEGORY,
+            code: code as BADGE_CODE,
+        });
+
+        // NOTE: not_exist_achieve는 있을 수 있으니까 failure일때만으로 설정함
+        if (getAchieveUseCaseResponse.code === GetAchieveUseCaseCodes.FAILURE) {
+            throw new HttpException('FAIL TO GET ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const achieve = getAchieveUseCaseResponse.achieve;
+
+        if (getAchieveUseCaseResponse.code !== GetAchieveUseCaseCodes.NOT_EXIST_ACHIEVE) {
+            achieves.unshift(achieve);
+        }
+
+        return true;
+    }
 
     @Post()
     @UseGuards(JwtAuthGuard)
@@ -66,10 +98,64 @@ export class PinController {
             throw new HttpException('FAIL TO CREATE PIN', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const pins = getAllPinUseCaseResponse.pins;
+
+        if (pins.length >= 100) {
+            await this.pushAchieve(request.user, BadgeCategory.PIN, BadgeCode.HUNDRED, this.achieves);
+        }
+        if (pins.length >= 20) {
+            await this.pushAchieve(request.user, BadgeCategory.PIN, BadgeCode.TWENTY, this.achieves);
+        }
+        if (pins.length >= 10) {
+            await this.pushAchieve(request.user, BadgeCategory.PIN, BadgeCode.TEN, this.achieves);
+        }
+        if (pins.length >= 5) {
+            await this.pushAchieve(request.user, BadgeCategory.PIN, BadgeCode.FIVE, this.achieves);
+        }
+        if (pins.length >= 3) {
+            await this.pushAchieve(request.user, BadgeCategory.PIN, BadgeCode.THREE, this.achieves);
+        }
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+    
+            return {
+                code: StatusCodes.CREATED,
+                responseMessage: 'SUCCESS TO CREATE PIN AND GET BADGE',
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
+        }
+        
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE PIN',
         };
+
     }
 
     @Post('/comments')
