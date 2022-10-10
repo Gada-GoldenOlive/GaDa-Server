@@ -18,7 +18,10 @@ export class GetAllCommentUseCase implements UseCase<IGetAllCommentUseCaseReques
 
     async execute(request: IGetAllCommentUseCaseRequest): Promise<IGetAllCommentUseCaseResponse> {
         try {
-            const comments = await this.commentRepository.findAll(request.pinId);
+            const comments = await this.commentRepository.findAll({
+                user: request.user,
+                pinId: request.pinId,
+            });
 
             return {
                 code: GetAllCommentUseCaseCodes.SUCCESS,

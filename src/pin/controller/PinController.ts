@@ -189,6 +189,59 @@ export class PinController {
             throw new HttpException('FAIL TO CREATE COMMENT', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
+        const getAllCommentUseCaseResponse = await this.getAllCommentUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllCommentUseCaseResponse.code !== GetAllCommentUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL COMMENT', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const comments = getAllCommentUseCaseResponse.comments;
+
+        if (comments.length >= 100) {
+            await this.pushAchieve(request.user, BadgeCategory.COMMENT, BadgeCode.HUNDRED, this.achieves);
+        }
+        if (comments.length >= 20) {
+            await this.pushAchieve(request.user, BadgeCategory.COMMENT, BadgeCode.TWENTY, this.achieves);
+        }
+        if (comments.length >= 10) {
+            await this.pushAchieve(request.user, BadgeCategory.COMMENT, BadgeCode.TEN, this.achieves);
+        }
+        if (comments.length >= 5) {
+            await this.pushAchieve(request.user, BadgeCategory.COMMENT, BadgeCode.FIVE, this.achieves);
+        }
+        if (comments.length >= 3) {
+            await this.pushAchieve(request.user, BadgeCategory.COMMENT, BadgeCode.THREE, this.achieves);
+        }
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+    
+            return {
+                code: StatusCodes.CREATED,
+                responseMessage: 'SUCCESS TO CREATE COMMENT AND GET BADGE',
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
+        }
+
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE COMMENT',
