@@ -24,6 +24,7 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { GetWalkUseCase, GetWalkUseCaseCodes } from '../application/GetWalkUseCase/GetWalkUseCase';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../../user/application/UpdateUserUseCase/UpdateUserUseCase';
+import { UpdateWalkwayUseCase, UpdateWalkwayUseCaseCodes } from '../application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 
 const getDistance = (p1: Point, p2: Point) => {
     const geojsonLength = require('geojson-length');
@@ -55,6 +56,7 @@ export class WalkwayController {
         private readonly createWalkwayUseCase: CreateWalkwayUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
+        private readonly updateWalkwayUseCase: UpdateWalkwayUseCase,
     ) {}
 
     @Post()
@@ -434,16 +436,29 @@ export class WalkwayController {
     }
 
     @Patch('/:walkwayId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(WalkwayOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @ApiResponse({
         type: CommonResponse,
     })
     async update(
-        @Body() request: UpdateWalkwayRequest,
+        @Body() body: UpdateWalkwayRequest,
+        @Param('walkwayId') walkwayId: string,
     ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+        const updateWalkwayUseCaseResponse = await this.updateWalkwayUseCase.execute({
+            id: walkwayId,
+            title: body.title,
+            image: body.image,
+        });
+
+        if (updateWalkwayUseCaseResponse.code !== UpdateWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO UPDATE WALKWAY',
+        };
     }
 
     @Patch('/walks/:walkId')

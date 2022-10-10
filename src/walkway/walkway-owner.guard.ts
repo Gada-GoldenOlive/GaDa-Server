@@ -21,6 +21,8 @@ export class WalkwayOwnerGuard implements CanActivate {
             if (getWalkwayUseCaseResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO FIND WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
             }
+            if (!getWalkwayUseCaseResponse.walkway.user)
+                return false;
             if (getWalkwayUseCaseResponse.walkway.user.id !== request.user.id)
                 return false;
         }
