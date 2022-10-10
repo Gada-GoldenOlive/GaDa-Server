@@ -7,20 +7,20 @@ import { StatusCodes } from 'http-status-codes';
 
 import { CreatePreSignedUrlResponse } from '../../review/controller/dto/ReviewResponse';
 
-const s3 = new AWS.S3({
-	endpoint: `s3.ap-northeast-2.amazonaws.com`,
-});
-const BucketName = 'golden-olive-gada';
-const Expires = 3600;
-
 @Controller('images')
 @ApiTags('이미지 관련 공통 작업')
 export class ImageController {
 	private s3: AWS.S3 = null;
+	private BucketName = 'golden-olive-gada';
+	private Expires = 3600;
 
 	constructor(
 		private readonly config: ConfigService,
 	) {
+		this.s3 = new AWS.S3({
+			endpoint: `s3.ap-northeast-2.amazonaws.com`,
+		});
+
 		const region = process.env.AWS_REGION;
 
 		AWS.config.update({
@@ -39,21 +39,20 @@ export class ImageController {
     @ApiCreatedResponse({
         type: CreatePreSignedUrlResponse,
     })
-    async getPreSignedUrl(
-        @Body() body: CreatePreSignedUrlResponse,
-    ): Promise<CreatePreSignedUrlResponse> {
+    async getPreSignedUrl(): Promise<CreatePreSignedUrlResponse> {
         const imageId = uuidv4();
         // const key = `${imageId}`;
         const fileName: string = `${imageId}.png`;
+		
 
         const params = {
-            Bucket: BucketName,
+            Bucket: this.BucketName,
             Key: fileName,
-            Expires,
+            Expires: this.Expires,
             ACL: 'public-read',
         };
 
-        const url = await s3.getSignedUrlPromise('putObject', params);
+        const url = await this.s3.getSignedUrlPromise('putObject', params);
 
         return {
             url,
