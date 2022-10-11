@@ -132,6 +132,8 @@ export class ReviewController {
         @Body() body: CreateReviewRequest,
         @Request() request,
     ): Promise<GetFeedResponse> {
+        this.achieves = [];
+        
         const getWalkUseCaseResponse = await this.getWalkUseCase.execute({
             id: body.walkId,
         });
