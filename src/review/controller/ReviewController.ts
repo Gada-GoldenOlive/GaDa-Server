@@ -26,6 +26,7 @@ import { Review } from '../domain/Review/Review';
 import { Image } from '../../common/domain/Image/Image';
 import { User } from '../../user/domain/User/User';
 import { UserStatus } from '../../user/domain/User/UserStatus';
+import { DeleteLikeUseCase, DeleteLikeUseCaseCodes } from '../application/DeleteLikeUseCase/DeleteLikeUseCase';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -37,6 +38,7 @@ export class ReviewController {
         private readonly getLikeUseCase: GetLikeUseCase,
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
         private readonly createLikeUseCase: CreateLikeUseCase,
+        private readonly deleteLikeUseCase: DeleteLikeUseCase,
         private readonly getAllReviewImageUseCase: GetAllReviewImageUseCase,
         private readonly createReviewUseCase: CreateReviewUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
@@ -437,14 +439,28 @@ export class ReviewController {
     @UseGuards(JwtAuthGuard)
     @UseGuards(LikeOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
-	@ApiResponse({
-		type: CommonResponse
-	})
-	async deleteLike(
-		@Param('likeId') likeId: string,
-	): Promise<CommonResponse> {
-		// TODO: 차후 UseCase 생성 시 추가
-		throw new Error('Method not implemented');
-	}
+    @ApiResponse({
+        type: CommonResponse
+    })
+    async deleteLike(
+        @Param('likeId') likeId: string,
+    ): Promise<CommonResponse> {
+        const deleteLikeUseCaseResponse = await this.deleteLikeUseCase.execute({
+            id: likeId,
+        });
+
+        if (deleteLikeUseCaseResponse.code === DeleteLikeUseCaseCodes.NOT_EXIST_LIKE) {
+            throw new HttpException(DeleteLikeUseCaseCodes.NOT_EXIST_LIKE, StatusCodes.NOT_FOUND);
+        }
+
+        if (deleteLikeUseCaseResponse.code !== DeleteLikeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE LIKE', StatusCodes.NOT_FOUND);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE LIKE',
+        };
+    }
 }
 

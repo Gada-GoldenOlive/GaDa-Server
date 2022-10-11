@@ -32,6 +32,7 @@ import { MysqlWalkRepository } from '../walkway/infra/mysql/MysqlWalkRepository'
 import { WalkEntity } from '../walkway/entity/Walk.entity';
 import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
 import { ImageController } from '../common/controller/ImageController';
+import { DeleteLikeUseCase } from './application/DeleteLikeUseCase/DeleteLikeUseCase';
 
 
 @Module({
@@ -67,6 +68,7 @@ import { ImageController } from '../common/controller/ImageController';
       GetLikeUseCase,
       GetAllLikeUseCase,
       CreateLikeUseCase,
+      DeleteLikeUseCase,
       {
         provide: LIKE_REPOSITORY,
         useClass: MysqlLikeRepository,

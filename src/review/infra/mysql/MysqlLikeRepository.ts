@@ -11,23 +11,40 @@ import { LikeEntity } from "../../entity/Like.entity";
 import { ILikeRepository } from "../ILikeRepository";
 import { MysqlLikeRepositoryMapper } from "./mapper/MysqlLikeRepositoryMapper";
 
+export interface GetLikeOptions {
+    user?: User;
+    review?: Review;
+    id?: string;
+}
+
 export class MysqlLikeRepository implements ILikeRepository {
     constructor(
         @InjectRepository(LikeEntity)
         private readonly likeRepository: Repository<LikeEntity>,
     ) {}
 
-    async findOne(user: User, review: Review): Promise<Like> {
-        const like = await this.likeRepository
+    async findOne(options: GetLikeOptions): Promise<Like> {
+        const user = options.user;
+        const review = options.review;
+        const id = options.id;
+
+        const query = this.likeRepository
         .createQueryBuilder('like')
         .leftJoinAndSelect('like.user', 'user')
         .leftJoinAndSelect('like.review', 'review')
         .where('review.status = :normal', { normal: ReviewStatus.NORMAL })
         .andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
-        .andWhere('like.status = :normal', { normal: LikeStatus.NORMAL })
-        .andWhere('user.id = :userId', { userId: user.id })
-        .andWhere('review.id = :reviewId', {reviewId: review.id })
-        .getOne();
+        .andWhere('like.status = :normal', { normal: LikeStatus.NORMAL });
+
+        if (!id) {
+            query.andWhere('user.id = :userId', { userId: user.id })
+            .andWhere('review.id = :reviewId', {reviewId: review.id });
+        }
+        else {
+            query.andWhere('like.id = :likeId', { likeId: id });
+        }
+
+        const like = await query.getOne();
 
         return MysqlLikeRepositoryMapper.toDomain(like);
     }
@@ -44,6 +61,7 @@ export class MysqlLikeRepository implements ILikeRepository {
         .andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
         .andWhere('like.status = :normal', { normal: LikeStatus.NORMAL })
         .andWhere('user.id = :userId', { userId: user.id })
+        .orderBy('like.createdAt', 'DESC')
         .getMany();
 
         return MysqlLikeRepositoryMapper.toDomains(likes);
