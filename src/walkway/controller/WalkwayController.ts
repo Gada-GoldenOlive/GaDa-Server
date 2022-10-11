@@ -482,7 +482,7 @@ export class WalkwayController {
         }
 
         if (deleteWalkwayUseCaseResponse.code !== DeleteWalkwayUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO DELETE WALKWAY', StatusCodes.NOT_FOUND);
+            throw new HttpException('FAIL TO DELETE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         return {
