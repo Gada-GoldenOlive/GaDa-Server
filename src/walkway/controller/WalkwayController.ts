@@ -405,7 +405,7 @@ export class WalkwayController {
     @Patch('/:walkwayId')
     @UseGuards(WalkwayOwnerGuard)
     @UseGuards(JwtAuthGuard)
-    @HttpCode(StatusCodes.ACCEPTED)
+    @HttpCode(StatusCodes.OK)
     @ApiResponse({
         type: GetWalkwayResponse,
     })
