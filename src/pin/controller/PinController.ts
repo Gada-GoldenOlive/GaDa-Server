@@ -18,6 +18,7 @@ import { CommentOwnerGuard } from '../comment-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { GetAllCommentUseCase, GetAllCommentUseCaseCodes } from '../application/GetAllCommentUseCase/GetAllCommentUseCase';
+import { DeleteCommentUseCase, DeleteCommentUseCaseCodes } from '../application/DeleteCommentUseCase/DeleteCommentUseCase';
 import { UpdatePinUseCase, UpdatePinUseCaseCodes } from '../application/UpdatePinUseCase/UpdatePinUseCase';
 
 @Controller('pins')
@@ -31,6 +32,7 @@ export class PinController {
         private readonly getPinUseCase: GetPinUseCase,
         private readonly createCommentUseCase: CreateCommentUseCase,
         private readonly getAllCommentUseCase: GetAllCommentUseCase,
+        private readonly deleteCommentUseCase: DeleteCommentUseCase,
         private readonly updatePinUseCase: UpdatePinUseCase,
     ) {}
 
@@ -333,17 +335,27 @@ export class PinController {
     }
 
     @Delete('/comments/:commentId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(CommentOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
     })
     async deleteComment(
-        @Query('commentId') commentId: string,
+        @Param('commentId') commentId: string,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
-        throw new Error('Method not implemented');
+        const deleteCommentUseCaseResponse = await this.deleteCommentUseCase.execute({
+            id: commentId,
+        });
+
+        if (deleteCommentUseCaseResponse.code !== DeleteCommentUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELTE COMMENT', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE COMMENT',
+        };
     }
 
     @Delete('/:pinId')
