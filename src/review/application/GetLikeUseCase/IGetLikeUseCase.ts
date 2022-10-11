@@ -22,7 +22,8 @@ IGetLikeUseCaseRequest, IGetLikeUseCaseResponse> {
         try {            
             const like = await this.likeRepository.findOne({
                 user: request.user, 
-                review: request.review
+                review: request.review,
+                is_include_delete: request.is_include_delete,
             });
 
             return {

@@ -27,6 +27,8 @@ import { Image } from '../../common/domain/Image/Image';
 import { User } from '../../user/domain/User/User';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { DeleteLikeUseCase, DeleteLikeUseCaseCodes } from '../application/DeleteLikeUseCase/DeleteLikeUseCase';
+import { UpdateLikeUseCase, UpdateLikeUseCaseCodes } from '../application/UpdateLikeUseCase/UpdateLikeUseCase';
+import { LikeStatus } from '../domain/Like/LikeStatus';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -39,6 +41,7 @@ export class ReviewController {
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
         private readonly createLikeUseCase: CreateLikeUseCase,
         private readonly deleteLikeUseCase: DeleteLikeUseCase,
+        private readonly updateLikeUseCase: UpdateLikeUseCase,
         private readonly getAllReviewImageUseCase: GetAllReviewImageUseCase,
         private readonly createReviewUseCase: CreateReviewUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
@@ -176,13 +179,35 @@ export class ReviewController {
             throw new HttpException('FAIL TO CREATE LIKE BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const createLikeUseCaseResponse = await this.createLikeUseCase.execute({
-            review: reviewResponse.review,
+        const getLikeUseCaseResponse = await this.getLikeUseCase.execute({
             user: request.user,
+            review: reviewResponse.review,
+            is_include_delete: true,
         });
 
-        if (createLikeUseCaseResponse.code !== CreateLikeUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+        if (getLikeUseCaseResponse.code !== GetLikeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (getLikeUseCaseResponse.like) {
+            const updateLikeUseCaseResponse = await this.updateLikeUseCase.execute({
+                like: getLikeUseCaseResponse.like,
+                status: LikeStatus.NORMAL,
+            });
+
+            if (updateLikeUseCaseResponse.code !== UpdateLikeUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO UPDATE LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        }
+        else {
+            const createLikeUseCaseResponse = await this.createLikeUseCase.execute({
+                review: reviewResponse.review,
+                user: request.user,
+            });
+    
+            if (createLikeUseCaseResponse.code !== CreateLikeUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO CREATE LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
         }
 
         return {
@@ -441,6 +466,9 @@ export class ReviewController {
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
+    })
+    @ApiOperation({
+        summary: '좋아요 취소',
     })
     async deleteLike(
         @Param('likeId') likeId: string,
