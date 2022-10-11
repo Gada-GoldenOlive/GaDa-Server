@@ -429,7 +429,7 @@ export class WalkwayController {
             throw new HttpException('FAIL TO UPDATE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const walkway = await this.convertToWalkwayDto(updateWalkwayUseCaseResponse.walkway, lat, lng)
+        const walkway = await this.convertToWalkwayDto(updateWalkwayUseCaseResponse.walkway, lat, lng);
 
         return {
             walkway,
