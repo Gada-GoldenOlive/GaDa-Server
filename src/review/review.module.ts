@@ -32,6 +32,7 @@ import { MysqlWalkRepository } from '../walkway/infra/mysql/MysqlWalkRepository'
 import { WalkEntity } from '../walkway/entity/Walk.entity';
 import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
 import { ImageController } from '../common/controller/ImageController';
+import { DeleteReviewUseCase } from './application/DeleteReviewUseCase/DeleteReviewUseCase';
 
 
 @Module({
@@ -50,6 +51,7 @@ import { ImageController } from '../common/controller/ImageController';
       GetAllReviewUseCase,
       GetReviewUseCase,
       CreateReviewUseCase,
+      DeleteReviewUseCase,
       {
           provide: REVIEW_REPOSITORY,
           useClass: MysqlReviewRepository,

@@ -26,6 +26,7 @@ import { Review } from '../domain/Review/Review';
 import { Image } from '../../common/domain/Image/Image';
 import { User } from '../../user/domain/User/User';
 import { UserStatus } from '../../user/domain/User/UserStatus';
+import { DeleteReviewUseCase, DeleteReviewUseCaseCodes } from '../application/DeleteReviewUseCase/DeleteReviewUseCase';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -34,6 +35,7 @@ export class ReviewController {
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getReviewUseCase: GetReviewUseCase,
+        private readonly deleteReviewUseCase: DeleteReviewUseCase,
         private readonly getLikeUseCase: GetLikeUseCase,
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
         private readonly createLikeUseCase: CreateLikeUseCase,
@@ -405,6 +407,9 @@ export class ReviewController {
     @ApiResponse({
         type: CommonResponse,
     })
+    @ApiOperation({
+        summary: '리뷰 삭제',
+    })
     async update(
         @Body() request: UpdateReviewRequest,
         @Param('reviewId') reviewId: string,
@@ -417,8 +422,8 @@ export class ReviewController {
     }
 
     @Delete('/:reviewId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(ReviewOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -426,7 +431,18 @@ export class ReviewController {
     async delete(
         @Param('reviewId') reviewId: string,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
+        const deleteReviewUseCaseResponse = await this.deleteReviewUseCase.execute({
+            id: reviewId,
+        });
+
+        if (deleteReviewUseCaseResponse.code === DeleteReviewUseCaseCodes.NOT_EXIST_REVIEW) {
+            throw new HttpException(DeleteReviewUseCaseCodes.NOT_EXIST_REVIEW, StatusCodes.NOT_FOUND);
+        }
+
+        if (deleteReviewUseCaseResponse.code !== DeleteReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
         return {
             code: StatusCodes.NO_CONTENT,
             responseMessage: 'SUCCESS TO DELETE REVIEW',
