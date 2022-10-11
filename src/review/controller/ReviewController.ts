@@ -405,7 +405,7 @@ export class ReviewController {
     @Patch('/:reviewId')
     @UseGuards(ReviewOwnerGuard)
     @UseGuards(JwtAuthGuard)
-    @HttpCode(StatusCodes.ACCEPTED)
+    @HttpCode(StatusCodes.OK)
     @ApiResponse({
         type: GetFeedResponse,
     })
