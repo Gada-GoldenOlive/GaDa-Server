@@ -39,6 +39,7 @@ import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFri
 import { DeleteUserUseCase } from './application/DeleteUserUseCase/DeleteUserUseCase';
 import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAchieveUseCase';
 import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import {GetFriendUseCase} from "./application/GetFriendUseCase/IGetFriendUseCase";
 
 @Module({
     imports: [
@@ -80,6 +81,7 @@ import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/
         CreateFriendUseCase,
         UpdateFriendUseCase,
         GetAllFriendUseCase,
+        GetFriendUseCase,
         DeleteFriendUseCase,
         {
             provide: FRIEND_REPOSITORY,

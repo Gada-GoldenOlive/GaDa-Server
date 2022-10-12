@@ -33,6 +33,7 @@ import { Achieve } from '../../badge/domain/Achieve/Achieve';
 import { GetAchieveUseCase, GetAchieveUseCaseCodes } from '../../badge/application/GetAchieveUseCase/GetAchieveUseCase';
 import { UpdateAchieveUseCase, UpdateAchieveUseCaseCodes } from '../../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
 import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
+import {GetFriendUseCase, GetFriendUseCaseCodes} from "../application/GetFriendUseCase/IGetFriendUseCase";
 
 @Controller('users')
 @ApiTags('사용자')
@@ -50,6 +51,7 @@ export class UserController {
         private readonly createAchievesUseCase: CreateAchievesUseCase,
         private readonly getAllUserUseCase: GetAllUserUseCase,
         private readonly updateFriendUseCase: UpdateFriendUseCase,
+        private readonly getFriendUseCase: GetFriendUseCase,
         private readonly getAllFriendUseCase: GetAllFriendUseCase,
         private readonly deleteFriendUseCase: DeleteFriendUseCase,
         private readonly deleteUserUseCase: DeleteUserUseCase,
@@ -252,10 +254,12 @@ export class UserController {
     ): Promise<CommonResponse> {
         this.achieves = [];
 
+        // NOTE: 자기자신인지 체크
         if (request.user.loginId.value === body.friendLoginId) {
             throw new HttpException('CANNOT MAKE FRIEND WITH YOURSELF', StatusCodes.BAD_REQUEST);
         }
 
+        // NOTE: loginId로 친구 가져오기
         const userResponse = await this.getUserUseCase.execute({
             loginId: body.friendLoginId,
         });
@@ -268,13 +272,34 @@ export class UserController {
             throw new HttpException('FAIL TO CREATE FRIEND BY USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const createFriendUseCaseResponse = await this.createFriendUseCase.execute({
-            user: request.user,
-            friend: userResponse.user,
+        // NOTE: 이미 friend가 존재하는지 알기 위해 user1, user2로 검색
+        const getFriendUseCaseResponse = await this.getFriendUseCase.execute({
+            user1: request.user,
+            user2: userResponse.user,
         });
 
-        if (createFriendUseCaseResponse.code !== CreateFriendUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+        if (getFriendUseCaseResponse.code !== GetFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND FRIEND BY USERS', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        // NOTE: 이미 friend가 존재한다면 status를 REQUESTED로 변경
+        if (getFriendUseCaseResponse.friend) {
+            const updateFriendUseCaseResponse = await this.updateFriendUseCase.execute({
+                id: getFriendUseCaseResponse.friend.id,
+                status: FriendStatus.REQUESTED,
+            });
+        }
+
+        // NOTE: 존재하지 않는다면 friend 생성
+        else {
+            const createFriendUseCaseResponse = await this.createFriendUseCase.execute({
+                user: request.user,
+                friend: userResponse.user,
+            });
+
+            if (createFriendUseCaseResponse.code !== CreateFriendUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO CREATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
         }
 
         await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.FIRST, this.achieves);
@@ -303,7 +328,7 @@ export class UserController {
                         status: achieve.status,
                     };
                 }),
-            }
+            };
         }
 
         return {
