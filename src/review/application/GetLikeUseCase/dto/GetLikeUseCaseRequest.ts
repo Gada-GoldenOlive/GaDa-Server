@@ -4,4 +4,5 @@ import { Review } from "../../../domain/Review/Review";
 export interface IGetLikeUseCaseRequest {
     user: User;
     review: Review;
+    is_include_delete?: boolean;
 }
