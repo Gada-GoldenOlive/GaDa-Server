@@ -61,4 +61,11 @@ export class MysqlReviewImageRepository implements IReviewImageRepository {
 
 		return true;
 	}
+
+	async deleteAll(ids: string[]): Promise<boolean> {
+		if (!_.isEmpty(ids))
+			await this.reviewImageRepository.delete(ids);
+
+		return true;
+	}
 }
