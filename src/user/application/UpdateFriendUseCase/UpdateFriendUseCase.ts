@@ -21,7 +21,7 @@ export class UpdateFriendUseCase implements UseCase<IUpdateFriendUseCaseRequest,
 	async execute(request: IUpdateFriendUseCaseRequest): Promise<IUpdateFriendUseCaseResponse> {
 		try {
 			// NOTE: 업데이트 요청한 Friend가 존재하지 않는 경우
-			const foundFriend = await this.friendRepository.findOne(request.id);
+			const foundFriend = await this.friendRepository.findOne({ id: request.id });
 
 			if (!foundFriend) {
 				return {

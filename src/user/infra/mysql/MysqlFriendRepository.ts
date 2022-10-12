@@ -7,10 +7,17 @@ import { UserStatus } from '../../domain/User/UserStatus';
 import { FriendEntity } from '../../entity/Friend.entity';
 import { IFriendRepository } from '../IFriendRepository';
 import { MysqlFriendRepositoryMapper } from './mapper/MysqlFriendRepositoryMapper';
+import {User} from "../../domain/User/User";
 
 export interface FindAllFriendOptions {
     userId: string;
     isRank: boolean;
+}
+
+export interface FindOneFriendOptions {
+    user1?: User;
+    user2?: User;
+    id?: string;
 }
 
 export class MysqlFriendRepository implements IFriendRepository {
@@ -19,24 +26,30 @@ export class MysqlFriendRepository implements IFriendRepository {
         private readonly friendRepository: Repository<FriendEntity>,
     ) {}
 
-    async findOne(id: string): Promise<Friend> {
-        const friend = await this.friendRepository.findOne({
-            where : {
-                id,
-                user1: {
-                    status: UserStatus.NORMAL,
-                },
-                user2: {
-                    status: UserStatus.NORMAL,
-                },
-            },
-            relations: [
-                'user1',
-                'user2',
-            ],
-       });
+    async findOne(options: FindOneFriendOptions): Promise<Friend> {
+        const id = options.id;
+        const user1 = options.user1;
+        const user2 = options.user2;
 
-       return MysqlFriendRepositoryMapper.toDomain(friend);
+        const query = this.friendRepository
+        .createQueryBuilder('friend')
+        .leftJoinAndSelect('friend.user1', 'user1')
+        .leftJoinAndSelect('friend.user2', 'user2')
+        .where('user1.status = :normal', { normal: UserStatus.NORMAL })
+        .andWhere('user2.status = :normal', { normal: UserStatus.NORMAL });
+
+        if (id) {
+            query.andWhere('friend.id = :friendId', { friendId: id });
+        }
+
+        else {
+            query.andWhere('user1.id = :user1Id', { user1Id: user1.id })
+            .andWhere('user2.id = :user2Id', { user2Id: user2.id });
+        }
+
+        const friend = await query.getOne();
+
+        return MysqlFriendRepositoryMapper.toDomain(friend);
     }
 
     async findAll(options: FindAllFriendOptions): Promise<Friend[]> {
