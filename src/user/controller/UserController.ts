@@ -506,7 +506,7 @@ export class UserController {
     @Patch('/:userId')
     @UseGuards(UserOwnerGuard)
     @UseGuards(JwtAuthGuard)
-    @HttpCode(StatusCodes.NO_CONTENT)
+    @HttpCode(StatusCodes.OK)
     @ApiOperation({
         summary: '유저 수정 (프로필 수정), 유저 수정되면 수정된 유저 리턴해줍니다. 비번 수정도 됨'
     })
