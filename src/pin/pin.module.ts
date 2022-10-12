@@ -16,9 +16,11 @@ import { WALKWAY_REPOSITORY } from '../walkway/infra/IWalkwayRepository';
 import { MysqlWalkwayRepository } from '../walkway/infra/mysql/MysqlWalkwayRepository';
 import { CreateCommentUseCase } from './application/CreateCommentUseCase/CreateCommentUseCase';
 import { CreatePinUseCase } from './application/CreatePinUseCase/CreatePinUseCase';
+import { DeleteCommentUseCase } from './application/DeleteCommentUseCase/DeleteCommentUseCase';
 import { GetAllCommentUseCase } from './application/GetAllCommentUseCase/GetAllCommentUseCase';
 import { GetAllPinUseCase } from './application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetPinUseCase } from './application/GetPinUseCase/GetPinUseCase';
+import { UpdatePinUseCase } from './application/UpdatePinUseCase/UpdatePinUseCase';
 import { PinController } from './controller/PinController';
 import { CommentEntity } from './entity/Comment.entity';
 import { PinEntity } from './entity/Pin.entity';
@@ -42,6 +44,7 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
     GetAllPinUseCase,
     CreatePinUseCase,
     GetPinUseCase,
+    UpdatePinUseCase,
     {
       provide: PIN_REPOSITORY,
       useClass: MysqlPinRepository,
@@ -58,6 +61,7 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
     },
     CreateCommentUseCase,
     GetAllCommentUseCase,
+    DeleteCommentUseCase,
     {
       provide: COMMENT_REPOSITORY,
       useClass: MysqlCommentRepository,

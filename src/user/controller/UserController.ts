@@ -584,20 +584,33 @@ export class UserController {
         };
     }
     
-    @Get('/detail')
+    @Get('/:userId')
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
         summary: '개별 유저 정보 조회',
-        description: 'token에 해당하는 유저 정보를 리턴함.'
+        description: 'userId에 해당하는 유저 정보를 리턴함.'
     })
     @ApiOkResponse({
         type: GetUserResponse,
     })
     async getOne(
         @Request() request,
+        @Param('userId') userId: string,
     ): Promise<GetUserResponse> {
-        const user = request.user;
+        const getUserUseCaseResponse = await this.getUserUseCase.execute({
+            id: userId,
+        });
+    
+        if (getUserUseCaseResponse.code === GetUserUseCaseCodes.NOT_EXIST_USER) {
+            throw new HttpException(GetUserUseCaseCodes.NOT_EXIST_USER, StatusCodes.NOT_FOUND);
+        }
+    
+        if (getUserUseCaseResponse.code !== GetUserUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const user = getUserUseCaseResponse.user;
 
         return {
             code: StatusCodes.OK,
@@ -701,7 +714,7 @@ export class UserController {
         type: CommonResponse
     })
     @ApiOperation({
-        summary: '친구 수정',
+        summary: '친구 수정 (수락 / 거절 / 삭제)',
         description: '[status] \'ACCEPTED\': 수락 / \'REJECTED\': 거절 / \'DELETE\': 삭제'
     })
     async updateFriend(

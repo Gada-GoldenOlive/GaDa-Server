@@ -3,6 +3,7 @@ import { Repository } from "typeorm";
 
 import { User } from '../../../user/domain/User/User';
 import { Comment } from "../../domain/Comment/Comment";
+import { CommentStatus } from "../../domain/Comment/CommentStatus";
 import { PinStatus } from "../../domain/Pin/PinStatus";
 import { CommentEntity } from "../../entity/Comment.entity";
 import { ICommentRepository } from "../ICommentRepository";
@@ -35,6 +36,24 @@ export class MysqlCommentRepository implements ICommentRepository {
         const comments = await query.getMany();
 
         return MysqlCommentRepositoryMapper.toDomains(comments);
+    }
+
+    async findOne(id: string): Promise<Comment> {
+        const comment = await this.commentRepository.findOne({
+            where: {
+                id,
+                status: CommentStatus.NORMAL,
+                pin: {
+                    status: PinStatus.NORMAL,
+                },
+            },
+            relations: [
+                'user',
+                'pin',
+            ],
+        });
+
+        return MysqlCommentRepositoryMapper.toDomain(comment);
     }
 
     async save(comment: Comment): Promise<boolean> {

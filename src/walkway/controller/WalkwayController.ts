@@ -31,21 +31,8 @@ import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
 import { Achieve } from '../../badge/domain/Achieve/Achieve';
 import { User } from '../../user/domain/User/User';
 import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
-
-const getDistance = (p1: Point, p2: Point) => {
-    const geojsonLength = require('geojson-length');
-    const line: LineString = {
-        'type': 'LineString',
-        'coordinates': [[p1.lat, p1.lng], [p2.lat, p2.lng]],
-    };
-    return +(geojsonLength(line));
-};
-
-const getRate = (walkDistance, walkwayDistance) => {
-    let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
-
-    return rate > 100 ? 100 : rate;
-};
+import { UpdateWalkwayUseCase, UpdateWalkwayUseCaseCodes } from '../application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
+import { Walkway } from '../domain/Walkway/Walkway';
 
 @Controller('walkways')
 @ApiTags('산책로')
@@ -62,6 +49,7 @@ export class WalkwayController {
         private readonly createWalkwayUseCase: CreateWalkwayUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
+        private readonly updateWalkwayUseCase: UpdateWalkwayUseCase,
         private readonly getAchieveUseCase: GetAchieveUseCase,
         private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
@@ -85,6 +73,82 @@ export class WalkwayController {
         }
 
         return true;
+    }
+
+    private getDistance(p1: Point, p2: Point) {
+        const geojsonLength = require('geojson-length');
+        const line: LineString = {
+            'type': 'LineString',
+            'coordinates': [[p1.lat, p1.lng], [p2.lat, p2.lng]],
+        };
+        return +(geojsonLength(line));
+    };
+    
+    private getRate(walkDistance, walkwayDistance) {
+        let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+    
+        return rate > 100 ? 100 : rate;
+    };
+
+    private async convertToWalkwayDto(walkway: Walkway, lat: number, lng: number): Promise<WalkwayDto> {
+        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
+            walkway,
+            curLocation: {
+                lat,
+                lng,
+            }
+        });
+
+        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+            walkway: walkway,
+        });
+
+        if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        let startPoint = {
+            lat: walkway.startPoint.value.lat,
+            lng: walkway.startPoint.value.lng,
+        };
+
+        let path: PointDto[] = walkway.path.value;
+
+        if (this.getDistance(walkway.startPoint.value, {lat, lng})
+            > this.getDistance(walkway.endPoint.value, {lat, lng})) {
+            startPoint = {
+                lat: walkway.endPoint.value.lat,
+                lng: walkway.endPoint.value.lng,
+            };
+            path = path.reverse();
+        }
+
+        let creator = walkway.user ? walkway.user.name.value : '스마트서울맵';
+        let creatorId = walkway.user ? walkway.user.id : null;
+        
+        if (walkway.user && walkway.user.status === UserStatus.DELETE) {
+            creator = '탈퇴한 회원';
+            creatorId = '  ';
+        }
+
+        return {
+            id: walkway.id,
+            title: walkway.title.value,
+            address: walkway.address.value,
+            distance: walkway.distance.value,
+            time: walkway.time.value,
+            pinCount: getAllPinUseCaseResponse.pins.length,
+            averageStar: getAllReviewUseCaseResponse.averageStar,
+            path: walkway.path.value,
+            image: walkway.image ? walkway.image.value : null,
+            creator,
+            creatorId,
+            startPoint,
+        };
     }
 
     @Post()
@@ -284,59 +348,10 @@ export class WalkwayController {
             throw new HttpException('FAIL TO FIND NEAR WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        let walkways = [];
-        for (const walkway of getAllWalkwayResponse.walkways) {
-            const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
-                walkway: walkway,
-                curLocation: {
-                    lat,
-                    lng,
-                }
-            });
+        const walkways: WalkwayDto[] = await Promise.all(_.map(getAllWalkwayResponse.walkways, (walkway) => {
+            return this.convertToWalkwayDto(walkway, lat, lng);
+        }));
 
-            if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-                throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
-            }
-    
-            const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-                walkway: walkway,
-            });
-
-            if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
-                throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
-            }
-  
-            let creator = walkway.user ? walkway.user.name.value : '스마트서울맵';
-            let creatorId = walkway.user ? walkway.user.id : null;
-            
-            if (walkway.user && walkway.user.status === UserStatus.DELETE) {
-                creator = '탈퇴한 회원';
-                creatorId = '  ';
-            }
-            
-            let tmp = {
-                id: walkway.id,
-                title: walkway.title.value,
-                address: walkway.address.value,
-                distance: walkway.distance.value,
-                time: walkway.time.value,
-                pinCount: getAllPinUseCaseResponse.pins.length,
-                averageStar: getAllReviewUseCaseResponse.averageStar,
-                path: walkway.path.value,
-                image: walkway.image ? walkway.image.value : null,
-                creator,
-                creatorId,
-            };
-
-            if (getDistance(walkway.startPoint.value, {lat, lng}) < getDistance(walkway.endPoint.value, {lat, lng})) {
-                tmp['startPoint'] = walkway.startPoint.value;
-            }
-            else {
-                tmp['startPoint'] = walkway.endPoint.value;
-                tmp.path = tmp.path.reverse();
-            }
-            walkways.push(tmp);
-        }
         return {
             walkways,
         };
@@ -393,7 +408,7 @@ export class WalkwayController {
             return {
                 id: walk.id,
                 finishStatus: walk.finishStatus,
-                rate: getRate(walk.distance.value, walk.walkway.distance.value),
+                rate: this.getRate(walk.distance.value, walk.walkway.distance.value),
                 distance: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.distance.value : walk.distance.value,
                 title: walk.walkway.title.value,
                 image: walk.walkway.image ? walk.walkway.image.value : null,
@@ -423,64 +438,17 @@ export class WalkwayController {
         const getWalkwayUseCaseResponse = await this.getWalkwayUseCase.execute({
             id: walkwayId,
         });
+
+        if (getWalkwayUseCaseResponse.code === GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY) {
+            throw new HttpException(GetWalkwayUseCaseCodes.NOT_EXIST_WALKWAY, StatusCodes.NOT_FOUND);
+        }
         
         if (getWalkwayUseCaseResponse.code !== GetWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        if (_.isNil(getWalkwayUseCaseResponse.walkway)) return {};
-
-        const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
-            walkway: getWalkwayUseCaseResponse.walkway,
-            curLocation: {
-                lat,
-                lng,
-            }
-        });
-
-        if (getAllPinUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND ALL PIN', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
-        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-            walkway: getWalkwayUseCaseResponse.walkway,
-        });
-
-        if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO FIND ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
-        let startPoint = {
-            lat: getWalkwayUseCaseResponse.walkway.startPoint.value.lat,
-            lng: getWalkwayUseCaseResponse.walkway.startPoint.value.lng,
-        };
-
-        let path: PointDto[] = getWalkwayUseCaseResponse.walkway.path.value;
-
-        if (getDistance(getWalkwayUseCaseResponse.walkway.startPoint.value, {lat, lng})
-            > getDistance(getWalkwayUseCaseResponse.walkway.endPoint.value, {lat, lng})) {
-            startPoint = {
-                lat: getWalkwayUseCaseResponse.walkway.endPoint.value.lat,
-                lng: getWalkwayUseCaseResponse.walkway.endPoint.value.lng,
-            };
-            path = path.reverse();
-        }
-
-        const walkway: WalkwayDto = {
-            id: getWalkwayUseCaseResponse.walkway.id,
-            title: getWalkwayUseCaseResponse.walkway.title.value,
-            address: getWalkwayUseCaseResponse.walkway.address.value,
-            distance: getWalkwayUseCaseResponse.walkway.distance.value,
-            time: getWalkwayUseCaseResponse.walkway.time.value,
-            pinCount: getAllPinUseCaseResponse.pins.length,
-            averageStar: getAllReviewUseCaseResponse.averageStar,
-            path,
-            image: getWalkwayUseCaseResponse.walkway.image ? getWalkwayUseCaseResponse.walkway.image.value : null,
-            creator: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.name.value : '스마트서울맵',
-            creatorId: getWalkwayUseCaseResponse.walkway.user ? getWalkwayUseCaseResponse.walkway.user.id : null,
-            startPoint,
-        };
-
+        const walkway = await this.convertToWalkwayDto(getWalkwayUseCaseResponse.walkway, lat, lng);
+        
         return {
             walkway,
         };
@@ -527,16 +495,37 @@ export class WalkwayController {
     }
 
     @Patch('/:walkwayId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(WalkwayOwnerGuard)
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(StatusCodes.OK)
     @ApiResponse({
-        type: CommonResponse,
+        type: GetWalkwayResponse,
+    })
+    @ApiOperation({
+        summary: '산책로 수정',
+        description: '수정된 결과를 리턴할 때, 경로의 양 끝점 중 현 위치에서 가까운 점을 startPoint로 설정하기 위해 현 위치를 query로 받음.'
     })
     async update(
-        @Body() request: UpdateWalkwayRequest,
-    ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+        @Body() body: UpdateWalkwayRequest,
+        @Param('walkwayId') walkwayId: string,
+        @Query('lat') lat: number,
+        @Query('lng') lng: number,
+    ): Promise<GetWalkwayResponse> {
+        const updateWalkwayUseCaseResponse = await this.updateWalkwayUseCase.execute({
+            id: walkwayId,
+            title: body.title,
+            image: body.image,
+        });
+
+        if (updateWalkwayUseCaseResponse.code !== UpdateWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const walkway = await this.convertToWalkwayDto(updateWalkwayUseCaseResponse.walkway, lat, lng);
+
+        return {
+            walkway,
+        };
     }
 
     @Patch('/walks/:walkId')
