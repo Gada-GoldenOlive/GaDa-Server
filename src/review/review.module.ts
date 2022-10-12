@@ -34,6 +34,8 @@ import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateRev
 import { ImageController } from '../common/controller/ImageController';
 import { DeleteLikeUseCase } from './application/DeleteLikeUseCase/DeleteLikeUseCase';
 import { UpdateLikeUseCase } from './application/UpdateLikeUseCase/UpdateLikeUseCase';
+import { DeleteAllReviewImageUseCase } from './application/DeleteAllReviewImageUseCase/DeleteAllReviewImageUseCase';
+import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateReviewUseCase';
 
 
 @Module({
@@ -52,6 +54,7 @@ import { UpdateLikeUseCase } from './application/UpdateLikeUseCase/UpdateLikeUse
       GetAllReviewUseCase,
       GetReviewUseCase,
       CreateReviewUseCase,
+      UpdateReviewUseCase,
       {
           provide: REVIEW_REPOSITORY,
           useClass: MysqlReviewRepository,
@@ -77,6 +80,7 @@ import { UpdateLikeUseCase } from './application/UpdateLikeUseCase/UpdateLikeUse
       },
       GetAllReviewImageUseCase,
       CreateAllReviewImageUseCase,
+      DeleteAllReviewImageUseCase,
       {
         provide: REVIEW_IMAGE_REPOSITORY,
         useClass: MysqlReviewImageRepository,
