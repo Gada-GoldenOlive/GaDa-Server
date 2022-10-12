@@ -747,6 +747,9 @@ export class UserController {
     @ApiResponse({
         type: CommonResponse,
     })
+    @ApiOperation({
+        summary: '유저 삭제 (회원 탈퇴)',
+    })
     async delete(
         @Param('userId') userId: string,
         @Request() request,
