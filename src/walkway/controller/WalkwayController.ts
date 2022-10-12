@@ -24,6 +24,7 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { GetWalkUseCase, GetWalkUseCaseCodes } from '../application/GetWalkUseCase/GetWalkUseCase';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../../user/application/UpdateUserUseCase/UpdateUserUseCase';
+import { DeleteWalkwayUseCase, DeleteWalkwayUseCaseCodes } from '../application/DeleteWalkwayUseCase/DeleteWalkwayUseCase';
 import { UpdateWalkwayUseCase, UpdateWalkwayUseCaseCodes } from '../application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 import { Walkway } from '../domain/Walkway/Walkway';
 
@@ -34,6 +35,7 @@ export class WalkwayController {
         private readonly createSeoulmapWalkwaysUseCase: CreateSeoulmapWalkwaysUseCase,
         private readonly getSeoulmapWalkwayUseCase: GetSeoulmapWalkwayUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
+        private readonly deleteWalkwayUseCase: DeleteWalkwayUseCase,
         private readonly getAllPinUseCase: GetAllPinUseCase,
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
         private readonly getAllWalkwayUseCase: GetAllWalkwayUseCase,
@@ -450,12 +452,34 @@ export class WalkwayController {
     }
 
     @Delete('/:walkwayId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(WalkwayOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @ApiResponse({
         type: CommonResponse,
     })
-    async delete() {}
+    @ApiOperation({
+        summary: '산책로 삭제',
+    })
+    async delete(
+        @Param('walkwayId') walkwayId: string,
+    ): Promise<CommonResponse> {
+        const deleteWalkwayUseCaseResponse = await this.deleteWalkwayUseCase.execute({
+            id: walkwayId,
+        });
+
+        if (deleteWalkwayUseCaseResponse.code === DeleteWalkwayUseCaseCodes.NOT_EXIST_WALKWAY) {
+            throw new HttpException(DeleteWalkwayUseCaseCodes.NOT_EXIST_WALKWAY, StatusCodes.NOT_FOUND);
+        }
+
+        if (deleteWalkwayUseCaseResponse.code !== DeleteWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE WALKWAY',
+        };
+    }
 
     @Delete('/walks/:walkId')
     @UseGuards(JwtAuthGuard)

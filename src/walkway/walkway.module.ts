@@ -29,6 +29,7 @@ import { UserEntity } from '../user/entity/User.entity';
 import { GetAllWalkUseCase } from './application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GetWalkUseCase } from './application/GetWalkUseCase/GetWalkUseCase';
 import { UpdateUserUseCase } from '../user/application/UpdateUserUseCase/UpdateUserUseCase';
+import { DeleteWalkwayUseCase } from './application/DeleteWalkwayUseCase/DeleteWalkwayUseCase';
 import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 
 @Module({
@@ -54,6 +55,7 @@ import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateW
         GetUserUseCase,
         GetAllWalkUseCase,
         UpdateUserUseCase,
+        DeleteWalkwayUseCase,
         UpdateWalkwayUseCase,
         {
             provide: WALKWAY_REPOSITORY,
