@@ -19,7 +19,7 @@ import { checkRefreshToken } from '../../auth/refresh.strategy';
 import { CreateFriendUseCase, CreateFriendUseCaseCodes } from '../application/CreateFriendUseCase/CreateFriendUseCase';
 import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/UpdateUserUseCase/UpdateUserUseCase';
 import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../../badge/application/GetAllBadgeUseCase/GetAllBadgeUseCase';
-import { CreateAchievesUseCase } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
+import { CreateAchievesUseCase, CreateAchievesUseCaseCodes } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
 import { GetAllUserUseCase, GetAllUserUseCaseCodes } from '../application/GetAllUserUseCase/GetAllUserUseCase';
 import { User } from '../domain/User/User';
 import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/UpdateFriendUseCase/UpdateFriendUseCase';
@@ -27,10 +27,18 @@ import { FriendStatus } from '../domain/Friend/FriendStatus';
 import { GetAllFriendUseCase, GetAllFriendUseCaseCodes } from '../application/GetAllFriendUseCase/GetAllFriendUseCase';
 import { DeleteFriendUseCase, DeleteFriendUseCaseCodes } from '../application/DeleteFriendUseCase/DeleteFriendUseCase';
 import { DeleteUserUseCase, DeleteUserUseCaseCodes } from '../application/DeleteUserUseCase/DeleteUserUseCase';
+import { BadgeCategory, BADGE_CATEGORY } from '../../badge/domain/Badge/BadgeCategory';
+import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
+import { Achieve } from '../../badge/domain/Achieve/Achieve';
+import { GetAchieveUseCase, GetAchieveUseCaseCodes } from '../../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase, UpdateAchieveUseCaseCodes } from '../../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 
 @Controller('users')
 @ApiTags('사용자')
 export class UserController {
+    private achieves: Achieve[] = [];
+
     constructor(
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly getUserUseCase: GetUserUseCase,
@@ -45,7 +53,30 @@ export class UserController {
         private readonly getAllFriendUseCase: GetAllFriendUseCase,
         private readonly deleteFriendUseCase: DeleteFriendUseCase,
         private readonly deleteUserUseCase: DeleteUserUseCase,
+        private readonly getAchieveUseCase: GetAchieveUseCase,
+        private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
+
+    private async pushAchieve(user: User, category: BadgeCategory, code: BadgeCode, achieves: Achieve[]): Promise<boolean> {
+        const getAchieveUseCaseResponse = await this.getAchieveUseCase.execute({
+            user,
+            category: category as BADGE_CATEGORY,
+            code: code as BADGE_CODE,
+        });
+
+        // NOTE: not_exist_achieve는 있을 수 있으니까 failure일때만으로 설정함
+        if (getAchieveUseCaseResponse.code === GetAchieveUseCaseCodes.FAILURE) {
+            throw new HttpException('FAIL TO GET ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const achieve = getAchieveUseCaseResponse.achieve;
+
+        if (getAchieveUseCaseResponse.code !== GetAchieveUseCaseCodes.NOT_EXIST_ACHIEVE) {
+            achieves.unshift(achieve);
+        }
+
+        return true;
+    }
 
     private async convertToUserDto(user: User): Promise<UserDto> {
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
@@ -81,6 +112,7 @@ export class UserController {
     async create(
         @Body() request: CreateUserRequest,
     ): Promise<LoginOrSignUpUserResponse> {
+        this.achieves = [];
         const createUserUseCaseResponse = await this.createUserUseCase.execute({
             loginId: request.loginId,
             password: request.password,
@@ -121,10 +153,43 @@ export class UserController {
             user,
         });
 
-        return await this.authService.getToken({
+        if (createAchievesUseCaseResponse.code !== CreateAchievesUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO CREATE ACHIEVES', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        await this.pushAchieve(user, BadgeCategory.USER, BadgeCode.FIRST, this.achieves);
+
+        const { accessToken, refreshToken } = await this.authService.getToken({
             username: user.loginId.value,
             sub: user.id,
         });
+
+        _.map(this.achieves, async (achieve) => {
+            const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                id: achieve.id,
+                status: AchieveStatus.ACHIEVE,
+            });
+
+            if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        });
+
+        return {
+            code: StatusCodes.CREATED,
+            responseMessage: 'SUCCESS TO CREATE USER',
+            accessToken,
+            refreshToken,
+            achieves: _.map(this.achieves, (achieve) => {
+                return {
+                    badge: {
+                        title: achieve.badge.title.value,
+                        image: achieve.badge.image.value,
+                    },
+                    status: achieve.status,
+                };
+            }),
+        };
     }
 
     @Post('/refresh')
@@ -139,7 +204,7 @@ export class UserController {
     async refreshToken(
         @Request() request,
     ): Promise<LoginOrSignUpUserResponse> {
-        const { refreshToken, sub, username } = request.user as JwtPayload;
+        const { refreshToken: requestRefreshToken, sub, username } = request.user as JwtPayload;
 
         const getUserUseCaseResponse = await this.getUserUseCase.execute({
             id: sub,
@@ -153,16 +218,23 @@ export class UserController {
             throw new HttpException('FAIL TO GET USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        if (!(await checkRefreshToken(refreshToken, getUserUseCaseResponse.user))) {
+        if (!(await checkRefreshToken(requestRefreshToken, getUserUseCaseResponse.user))) {
             throw new HttpException('INVALID REFREESH TOKEN', StatusCodes.UNAUTHORIZED);
         }
 
         const user = getUserUseCaseResponse.user;
 
-        return await this.authService.getToken({
+        const { accessToken, refreshToken } = await this.authService.getToken({
             username: user.loginId.value,
             sub: user.id,
         });
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO REFRESH TOKEN',
+            accessToken,
+            refreshToken,
+        };
     }
 
     @Post('/friends')
@@ -178,6 +250,8 @@ export class UserController {
         @Body() body: CreateFriendRequest,
         @Request() request,
     ): Promise<CommonResponse> {
+        this.achieves = [];
+
         if (request.user.loginId.value === body.friendLoginId) {
             throw new HttpException('CANNOT MAKE FRIEND WITH YOURSELF', StatusCodes.BAD_REQUEST);
         }
@@ -201,6 +275,35 @@ export class UserController {
 
         if (createFriendUseCaseResponse.code !== CreateFriendUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.FIRST, this.achieves);
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+    
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+
+            return {
+                code: StatusCodes.CREATED,
+                responseMessage: 'SUCCESS TO CREATE FRIEND AND GET BADGE',
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            }
         }
 
         return {
@@ -308,6 +411,8 @@ export class UserController {
         }));
 
         return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO GET FRIEND LIST',
             friends,
             is_exist_unread_request,
         };
@@ -367,6 +472,8 @@ export class UserController {
         }));
 
         return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO GET ALL FRIEND REQUEST',
             requests,
         };
     }
@@ -464,10 +571,17 @@ export class UserController {
     ): Promise<LoginOrSignUpUserResponse> {
         const user = request.user;
 
-        return await this.authService.getToken({
+        const { accessToken, refreshToken } = await this.authService.getToken({
             username: user.loginId.value,
             sub: user.id,
         });
+
+        return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO LOGIN',
+            accessToken,
+            refreshToken,
+        };
     }
     
     @Get('/:userId')
@@ -499,6 +613,8 @@ export class UserController {
         const user = getUserUseCaseResponse.user;
 
         return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO GET USER DETAIL',
             user: await this.convertToUserDto(user),
         };
     }
@@ -518,6 +634,8 @@ export class UserController {
         @Request() request,
         @Body() body: UpdateUserRequest,
     ): Promise<GetUserResponse> {
+        this.achieves = [];
+
         const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
             id: userId,
             originPassword: body.originPassword,
@@ -546,7 +664,44 @@ export class UserController {
 
         const user = updateUserUseCaseResponse.user;
 
+        if (user.goalDistance) {
+            await this.pushAchieve(user, BadgeCategory.DISTANCE, BadgeCode.FIRST, this.achieves);
+        }
+        if (user.goalTime) {
+            await this.pushAchieve(user, BadgeCategory.WALKTIME, BadgeCode.FIRST, this.achieves);
+        }
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+
+            return {
+                code: StatusCodes.OK,
+                responseMessage: 'SUCCESS TO UPDATE USER AND GET BADGE',
+                user: await this.convertToUserDto(user),
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
+        }
+
         return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO UPDATE USER',
             user: await this.convertToUserDto(user),
         };
     }

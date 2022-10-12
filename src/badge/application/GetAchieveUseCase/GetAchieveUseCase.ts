@@ -1,6 +1,8 @@
 import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
+import { BADGE_CATEGORY } from '../../domain/Badge/BadgeCategory';
+import { BADGE_CODE } from '../../domain/Badge/BadgeCode';
 import { ACHIEVE_REPOSITORY, IAchieveRepository } from '../../infra/IAchieveRepository';
 import { IGetAchieveUseCaseRequest } from './dto/IGetAchieveUseCaseRequest';
 import { IGetAchieveUseCaseResponse } from './dto/IGetAchieveUseCaseResponse';
@@ -19,7 +21,11 @@ export class GetAchieveUseCase implements UseCase<IGetAchieveUseCaseRequest, IGe
 
 	async execute(request: IGetAchieveUseCaseRequest): Promise<IGetAchieveUseCaseResponse> {
 		try {
-			const achieve = await this.achieveRepository.getOne(request);
+			const achieve = await this.achieveRepository.getOne({
+				category: request.category as BADGE_CATEGORY,
+				code: request.code as BADGE_CODE,
+				user: request.user,
+			});
 
 			if (!achieve) {
 				return {

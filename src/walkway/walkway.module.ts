@@ -29,6 +29,11 @@ import { UserEntity } from '../user/entity/User.entity';
 import { GetAllWalkUseCase } from './application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GetWalkUseCase } from './application/GetWalkUseCase/GetWalkUseCase';
 import { UpdateUserUseCase } from '../user/application/UpdateUserUseCase/UpdateUserUseCase';
+import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { ACHIEVE_REPOSITORY } from '../badge/infra/IAchieveRepository';
+import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveRepository';
+import { AchieveEntity } from '../badge/entity/Achieve.entity';
 import { DeleteWalkwayUseCase } from './application/DeleteWalkwayUseCase/DeleteWalkwayUseCase';
 import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 
@@ -40,6 +45,7 @@ import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateW
             PinEntity,
             ReviewEntity,
             UserEntity,
+            AchieveEntity,
         ])
     ],
     controllers: [ WalkwayController ],
@@ -48,8 +54,6 @@ import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateW
         CreateWalkwayUseCase,
         GetSeoulmapWalkwayUseCase,
         GetWalkwayUseCase,
-        GetAllPinUseCase,
-        GetAllReviewUseCase,
         GetAllWalkwayUseCase,
         CreateWalkUseCase,
         GetUserUseCase,
@@ -61,23 +65,35 @@ import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateW
             provide: WALKWAY_REPOSITORY,
             useClass: MysqlWalkwayRepository
         },
+        GetAllPinUseCase,
         {
             provide: PIN_REPOSITORY,
             useClass: MysqlPinRepository
         },
+        GetAllReviewUseCase,
         {
             provide: REVIEW_REPOSITORY,
             useClass: MysqlReviewRepository
         },
+        CreateWalkUseCase,
+        GetWalkUseCase,
+        GetAllWalkUseCase,
         {
             provide: WALK_REPOSITORY,
             useClass: MysqlWalkRepository
         },
+        UpdateUserUseCase,
+        GetUserUseCase,
         {
             provide: USER_REPOSITORY,
             useClass: MysqlUserRepository
         },
-        GetWalkUseCase,
+        GetAchieveUseCase,
+        UpdateAchieveUseCase,
+        {
+            provide: ACHIEVE_REPOSITORY,
+            useClass: MysqlAchieveRepository,
+        },
     ],
 })
 

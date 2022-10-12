@@ -33,6 +33,11 @@ import { WalkEntity } from '../walkway/entity/Walk.entity';
 import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
 import { ImageController } from '../common/controller/ImageController';
 import { DeleteReviewUseCase } from './application/DeleteReviewUseCase/DeleteReviewUseCase';
+import { AchieveEntity } from '../badge/entity/Achieve.entity';
+import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { ACHIEVE_REPOSITORY } from '../badge/infra/IAchieveRepository';
+import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveRepository';
 import { DeleteLikeUseCase } from './application/DeleteLikeUseCase/DeleteLikeUseCase';
 import { UpdateLikeUseCase } from './application/UpdateLikeUseCase/UpdateLikeUseCase';
 import { DeleteAllReviewImageUseCase } from './application/DeleteAllReviewImageUseCase/DeleteAllReviewImageUseCase';
@@ -48,6 +53,7 @@ import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateRev
         LikeEntity,
         ReviewImageEntity,
         WalkEntity,
+        AchieveEntity,
     ])
   ],
   controllers: [ ReviewController, ImageController ],
@@ -91,6 +97,12 @@ import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateRev
       {
         provide: WALK_REPOSITORY,
         useClass: MysqlWalkRepository,
+      },
+      GetAchieveUseCase,
+      UpdateAchieveUseCase,
+      {
+        provide: ACHIEVE_REPOSITORY,
+        useClass: MysqlAchieveRepository,
       },
   ],
 })

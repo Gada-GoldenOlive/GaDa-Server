@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CommonResponse } from '../../../common/controller/dto/CommonResponse';
 
 export class UserDto {
     @ApiProperty()
@@ -32,19 +33,19 @@ export class UserDto {
     totalTime: number;
 }
 
-export class GetAllUserResponse {
+export class GetAllUserResponse extends CommonResponse {
     @ApiProperty({
         type: [UserDto],
     })
     users?: UserDto[];
 }
 
-export class GetUserResponse {
+export class GetUserResponse extends CommonResponse {
     @ApiPropertyOptional()
     user?: UserDto;
 }
 
-export class LoginOrSignUpUserResponse {
+export class LoginOrSignUpUserResponse extends CommonResponse {
     @ApiProperty()
     accessToken: string;
 
@@ -69,7 +70,7 @@ export class FriendDto {
     distance: number;
 }
 
-export class GetAllFriendResponse {
+export class GetAllFriendResponse extends CommonResponse {
     @ApiProperty({
         type: [FriendDto],
     })
@@ -96,7 +97,7 @@ export class FriendRequestDto {
     image: string;
 }
 
-export class GetAllFriendRequestResponse {
+export class GetAllFriendRequestResponse extends CommonResponse {
     @ApiProperty({
         type: [FriendRequestDto],
     })
