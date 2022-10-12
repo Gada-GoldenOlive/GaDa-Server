@@ -34,6 +34,7 @@ import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/
 import { ACHIEVE_REPOSITORY } from '../badge/infra/IAchieveRepository';
 import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveRepository';
 import { AchieveEntity } from '../badge/entity/Achieve.entity';
+import { DeleteWalkwayUseCase } from './application/DeleteWalkwayUseCase/DeleteWalkwayUseCase';
 import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 
 @Module({
@@ -58,6 +59,7 @@ import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateW
         GetUserUseCase,
         GetAllWalkUseCase,
         UpdateUserUseCase,
+        DeleteWalkwayUseCase,
         UpdateWalkwayUseCase,
         {
             provide: WALKWAY_REPOSITORY,

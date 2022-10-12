@@ -37,6 +37,10 @@ import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAch
 import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
 import { ACHIEVE_REPOSITORY } from '../badge/infra/IAchieveRepository';
 import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveRepository';
+import { DeleteLikeUseCase } from './application/DeleteLikeUseCase/DeleteLikeUseCase';
+import { UpdateLikeUseCase } from './application/UpdateLikeUseCase/UpdateLikeUseCase';
+import { DeleteAllReviewImageUseCase } from './application/DeleteAllReviewImageUseCase/DeleteAllReviewImageUseCase';
+import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateReviewUseCase';
 
 
 @Module({
@@ -56,6 +60,7 @@ import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveReposit
       GetAllReviewUseCase,
       GetReviewUseCase,
       CreateReviewUseCase,
+      UpdateReviewUseCase,
       {
           provide: REVIEW_REPOSITORY,
           useClass: MysqlReviewRepository,
@@ -73,12 +78,15 @@ import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveReposit
       GetLikeUseCase,
       GetAllLikeUseCase,
       CreateLikeUseCase,
+      DeleteLikeUseCase,
+      UpdateLikeUseCase,
       {
         provide: LIKE_REPOSITORY,
         useClass: MysqlLikeRepository,
       },
       GetAllReviewImageUseCase,
       CreateAllReviewImageUseCase,
+      DeleteAllReviewImageUseCase,
       {
         provide: REVIEW_IMAGE_REPOSITORY,
         useClass: MysqlReviewImageRepository,

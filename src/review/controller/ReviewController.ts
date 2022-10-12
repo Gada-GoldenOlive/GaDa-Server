@@ -6,7 +6,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { CreateLikeRequest, CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
-import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedResponse, CreatePreSignedUrlResponse } from './dto/ReviewResponse';
+import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedResponse, CreatePreSignedUrlResponse, ImageDto } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
@@ -30,6 +30,11 @@ import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
 import { GetAchieveUseCase, GetAchieveUseCaseCodes } from '../../badge/application/GetAchieveUseCase/GetAchieveUseCase';
 import { UpdateAchieveUseCase, UpdateAchieveUseCaseCodes } from '../../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
 import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
+import { DeleteLikeUseCase, DeleteLikeUseCaseCodes } from '../application/DeleteLikeUseCase/DeleteLikeUseCase';
+import { UpdateLikeUseCase, UpdateLikeUseCaseCodes } from '../application/UpdateLikeUseCase/UpdateLikeUseCase';
+import { LikeStatus } from '../domain/Like/LikeStatus';
+import { UpdateReviewUseCase, UpdateReviewUseCaseCodes } from '../application/UpdateReviewUseCase/UpdateReviewUseCase';
+import { DeleteAllReviewImageUseCase, DeleteAllReviewImageUseCaseCodes } from '../application/DeleteAllReviewImageUseCase/DeleteAllReviewImageUseCase';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -41,12 +46,16 @@ export class ReviewController {
         private readonly getLikeUseCase: GetLikeUseCase,
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
         private readonly createLikeUseCase: CreateLikeUseCase,
+        private readonly deleteLikeUseCase: DeleteLikeUseCase,
+        private readonly updateLikeUseCase: UpdateLikeUseCase,
         private readonly getAllReviewImageUseCase: GetAllReviewImageUseCase,
         private readonly createReviewUseCase: CreateReviewUseCase,
         private readonly getWalkUseCase: GetWalkUseCase,
         private readonly createAllReviewImageUseCase: CreateAllReviewImageUseCase,
         private readonly getAchieveUseCase: GetAchieveUseCase,
         private readonly updateAchieveUseCase: UpdateAchieveUseCase,
+        private readonly updateReviewUseCase: UpdateReviewUseCase,
+        private readonly deleteAllReviewImageUseCase: DeleteAllReviewImageUseCase,
     ) {}
 
     private achieves: Achieve[] = [];
@@ -256,13 +265,35 @@ export class ReviewController {
             throw new HttpException('FAIL TO CREATE LIKE BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const createLikeUseCaseResponse = await this.createLikeUseCase.execute({
-            review: reviewResponse.review,
+        const getLikeUseCaseResponse = await this.getLikeUseCase.execute({
             user: request.user,
+            review: reviewResponse.review,
+            is_include_delete: true,
         });
 
-        if (createLikeUseCaseResponse.code !== CreateLikeUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO CREATE LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+        if (getLikeUseCaseResponse.code !== GetLikeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        if (getLikeUseCaseResponse.like) {
+            const updateLikeUseCaseResponse = await this.updateLikeUseCase.execute({
+                like: getLikeUseCaseResponse.like,
+                status: LikeStatus.NORMAL,
+            });
+
+            if (updateLikeUseCaseResponse.code !== UpdateLikeUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO UPDATE LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        }
+        else {
+            const createLikeUseCaseResponse = await this.createLikeUseCase.execute({
+                review: reviewResponse.review,
+                user: request.user,
+            });
+    
+            if (createLikeUseCaseResponse.code !== CreateLikeUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO CREATE LIKE', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
         }
 
         return {
@@ -483,21 +514,92 @@ export class ReviewController {
     }
 
     @Patch('/:reviewId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(ReviewOwnerGuard)
-    @HttpCode(StatusCodes.NO_CONTENT)
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(StatusCodes.OK)
     @ApiResponse({
-        type: CommonResponse,
+        type: GetFeedResponse,
+    })
+    @ApiOperation({
+        summary: '리뷰 수정',
+        description: '새로운 이미지를 추가하고 싶다면 images에 기존 이미지들 + "url"만 있는 이미지를 넣으면 됨.' 
     })
     async update(
-        @Body() request: UpdateReviewRequest,
+        @Body() body: UpdateReviewRequest,
         @Param('reviewId') reviewId: string,
-    ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
+        @Request() request,
+    ): Promise<GetFeedResponse> {
+        const updateReviewUseCaseResposne = await this.updateReviewUseCase.execute({
+            id: reviewId,
+            title: body.title,
+            vehicle: body.vehicle,
+            star: body.star,
+            content: body.content,
+        });
+
+        if (updateReviewUseCaseResposne.code === UpdateReviewUseCaseCodes.NOT_EXIST_REVIEW) {
+            throw new HttpException(UpdateReviewUseCaseCodes.NOT_EXIST_REVIEW, StatusCodes.NOT_FOUND);
+        }
+
+        if (updateReviewUseCaseResposne.code !== UpdateReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const review = updateReviewUseCaseResposne.review;
+
+        let getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+            reviewIds: [review.id],
+        });
+
+        if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        // NOTE: body.images가 null이 아니라면 review image 수정
+        if (body.images) {
+            const requestImageIds = _.map(body.images, (image) => image.id);
+
+            const imagesToDelete =  getAllReviewImageUseCaseReponse.images.filter((image) => {
+                return !requestImageIds.includes(image.id);
+            });
+
+            const imageIds = _.map(getAllReviewImageUseCaseReponse.images, (image) => image.id);
+
+            const imagesToAdd = body.images.filter((image) => {
+                return !imageIds.includes(image.id);
+            });
+
+            const deleteAllReviewImageUseCaseResponse = await this.deleteAllReviewImageUseCase.execute({
+                ids: _.map(imagesToDelete, (image) => image.id),
+            });
+
+            if (deleteAllReviewImageUseCaseResponse.code !== DeleteAllReviewImageUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO DELETE REVIEW IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+            const createAllReviewImageUseCaseResponse = await this.createAllReviewImageUseCase.execute({
+                review,
+                urls: _.map(imagesToAdd, (image) => image.url),
+            });
+
+            if (createAllReviewImageUseCaseResponse.code !== CreateAllReviewImageUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO CREATE REVIEW IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+            getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+                reviewIds: [review.id],
+            });
+
+            if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseReponse.images, request.user);
+
         return {
-            code: StatusCodes.NO_CONTENT,
-            responseMessage: 'SUCCESS TO UPDATE REVIEW',
-        }        
+            feed,
+        };
     }
 
     @Delete('/:reviewId')
@@ -521,14 +623,31 @@ export class ReviewController {
     @UseGuards(JwtAuthGuard)
     @UseGuards(LikeOwnerGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
-	@ApiResponse({
-		type: CommonResponse
-	})
-	async deleteLike(
-		@Param('likeId') likeId: string,
-	): Promise<CommonResponse> {
-		// TODO: 차후 UseCase 생성 시 추가
-		throw new Error('Method not implemented');
-	}
+    @ApiResponse({
+        type: CommonResponse
+    })
+    @ApiOperation({
+        summary: '좋아요 취소',
+    })
+    async deleteLike(
+        @Param('likeId') likeId: string,
+    ): Promise<CommonResponse> {
+        const deleteLikeUseCaseResponse = await this.deleteLikeUseCase.execute({
+            id: likeId,
+        });
+
+        if (deleteLikeUseCaseResponse.code === DeleteLikeUseCaseCodes.NOT_EXIST_LIKE) {
+            throw new HttpException(DeleteLikeUseCaseCodes.NOT_EXIST_LIKE, StatusCodes.NOT_FOUND);
+        }
+
+        if (deleteLikeUseCaseResponse.code !== DeleteLikeUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE LIKE', StatusCodes.NOT_FOUND);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE LIKE',
+        };
+    }
 }
 
