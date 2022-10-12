@@ -319,9 +319,9 @@ export class UserController {
         type: GetAllUserResponse,
     })
     @ApiOperation({
-        summary: '유저 목록 조회',
-        description: 'loginId를 주면 loginId에 해당 string을 포함하는, 본인을 제외한 유저 목록을 리턴. / '
-        + 'loginId가 주어지지 않으면 전체 유저 목록을 리턴.'
+        summary: '유저 목록 조회 (친구검색)',
+        description: 'loginId에 해당 string을 포함하는, 본인을 제외한 유저 목록을 리턴. / '
+        + '이미 친구신청을 했거나, 수락한 유저는 제외.',
     })
     async getAll(
         @Query('loginId') loginId: string,
@@ -336,7 +336,29 @@ export class UserController {
             throw new HttpException('FAIL TO GET ALL USER', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const users: UserDto[] = await Promise.all(_.map(getAllUserUseCaseResponse.users, (user) => {
+        const getAllFriendUseCaseResponse = await this.getAllFriendUseCase.execute({
+            userId: request.user.id,
+            isRank: true,
+        });
+
+        if (getAllFriendUseCaseResponse.code !== GetAllFriendUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FRIENDS', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const friendIds = _.map(getAllFriendUseCaseResponse.friends, (friend) => {
+            if (friend.user1.id === request.user.id) {
+                return friend.user2.id;
+            }
+            return friend.user1.id;
+        });
+
+        const nonFriendUsers = getAllUserUseCaseResponse.users.filter((user) => {
+                if (user.id === request.user.id) return false;
+                
+                return !friendIds.includes(user.id);
+            });
+
+        const users: UserDto[] = await Promise.all(_.map(nonFriendUsers, (user) => {
             return this.convertToUserDto(user);
         }));
 
