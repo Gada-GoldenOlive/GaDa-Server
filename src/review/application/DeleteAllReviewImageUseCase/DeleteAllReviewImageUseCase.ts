@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IReviewImageRepository, REVIEW_IMAGE_REPOSITORY } from '../../infra/IReviewImageRepository';
@@ -24,8 +23,7 @@ export class DeleteAllReviewImageUseCase implements UseCase<IDeleteAllReviewImag
 			return {
 				code: DeleteAllReviewImageUseCaseCodes.SUCCESS,
 			};
-		} catch (e){
-            console.log(e)
+		} catch {
 			return {
 				code: DeleteAllReviewImageUseCaseCodes.FAILURE,
 			};
