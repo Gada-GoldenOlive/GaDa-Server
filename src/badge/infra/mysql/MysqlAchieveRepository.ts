@@ -39,11 +39,11 @@ export class MysqlAchieveRepository implements IAchieveRepository {
 		.where('(achieve.status = :non_achieve or achieve.status = :hidden)', { non_achieve: AchieveStatus.NON_ACHIEVE, hidden: AchieveStatus.HIDDEN });
 		// NOTE: 이미 달성한 건 리턴해줄 필요 없으므로 고려 대상에서 제외
 
-		if (options.id) query.andWhere('achieve.id = :achieveId', { achieve: options.id });
+		if (options.id) query.andWhere('achieve.id = :achieveId', { achieveId: options.id });
 		if (options.user) query.andWhere('user.id = :userId', { userId: options.user.id });
 		if (options.badge) query.andWhere('badge.id = :badgeId', { badgeId: options.badge.id });
-		if (options.category) query.andWhere('badge.category = :category', { category: options.badge.category });
-		if (options.code) query.andWhere('badge.code = :code', { code: options.badge.code });
+		if (options.category) query.andWhere('badge.category = :category', { category: options.category });
+		if (options.code) query.andWhere('badge.code = :code', { code: options.code });
 
 		const achieve = await query.getOne();
 
