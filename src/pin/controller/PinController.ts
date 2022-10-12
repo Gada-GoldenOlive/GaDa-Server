@@ -18,6 +18,7 @@ import { CommentOwnerGuard } from '../comment-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { GetAllCommentUseCase, GetAllCommentUseCaseCodes } from '../application/GetAllCommentUseCase/GetAllCommentUseCase';
+import { DeletePinUseCase, DeletePinUseCaseCodes } from '../application/DeletePinUseCase/DeletePinUseCase';
 import { DeleteCommentUseCase, DeleteCommentUseCaseCodes } from '../application/DeleteCommentUseCase/DeleteCommentUseCase';
 import { UpdatePinUseCase, UpdatePinUseCaseCodes } from '../application/UpdatePinUseCase/UpdatePinUseCase';
 
@@ -32,6 +33,7 @@ export class PinController {
         private readonly getPinUseCase: GetPinUseCase,
         private readonly createCommentUseCase: CreateCommentUseCase,
         private readonly getAllCommentUseCase: GetAllCommentUseCase,
+        private readonly deletePinUseCase: DeletePinUseCase,
         private readonly deleteCommentUseCase: DeleteCommentUseCase,
         private readonly updatePinUseCase: UpdatePinUseCase,
     ) {}
@@ -359,8 +361,8 @@ export class PinController {
     }
 
     @Delete('/:pinId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(PinOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -368,7 +370,17 @@ export class PinController {
     async delete(
         @Param('pinId') pinId: string,
     ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+        const deletePinUseCaseResponse = await this.deletePinUseCase.execute({
+            id: pinId,
+        });
+
+        if (deletePinUseCaseResponse.code !== DeletePinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE PIN',
+        };
     }
 }
