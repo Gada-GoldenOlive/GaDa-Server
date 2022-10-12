@@ -26,25 +26,8 @@ export class CreateWalkwayRequest {
 }
 
 export class UpdateWalkwayRequest {
-    @ApiProperty()
-    id: string;
-
     @ApiPropertyOptional()
     title?: string;
-
-    @ApiPropertyOptional()
-    address?: string;
-
-    @ApiPropertyOptional()
-    distance?: number;
-
-    @ApiPropertyOptional()
-    time?: number;
-
-    @ApiPropertyOptional({
-        type: [PointDto],
-    })
-    path?: PointDto[];
 
     @ApiPropertyOptional()
     image?: string;

@@ -30,6 +30,7 @@ import { GetAllWalkUseCase } from './application/GetAllWalkUseCase/GetAllWalkUse
 import { GetWalkUseCase } from './application/GetWalkUseCase/GetWalkUseCase';
 import { UpdateUserUseCase } from '../user/application/UpdateUserUseCase/UpdateUserUseCase';
 import { DeleteWalkwayUseCase } from './application/DeleteWalkwayUseCase/DeleteWalkwayUseCase';
+import { UpdateWalkwayUseCase } from './application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 
 @Module({
     imports: [
@@ -55,6 +56,7 @@ import { DeleteWalkwayUseCase } from './application/DeleteWalkwayUseCase/DeleteW
         GetAllWalkUseCase,
         UpdateUserUseCase,
         DeleteWalkwayUseCase,
+        UpdateWalkwayUseCase,
         {
             provide: WALKWAY_REPOSITORY,
             useClass: MysqlWalkwayRepository
