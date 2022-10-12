@@ -24,6 +24,7 @@ import { Review } from '../domain/Review/Review';
 import { Image } from '../../common/domain/Image/Image';
 import { User } from '../../user/domain/User/User';
 import { UserStatus } from '../../user/domain/User/UserStatus';
+import { DeleteReviewUseCase, DeleteReviewUseCaseCodes } from '../application/DeleteReviewUseCase/DeleteReviewUseCase';
 import { Achieve } from '../../badge/domain/Achieve/Achieve';
 import { BadgeCategory, BADGE_CATEGORY } from '../../badge/domain/Badge/BadgeCategory';
 import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
@@ -43,6 +44,7 @@ export class ReviewController {
         private readonly getAllReviewUseCase: GetAllReviewUseCase,
         private readonly getWalkwayUseCase: GetWalkwayUseCase,
         private readonly getReviewUseCase: GetReviewUseCase,
+        private readonly deleteReviewUseCase: DeleteReviewUseCase,
         private readonly getLikeUseCase: GetLikeUseCase,
         private readonly getAllLikeUseCase: GetAllLikeUseCase,
         private readonly createLikeUseCase: CreateLikeUseCase,
@@ -524,6 +526,9 @@ export class ReviewController {
         summary: '리뷰 수정',
         description: '새로운 이미지를 추가하고 싶다면 images에 기존 이미지들 + "url"만 있는 이미지를 넣으면 됨.' 
     })
+    @ApiOperation({
+        summary: '리뷰 삭제',
+    })
     async update(
         @Body() body: UpdateReviewRequest,
         @Param('reviewId') reviewId: string,
@@ -547,11 +552,11 @@ export class ReviewController {
 
         const review = updateReviewUseCaseResposne.review;
 
-        let getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+        let getAllReviewImageUseCaseResponse = await this.getAllReviewImageUseCase.execute({
             reviewIds: [review.id],
         });
 
-        if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+        if (getAllReviewImageUseCaseResponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
@@ -559,11 +564,11 @@ export class ReviewController {
         if (body.images) {
             const requestImageIds = _.map(body.images, (image) => image.id);
 
-            const imagesToDelete =  getAllReviewImageUseCaseReponse.images.filter((image) => {
+            const imagesToDelete =  getAllReviewImageUseCaseResponse.images.filter((image) => {
                 return !requestImageIds.includes(image.id);
             });
 
-            const imageIds = _.map(getAllReviewImageUseCaseReponse.images, (image) => image.id);
+            const imageIds = _.map(getAllReviewImageUseCaseResponse.images, (image) => image.id);
 
             const imagesToAdd = body.images.filter((image) => {
                 return !imageIds.includes(image.id);
@@ -586,16 +591,16 @@ export class ReviewController {
                 throw new HttpException('FAIL TO CREATE REVIEW IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
             }
 
-            getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+            getAllReviewImageUseCaseResponse = await this.getAllReviewImageUseCase.execute({
                 reviewIds: [review.id],
             });
 
-            if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            if (getAllReviewImageUseCaseResponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
             }
         }
 
-        const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseReponse.images, request.user);
+        const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseResponse.images, request.user);
 
         return {
             code: StatusCodes.OK,
@@ -605,8 +610,8 @@ export class ReviewController {
     }
 
     @Delete('/:reviewId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(ReviewOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
@@ -614,7 +619,34 @@ export class ReviewController {
     async delete(
         @Param('reviewId') reviewId: string,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
+        const getAllReviewImageUseCaseResponse = await this.getAllReviewImageUseCase.execute({
+            reviewIds: [reviewId],
+        });
+
+        if (getAllReviewImageUseCaseResponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const deleteAllReviewImageUseCaseResponse = await this.deleteAllReviewImageUseCase.execute({
+            ids: _.map(getAllReviewImageUseCaseResponse.images, (image) => image.id),
+        });
+
+        if (deleteAllReviewImageUseCaseResponse.code !== DeleteAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE REVIEW IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const deleteReviewUseCaseResponse = await this.deleteReviewUseCase.execute({
+            id: reviewId,
+        });
+
+        if (deleteReviewUseCaseResponse.code === DeleteReviewUseCaseCodes.NOT_EXIST_REVIEW) {
+            throw new HttpException(DeleteReviewUseCaseCodes.NOT_EXIST_REVIEW, StatusCodes.NOT_FOUND);
+        }
+
+        if (deleteReviewUseCaseResponse.code !== DeleteReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
         return {
             code: StatusCodes.NO_CONTENT,
             responseMessage: 'SUCCESS TO DELETE REVIEW',
