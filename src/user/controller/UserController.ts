@@ -37,6 +37,8 @@ import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 @Controller('users')
 @ApiTags('사용자')
 export class UserController {
+    private achieves: Achieve[] = [];
+
     constructor(
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly getUserUseCase: GetUserUseCase,
@@ -54,8 +56,6 @@ export class UserController {
         private readonly getAchieveUseCase: GetAchieveUseCase,
         private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
-    
-    private achieves: Achieve[] = [];
 
     private async pushAchieve(user: User, category: BadgeCategory, code: BadgeCode, achieves: Achieve[]): Promise<boolean> {
         const getAchieveUseCaseResponse = await this.getAchieveUseCase.execute({
@@ -112,6 +112,7 @@ export class UserController {
     async create(
         @Body() request: CreateUserRequest,
     ): Promise<LoginOrSignUpUserResponse> {
+        this.achieves = [];
         const createUserUseCaseResponse = await this.createUserUseCase.execute({
             loginId: request.loginId,
             password: request.password,
@@ -249,6 +250,8 @@ export class UserController {
         @Body() body: CreateFriendRequest,
         @Request() request,
     ): Promise<CommonResponse> {
+        this.achieves = [];
+
         if (request.user.loginId.value === body.friendLoginId) {
             throw new HttpException('CANNOT MAKE FRIEND WITH YOURSELF', StatusCodes.BAD_REQUEST);
         }
@@ -272,6 +275,35 @@ export class UserController {
 
         if (createFriendUseCaseResponse.code !== CreateFriendUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE FRIEND', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.FIRST, this.achieves);
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+    
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+
+            return {
+                code: StatusCodes.CREATED,
+                responseMessage: 'SUCCESS TO CREATE FRIEND AND GET BADGE',
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            }
         }
 
         return {
@@ -577,7 +609,7 @@ export class UserController {
     @Patch('/:userId')
     @UseGuards(UserOwnerGuard)
     @UseGuards(JwtAuthGuard)
-    @HttpCode(StatusCodes.NO_CONTENT)
+    @HttpCode(StatusCodes.OK)
     @ApiOperation({
         summary: '유저 수정 (프로필 수정), 유저 수정되면 수정된 유저 리턴해줍니다. 비번 수정도 됨'
     })
@@ -589,6 +621,8 @@ export class UserController {
         @Request() request,
         @Body() body: UpdateUserRequest,
     ): Promise<GetUserResponse> {
+        this.achieves = [];
+
         const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
             id: userId,
             originPassword: body.originPassword,
@@ -617,8 +651,43 @@ export class UserController {
 
         const user = updateUserUseCaseResponse.user;
 
+        if (user.goalDistance) {
+            await this.pushAchieve(user, BadgeCategory.DISTANCE, BadgeCode.FIRST, this.achieves);
+        }
+        if (user.goalTime) {
+            await this.pushAchieve(user, BadgeCategory.WALKTIME, BadgeCode.FIRST, this.achieves);
+        }
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+
+            return {
+                code: StatusCodes.OK,
+                responseMessage: 'SUCCESS TO UPDATE USER AND GET BADGE',
+                user: await this.convertToUserDto(user),
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
+        }
+
         return {
-            code: StatusCodes.NO_CONTENT,
+            code: StatusCodes.OK,
             responseMessage: 'SUCCESS TO UPDATE USER',
             user: await this.convertToUserDto(user),
         };

@@ -132,6 +132,8 @@ export class ReviewController {
         @Body() body: CreateReviewRequest,
         @Request() request,
     ): Promise<GetFeedResponse> {
+        this.achieves = [];
+        
         const getWalkUseCaseResponse = await this.getWalkUseCase.execute({
             id: body.walkId,
         });
@@ -207,14 +209,6 @@ export class ReviewController {
 
                 if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
                     throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
-                }
-
-                return {
-                    badge: {
-                        title: achieve.badge.title.value,
-                        image: achieve.badge.image.value,
-                    },
-                    status: achieve.status,
                 }
             });
 
