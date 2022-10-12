@@ -52,6 +52,7 @@ export class User extends AggregateRoot<UserProps> {
             totalDistance: UserTotalDistance.create(initialNumber).value,
             totalTime: UserTotalTime.create(initialNumber).value,
             status: this.getUserStatusAndSetIfStatusIsUndefined(props),
+            image: this.getUserImageAndSetIfImageIsUndefined(props),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));
@@ -116,5 +117,16 @@ export class User extends AggregateRoot<UserProps> {
         }
         
         return status;
+    }
+
+    private static getUserImageAndSetIfImageIsUndefined(props: UserNewProps) {
+        let { image } = props;
+        const DEFAULT_USER_IMAGE_URL = 'https://golden-olive-gada.s3.ap-northeast-2.amazonaws.com/%EA%B8%B0%EB%B3%B8%EC%9D%B4%EB%AF%B8%EC%A7%80/profile.png'
+
+        if (_.isNil(props.image) || _.isEmpty(props.image)) {
+            image = ImageUrl.create(DEFAULT_USER_IMAGE_URL).value;
+        }
+        
+        return image;
     }
 }
