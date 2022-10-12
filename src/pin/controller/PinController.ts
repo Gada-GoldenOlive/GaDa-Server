@@ -439,6 +439,9 @@ export class PinController {
     @ApiResponse({
         type: GetPinResponse,
     })
+    @ApiOperation({
+        summary: '핀 수정',
+    })
     async update(
         @Body() body: UpdatePinRequest,
         @Param('pinId') pinId: string,
@@ -486,6 +489,9 @@ export class PinController {
     @ApiResponse({
         type: CommonResponse
     })
+    @ApiOperation({
+        summary: '댓글 삭제',
+    })
     async deleteComment(
         @Param('commentId') commentId: string,
     ): Promise<CommonResponse> {
@@ -509,6 +515,9 @@ export class PinController {
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse,
+    })
+    @ApiOperation({
+        summary: '핀 삭제',
     })
     async delete(
         @Param('pinId') pinId: string,
