@@ -57,7 +57,8 @@ export class MysqlFriendRepository implements IFriendRepository {
             }))
             .andWhere(new Brackets(query => {
                 query.where('friend.status = :requested', { requested: FriendStatus.REQUESTED })
-                .orWhere('friend.status = :accepted', { accepted: FriendStatus.ACCEPTED });
+                .orWhere('friend.status = :accepted', { accepted: FriendStatus.ACCEPTED })
+                .orWhere('friend.status = :read', { read: FriendStatus.READ });
             }));
         }
 
