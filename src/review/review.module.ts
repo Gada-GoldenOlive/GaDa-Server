@@ -32,6 +32,11 @@ import { MysqlWalkRepository } from '../walkway/infra/mysql/MysqlWalkRepository'
 import { WalkEntity } from '../walkway/entity/Walk.entity';
 import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
 import { ImageController } from '../common/controller/ImageController';
+import { AchieveEntity } from '../badge/entity/Achieve.entity';
+import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { ACHIEVE_REPOSITORY } from '../badge/infra/IAchieveRepository';
+import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveRepository';
 
 
 @Module({
@@ -43,6 +48,7 @@ import { ImageController } from '../common/controller/ImageController';
         LikeEntity,
         ReviewImageEntity,
         WalkEntity,
+        AchieveEntity,
     ])
   ],
   controllers: [ ReviewController, ImageController ],
@@ -81,6 +87,12 @@ import { ImageController } from '../common/controller/ImageController';
       {
         provide: WALK_REPOSITORY,
         useClass: MysqlWalkRepository,
+      },
+      GetAchieveUseCase,
+      UpdateAchieveUseCase,
+      {
+        provide: ACHIEVE_REPOSITORY,
+        useClass: MysqlAchieveRepository,
       },
   ],
 })

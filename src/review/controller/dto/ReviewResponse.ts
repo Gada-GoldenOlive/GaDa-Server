@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CommonResponse } from '../../../common/controller/dto/CommonResponse';
 
 import { VEHCILE_STATUS, Vehicle } from '../../domain/Review/Vehicle';
 
@@ -78,7 +79,7 @@ export class GetAllReviewResponse {
     averageStar: number;
 }
 
-export class GetFeedResponse {
+export class GetFeedResponse extends CommonResponse {
     @ApiProperty()
     feed: FeedDto;
 }
