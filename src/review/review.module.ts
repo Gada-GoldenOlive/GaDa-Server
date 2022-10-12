@@ -33,6 +33,8 @@ import { WalkEntity } from '../walkway/entity/Walk.entity';
 import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
 import { ImageController } from '../common/controller/ImageController';
 import { DeleteReviewUseCase } from './application/DeleteReviewUseCase/DeleteReviewUseCase';
+import { DeleteAllReviewImageUseCase } from './application/DeleteAllReviewImageUseCase/DeleteAllReviewImageUseCase';
+import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateReviewUseCase';
 
 
 @Module({
@@ -52,6 +54,7 @@ import { DeleteReviewUseCase } from './application/DeleteReviewUseCase/DeleteRev
       GetReviewUseCase,
       CreateReviewUseCase,
       DeleteReviewUseCase,
+      UpdateReviewUseCase,
       {
           provide: REVIEW_REPOSITORY,
           useClass: MysqlReviewRepository,
@@ -75,6 +78,7 @@ import { DeleteReviewUseCase } from './application/DeleteReviewUseCase/DeleteRev
       },
       GetAllReviewImageUseCase,
       CreateAllReviewImageUseCase,
+      DeleteAllReviewImageUseCase,
       {
         provide: REVIEW_IMAGE_REPOSITORY,
         useClass: MysqlReviewImageRepository,
