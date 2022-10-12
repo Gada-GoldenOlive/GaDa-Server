@@ -468,11 +468,11 @@ export class ReviewController {
 
         const review = updateReviewUseCaseResposne.review;
 
-        let getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+        let getAllReviewImageUseCaseResponse = await this.getAllReviewImageUseCase.execute({
             reviewIds: [review.id],
         });
 
-        if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+        if (getAllReviewImageUseCaseResponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
@@ -480,11 +480,11 @@ export class ReviewController {
         if (body.images) {
             const requestImageIds = _.map(body.images, (image) => image.id);
 
-            const imagesToDelete =  getAllReviewImageUseCaseReponse.images.filter((image) => {
+            const imagesToDelete =  getAllReviewImageUseCaseResponse.images.filter((image) => {
                 return !requestImageIds.includes(image.id);
             });
 
-            const imageIds = _.map(getAllReviewImageUseCaseReponse.images, (image) => image.id);
+            const imageIds = _.map(getAllReviewImageUseCaseResponse.images, (image) => image.id);
 
             const imagesToAdd = body.images.filter((image) => {
                 return !imageIds.includes(image.id);
@@ -507,16 +507,16 @@ export class ReviewController {
                 throw new HttpException('FAIL TO CREATE REVIEW IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
             }
 
-            getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+            getAllReviewImageUseCaseResponse = await this.getAllReviewImageUseCase.execute({
                 reviewIds: [review.id],
             });
 
-            if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            if (getAllReviewImageUseCaseResponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
                 throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
             }
         }
 
-        const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseReponse.images, request.user);
+        const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseResponse.images, request.user);
 
         return {
             feed,
@@ -533,6 +533,22 @@ export class ReviewController {
     async delete(
         @Param('reviewId') reviewId: string,
     ): Promise<CommonResponse> {
+        const getAllReviewImageUseCaseResponse = await this.getAllReviewImageUseCase.execute({
+            reviewIds: [reviewId],
+        });
+
+        if (getAllReviewImageUseCaseResponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const deleteAllReviewImageUseCaseResponse = await this.deleteAllReviewImageUseCase.execute({
+            ids: _.map(getAllReviewImageUseCaseResponse.images, (image) => image.id),
+        });
+
+        if (deleteAllReviewImageUseCaseResponse.code !== DeleteAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELETE REVIEW IMAGES', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
         const deleteReviewUseCaseResponse = await this.deleteReviewUseCase.execute({
             id: reviewId,
         });
