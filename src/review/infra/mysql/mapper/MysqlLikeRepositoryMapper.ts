@@ -14,6 +14,7 @@ export class MysqlLikeRepositoryMapper {
         return Like.create({
             review: MysqlReviewRepositoryMapper.toDomain(entity.review),
             user: MysqlUserRepositoryMapper.toDomain(entity.user),
+            status: entity.status,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
         },
