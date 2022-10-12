@@ -598,6 +598,8 @@ export class ReviewController {
         const feed: FeedDto = await this.convertToFeedDto(review, getAllReviewImageUseCaseReponse.images, request.user);
 
         return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO UPDATE REVIEW',
             feed,
         };
     }
