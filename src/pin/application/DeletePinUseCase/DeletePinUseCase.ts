@@ -40,8 +40,8 @@ export class DeletePinUseCase implements UseCase<IDeletePinUseCaseRequest, IDele
 				content: PinContent.create(foundPin.content.value).value,
 				image: foundPin.image ? ImageUrl.create(foundPin.image.value).value : null,
 				location: PinLocation.create(foundPin.location.value).value,
-                walkway: foundPin.walkway,
-                user: foundPin.user,
+				walkway: foundPin.walkway,
+				user: foundPin.user,
 				createdAt: foundPin.createdAt,
 				updatedAt: new Date(),
 			}, request.id).value;
