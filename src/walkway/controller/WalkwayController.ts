@@ -30,7 +30,6 @@ import { BadgeCategory, BADGE_CATEGORY } from '../../badge/domain/Badge/BadgeCat
 import { BadgeCode, BADGE_CODE } from '../../badge/domain/Badge/BadgeCode';
 import { Achieve } from '../../badge/domain/Achieve/Achieve';
 import { User } from '../../user/domain/User/User';
-import { AchieveDto } from '../../badge/controller/dto/BadgeResponse';
 import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 import { UpdateWalkwayUseCase, UpdateWalkwayUseCaseCodes } from '../application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 import { Walkway } from '../domain/Walkway/Walkway';
@@ -55,7 +54,7 @@ export class WalkwayController {
         private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
 
-    private async pushAchieve(user: User, category: BADGE_CATEGORY, code: BADGE_CODE, achieves: Achieve[]): Promise<boolean> {
+    private async pushAchieve(user: User, category: BadgeCategory, code: BadgeCode, achieves: Achieve[]): Promise<boolean> {
         const getAchieveUseCaseResponse = await this.getAchieveUseCase.execute({
             user,
             category: category as BADGE_CATEGORY,
