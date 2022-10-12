@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
+import { AchieveEntity } from '../badge/entity/Achieve.entity';
+import { ACHIEVE_REPOSITORY } from '../badge/infra/IAchieveRepository';
+import { MysqlAchieveRepository } from '../badge/infra/mysql/MysqlAchieveRepository';
 import { GetUserUseCase } from '../user/application/GetUserUseCase/GetUserUseCase';
 import { UserEntity } from '../user/entity/User.entity';
 import { USER_REPOSITORY } from '../user/infra/IUserRepository';
@@ -32,6 +37,7 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
         UserEntity,
         WalkwayEntity,
         CommentEntity,
+        AchieveEntity,
     ])
   ],
   controllers: [ PinController ],
@@ -61,6 +67,12 @@ import { MysqlPinRepository } from './infra/mysql/MysqlPinRepository';
     {
       provide: COMMENT_REPOSITORY,
       useClass: MysqlCommentRepository,
+    },
+    GetAchieveUseCase,
+    UpdateAchieveUseCase,
+    {
+      provide: ACHIEVE_REPOSITORY,
+      useClass: MysqlAchieveRepository,
     },
   ],
 })

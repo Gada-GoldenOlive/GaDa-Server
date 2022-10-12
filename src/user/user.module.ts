@@ -37,6 +37,8 @@ import { UpdateFriendUseCase } from './application/UpdateFriendUseCase/UpdateFri
 import { GetAllFriendUseCase } from './application/GetAllFriendUseCase/GetAllFriendUseCase';
 import { DeleteFriendUseCase } from './application/DeleteFriendUseCase/DeleteFriendUseCase';
 import { DeleteUserUseCase } from './application/DeleteUserUseCase/DeleteUserUseCase';
+import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAchieveUseCase';
+import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
 
 @Module({
     imports: [
@@ -89,6 +91,8 @@ import { DeleteUserUseCase } from './application/DeleteUserUseCase/DeleteUserUse
             useClass: MysqlBadgeRepository,
         },
         CreateAchievesUseCase,
+        GetAchieveUseCase,
+        UpdateAchieveUseCase,
         {
             provide: ACHIEVE_REPOSITORY,
             useClass: MysqlAchieveRepository,

@@ -1,6 +1,6 @@
-import { ACHIEVE_STATUS } from '../../../domain/Achieve/AchieveStatus';
+import { AchieveStatus } from '../../../domain/Achieve/AchieveStatus';
 
 export interface IUpdateAchieveUseCaseRequest {
 	id: string;
-	status: ACHIEVE_STATUS;
+	status: AchieveStatus;
 }
