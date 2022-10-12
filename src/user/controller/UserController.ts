@@ -451,7 +451,7 @@ export class UserController {
                 id: friend.id,
                 userId: user.id,
                 name: user.name.value,
-                image: user.image.value,
+                image: user.image ? user.image.value : null,
                 loginId: user.loginId.value,
             };
         });
