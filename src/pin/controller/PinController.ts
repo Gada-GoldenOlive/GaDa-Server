@@ -18,6 +18,8 @@ import { CommentOwnerGuard } from '../comment-owner.guard';
 import { JwtAuthGuard } from '../../auth/jwt-auth.gaurd';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { GetAllCommentUseCase, GetAllCommentUseCaseCodes } from '../application/GetAllCommentUseCase/GetAllCommentUseCase';
+import { DeleteCommentUseCase, DeleteCommentUseCaseCodes } from '../application/DeleteCommentUseCase/DeleteCommentUseCase';
+import { UpdatePinUseCase, UpdatePinUseCaseCodes } from '../application/UpdatePinUseCase/UpdatePinUseCase';
 
 @Controller('pins')
 @ApiTags('핀')
@@ -30,6 +32,8 @@ export class PinController {
         private readonly getPinUseCase: GetPinUseCase,
         private readonly createCommentUseCase: CreateCommentUseCase,
         private readonly getAllCommentUseCase: GetAllCommentUseCase,
+        private readonly deleteCommentUseCase: DeleteCommentUseCase,
+        private readonly updatePinUseCase: UpdatePinUseCase,
     ) {}
 
     @Post()
@@ -284,32 +288,74 @@ export class PinController {
     }
 
     @Patch('/:pinId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(PinOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
-        type: CommonResponse,
+        type: GetPinResponse,
     })
     async update(
-        @Body() request: UpdatePinRequest,
+        @Body() body: UpdatePinRequest,
         @Param('pinId') pinId: string,
-    ): Promise<CommonResponse> {
-        // TODO: 차후 Usecase 생성시 추가
-        throw new Error('Method not implemented');
+    ): Promise<GetPinResponse> {
+        const updatePinUseCaseResponse = await this.updatePinUseCase.execute({
+            id: pinId,
+            title: body.title,
+            content: body.content,
+            image: body.image,
+        });
+
+        if (updatePinUseCaseResponse.code !== UpdatePinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO UPDATE PIN', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const foundPin = updatePinUseCaseResponse.pin;
+
+        let userId = foundPin.user.id;
+
+        if (foundPin.user.status === UserStatus.DELETE) {
+            userId = 'jonjaehaji-aneum';
+        }
+
+        const pin = {
+            id: foundPin.id,
+            title: foundPin.title.value,
+            content: foundPin.content.value,
+            image: foundPin.image ? foundPin.image.value : null,
+            location: foundPin.location.value,
+            userId,
+            walkwayId: foundPin.walkway.id,
+            createdAt: foundPin.createdAt,
+            updatedAt: foundPin.updatedAt,
+        };
+
+        return {
+            pin,
+        };
     }
 
     @Delete('/comments/:commentId')
-    @UseGuards(JwtAuthGuard)
     @UseGuards(CommentOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
     })
     async deleteComment(
-        @Query('commentId') commentId: string,
+        @Param('commentId') commentId: string,
     ): Promise<CommonResponse> {
-        // TODO: 차후 UseCase 생성 시 추가
-        throw new Error('Method not implemented');
+        const deleteCommentUseCaseResponse = await this.deleteCommentUseCase.execute({
+            id: commentId,
+        });
+
+        if (deleteCommentUseCaseResponse.code !== DeleteCommentUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO DELTE COMMENT', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            code: StatusCodes.NO_CONTENT,
+            responseMessage: 'SUCCESS TO DELETE COMMENT',
+        };
     }
 
     @Delete('/:pinId')
