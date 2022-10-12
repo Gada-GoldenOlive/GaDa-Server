@@ -33,6 +33,8 @@ import { WalkEntity } from '../walkway/entity/Walk.entity';
 import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
 import { ImageController } from '../common/controller/ImageController';
 import { DeleteReviewUseCase } from './application/DeleteReviewUseCase/DeleteReviewUseCase';
+import { DeleteLikeUseCase } from './application/DeleteLikeUseCase/DeleteLikeUseCase';
+import { UpdateLikeUseCase } from './application/UpdateLikeUseCase/UpdateLikeUseCase';
 import { DeleteAllReviewImageUseCase } from './application/DeleteAllReviewImageUseCase/DeleteAllReviewImageUseCase';
 import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateReviewUseCase';
 
@@ -72,6 +74,8 @@ import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateRev
       GetLikeUseCase,
       GetAllLikeUseCase,
       CreateLikeUseCase,
+      DeleteLikeUseCase,
+      UpdateLikeUseCase,
       {
         provide: LIKE_REPOSITORY,
         useClass: MysqlLikeRepository,
