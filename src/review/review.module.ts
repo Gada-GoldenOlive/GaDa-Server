@@ -31,7 +31,6 @@ import { WALK_REPOSITORY } from '../walkway/infra/IWalkRepository';
 import { MysqlWalkRepository } from '../walkway/infra/mysql/MysqlWalkRepository';
 import { WalkEntity } from '../walkway/entity/Walk.entity';
 import { CreateReviewUseCase } from './application/CreateReviewUseCase/CreateReviewUseCase';
-import { ImageController } from '../common/controller/ImageController';
 import { AchieveEntity } from '../badge/entity/Achieve.entity';
 import { GetAchieveUseCase } from '../badge/application/GetAchieveUseCase/GetAchieveUseCase';
 import { UpdateAchieveUseCase } from '../badge/application/UpdateAchieveUseCase/UpdateAchieveUseCase';
@@ -55,7 +54,7 @@ import { UpdateReviewUseCase } from './application/UpdateReviewUseCase/UpdateRev
         AchieveEntity,
     ])
   ],
-  controllers: [ ReviewController, ImageController ],
+  controllers: [ ReviewController ],
   providers: [
       GetAllReviewUseCase,
       GetReviewUseCase,
