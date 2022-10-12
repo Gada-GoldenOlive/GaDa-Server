@@ -1,4 +1,5 @@
 import { InjectRepository } from "@nestjs/typeorm";
+import { query } from "express";
 import { Repository } from "typeorm";
 
 import { User } from "../../../user/domain/User/User";
@@ -16,6 +17,11 @@ export interface GetLikeOptions {
     review?: Review;
     id?: string;
     is_include_delete?: boolean;
+}
+
+export interface GetAllLikeOptions {
+    user?: User;
+    review?: Review;
 }
 
 export class MysqlLikeRepository implements ILikeRepository {
@@ -55,8 +61,11 @@ export class MysqlLikeRepository implements ILikeRepository {
         return MysqlLikeRepositoryMapper.toDomain(like);
     }
 
-    async findAll(user: User): Promise<Like[]> {
-        const likes = await this.likeRepository
+    async findAll(options: GetAllLikeOptions): Promise<Like[]> {
+        const user = options.user;
+        const review = options.review;
+
+        const query = await this.likeRepository
         .createQueryBuilder('like')
         .leftJoinAndSelect('like.user', 'user')
         .leftJoinAndSelect('like.review', 'review')
@@ -65,10 +74,18 @@ export class MysqlLikeRepository implements ILikeRepository {
         .leftJoinAndSelect('walk.walkway', 'walkway_walk')
         .where('review.status = :normal', { normal: ReviewStatus.NORMAL })
         .andWhere('user.status = :normal', { normal: UserStatus.NORMAL })
-        .andWhere('like.status = :normal', { normal: LikeStatus.NORMAL })
-        .andWhere('user.id = :userId', { userId: user.id })
-        .orderBy('like.createdAt', 'DESC')
-        .getMany();
+        .andWhere('like.status = :normal', { normal: LikeStatus.NORMAL });
+
+        if (user) {
+            query.andWhere('user.id = :userId', { userId: user.id });
+        }
+        else if (review) {
+            query.andWhere('review.id = :reviewId', { reviewId: review.id });
+        }
+
+        query.orderBy('like.createdAt', 'DESC');
+
+        const likes = await query.getMany();
 
         return MysqlLikeRepositoryMapper.toDomains(likes);
     }
