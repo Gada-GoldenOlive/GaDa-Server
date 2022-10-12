@@ -1,7 +1,8 @@
 import _ from 'lodash';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
+import { Cron } from '@nestjs/schedule';
 
 import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -21,7 +22,7 @@ import { UpdateUserUseCase, UpdateUserUseCaseCodes } from '../application/Update
 import { GetAllBadgeUseCase, GetAllBadgeUseCaseCodes } from '../../badge/application/GetAllBadgeUseCase/GetAllBadgeUseCase';
 import { CreateAchievesUseCase, CreateAchievesUseCaseCodes } from '../../badge/application/CreateAchievesUseCase/CreateAchievesUseCase';
 import { GetAllUserUseCase, GetAllUserUseCaseCodes } from '../application/GetAllUserUseCase/GetAllUserUseCase';
-import { User } from '../domain/User/User';
+import { initialNumber, User } from '../domain/User/User';
 import { UpdateFriendUseCase, UpdateFriendUseCaseCodes } from '../application/UpdateFriendUseCase/UpdateFriendUseCase';
 import { FriendStatus } from '../domain/Friend/FriendStatus';
 import { GetAllFriendUseCase, GetAllFriendUseCaseCodes } from '../application/GetAllFriendUseCase/GetAllFriendUseCase';
@@ -99,7 +100,38 @@ export class UserController {
             goalTime: user.goalTime.value,
             totalDistance: user.totalDistance.value,
             totalTime: user.totalTime.value,
+            weekDistance: user.weekDistance.value,
+            weekTime: user.weekTime.value,
         };
+    }
+
+    @Cron('0 0 0 * * 1')
+    async resetWeeklyRecord() {
+        const getAllUserUseCaseResponse = await this.getAllUserUseCase.execute({});
+
+        if (getAllUserUseCaseResponse.code !== GetAllUserUseCaseCodes.SUCCESS) {
+            Logger.log('FAIL TO GET ALL USER');
+        }
+
+        const users = getAllUserUseCaseResponse.users;
+
+        await Promise.all(_.map(users, async (user) => {
+            // TODO: user의 weekDistance, weekTime 값으로 Record 생성
+
+            const updateUserUseCaseResponse = await this.updateUserUseCase.execute({
+                id: user.id,
+                weekDistance: initialNumber,
+                weekTime: initialNumber,
+            });
+
+            if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.NOT_EXIST_USER) {
+                Logger.log('FAIL TO FIND USER');
+            }
+
+            if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
+                Logger.log('FAIL TO UPDATE USER ' + user.loginId);
+            }
+        }));
     }
 
     @Post()
@@ -353,7 +385,6 @@ export class UserController {
         @Request() request,
     ) {
         const getAllUserUseCaseResponse = await this.getAllUserUseCase.execute({
-            userId: request.user.id,
             loginId: loginId,
         });
 

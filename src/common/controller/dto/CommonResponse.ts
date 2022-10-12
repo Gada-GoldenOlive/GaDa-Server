@@ -11,6 +11,8 @@ export class CommonResponse {
     @ApiPropertyOptional()
     isValid?: boolean;
 
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({
+        type: [AchieveDto],
+    })
     achieves?: AchieveDto[];
 }

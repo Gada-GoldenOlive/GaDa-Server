@@ -2,6 +2,7 @@ import * as Joi from 'joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -21,7 +22,6 @@ import { CommentEntity } from './pin/entity/Comment.entity';
 import { FriendEntity } from './user/entity/Friend.entity';
 import { AchieveEntity } from './badge/entity/Achieve.entity';
 import { RecordEntity } from './user/entity/Record.entity';
-import { JwtAuthGuard } from './auth/jwt-auth.gaurd';
 import { ReviewImageEntity } from './review/entity/ReviewImage.entity';
 
 @Module({
@@ -63,6 +63,7 @@ import { ReviewImageEntity } from './review/entity/ReviewImage.entity';
                 ReviewImageEntity,
             ],
         }),
+        ScheduleModule.forRoot(),
         UserModule,
         PinModule,
         WalkwayModule,
