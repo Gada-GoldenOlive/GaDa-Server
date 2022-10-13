@@ -29,6 +29,9 @@ export class ReviewDto {
     @ApiProperty()
     content: string;
 
+    @ApiProperty()
+    userId: string;
+
     @ApiPropertyOptional()
     userImage?: string;
 
