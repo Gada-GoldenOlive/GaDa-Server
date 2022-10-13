@@ -1,5 +1,4 @@
 import { InjectRepository } from "@nestjs/typeorm";
-import { query } from "express";
 import { Repository } from "typeorm";
 
 import { User } from "../../../user/domain/User/User";

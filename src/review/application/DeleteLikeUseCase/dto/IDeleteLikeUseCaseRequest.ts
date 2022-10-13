@@ -1,3 +1,7 @@
+import { User } from "../../../../user/domain/User/User";
+import { Review } from "../../../domain/Review/Review";
+
 export interface IDeleteLikeUseCaseRequest {
-    id: string;
+    review: Review;
+    user: User;
 }
