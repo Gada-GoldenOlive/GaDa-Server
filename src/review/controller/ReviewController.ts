@@ -11,7 +11,7 @@ import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/G
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
 import { GetLikeUseCase, GetLikeUseCaseCodes } from '../application/GetLikeUseCase/IGetLikeUseCase';
-import { GetAllLikeUseCase } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
+import { GetAllLikeUseCase, GetAllLikeUseCaseCodes } from '../application/GetAllLikeUseCase/IGetAllLikeUseCase';
 import { CreateLikeUseCase, CreateLikeUseCaseCodes } from '../application/CreateLikeUseCase/CreateLikeUseCase';
 import { GetAllReviewImageUseCase, GetAllReviewImageUseCaseCodes } from '../application/GetAllReviewImageUseCase/GetAllReviewImageUseCase';
 import { ReviewOwnerGuard } from '../review-owner.guard';
@@ -36,6 +36,7 @@ import { UpdateLikeUseCase, UpdateLikeUseCaseCodes } from '../application/Update
 import { LikeStatus } from '../domain/Like/LikeStatus';
 import { UpdateReviewUseCase, UpdateReviewUseCaseCodes } from '../application/UpdateReviewUseCase/UpdateReviewUseCase';
 import { DeleteAllReviewImageUseCase, DeleteAllReviewImageUseCaseCodes } from '../application/DeleteAllReviewImageUseCase/DeleteAllReviewImageUseCase';
+import { ReviewOrderOptions, REVIEW_ORDER_OPTIONS } from '../infra/mysql/MysqlReviewRepository';
 
 @Controller('reviews')
 @ApiTags('리뷰')
@@ -427,31 +428,100 @@ export class ReviewController {
     })
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
-        summary: '피드 목록 조회',
-        description: 'Feed 목록 (feed 페이지에서의 리뷰 정보 목록)를 반환 / '
-        + 'userId를 보낼 경우: 해당하는 user의 리뷰 리스트 반환 (마이페이지>작성한 산책로) / '
-        + '보내지 않을 경우: 전체 피드 리스트 반환 (피드 페이지)'
+        summary: '전체 피드 목록 조회 (피드 페이지)',
+        description: 'order: "DISTANCE" (거리순), "LATEST" (최신순), "LIKE" (좋아요순)<br>'
+        + '&nbsp; - "DISTANCE의 경우 현 위치를 lat, lng으로 넘겨줘야 함.<br>'
+        + '&nbsp; - 디폴트는 최신순'
     })
     async getAllFeed(
         @Request() request,
-        @Query('userId') userId?: string,
+        @Query('order') order?: REVIEW_ORDER_OPTIONS,
+        @Query('lat') lat?: number,
+        @Query('lng') lng?: number,
     ): Promise<GetAllFeedResponse> {
-        let getAllReviewUseCaseResponse: IGetAllReviewUseCaseResponse;
+        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+            reviewOrderOption: order,
+            lat,
+            lng,
+        });
 
-        if (userId) {
-            getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-                user: request.user,
-            });
-        }
-        else {
-            getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({});
+        if (getAllReviewUseCaseResponse.code === GetAllReviewUseCaseCodes.NO_CURRENT_LOCATION) {
+            throw new HttpException(GetAllReviewUseCaseCodes.NO_CURRENT_LOCATION, StatusCodes.BAD_REQUEST);
         }
 
         if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
-            throw new HttpException('FAIL TO GET ALL FEED', StatusCodes.INTERNAL_SERVER_ERROR)
+            throw new HttpException('FAIL TO GET ALL FEED', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        let reviews = getAllReviewUseCaseResponse.reviews;
+
+        if (order === ReviewOrderOptions.LIKE) {
+            const reviewsWithLikeCount = (await Promise.all(_.map(reviews, async (review) => {
+                const getAllLikeUseCaseResponse = await this.getAllLikeUseCase.execute({
+                    review,
+                });
+
+                if (getAllLikeUseCaseResponse.code !== GetAllLikeUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO FIND ALL LIKES',StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+
+                return {
+                    review,
+                    likeCount: getAllLikeUseCaseResponse.likes.length,
+                };
+            }))).sort((a, b) => {
+                return b.likeCount - a.likeCount;
+            });
+
+            reviews = _.map(reviewsWithLikeCount, (review) => {
+                return review.review;
+            });
+        }
+
+        const reviewIds = _.map(reviews, (review) => review.id);
+
+        const getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
+            reviewIds,
+        });
+
+        if (getAllReviewImageUseCaseReponse.code !== GetAllReviewImageUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const feeds: FeedDto[] = await Promise.all(_.map(reviews, (review) => {
+            const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
+
+            return this.convertToFeedDto(review, images, request.user);
+        }));
+
+        return {
+            feeds,
+        };
+    }
+
+    @Get('/feeds/:userId')
+    @UseGuards(JwtAuthGuard)
+    @ApiOkResponse({
+        type: GetAllFeedResponse,
+    })
+    @HttpCode(StatusCodes.OK)
+    @ApiOperation({
+        summary: 'userId에 해당하는 유저가 작성한 피드 목록 조회 (마이페이지>작성한 산책로)',
+    })
+    async getAllFeedByUser(
+        @Request() request,
+        @Param('userId') userId?: string,
+    ): Promise<GetAllFeedResponse> {
+        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO GET ALL FEED', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         const reviewIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => review.id);
+
         const getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
             reviewIds,
         });

@@ -18,7 +18,10 @@ export class GetAllLikeUseCase implements UseCase<IGetAllLikeUseCaseRequest, IGe
 
     async execute(request: IGetAllLikeUseCaseRequest): Promise<IGetAllLikeUseCaseResponse> {
         try {
-            const likes = await this.likeRepository.findAll(request.user);
+            const likes = await this.likeRepository.findAll({
+                user: request.user,
+                review: request.review,
+            });
 
             return {
                 code: GetAllLikeUseCaseCodes.SUCCESS,
