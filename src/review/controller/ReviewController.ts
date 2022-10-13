@@ -6,7 +6,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { CreateLikeRequest, CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
-import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedResponse, CreatePreSignedUrlResponse, ImageDto } from './dto/ReviewResponse';
+import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedResponse, CreatePreSignedUrlResponse, ImageDto, ReviewDto } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
@@ -101,10 +101,12 @@ export class ReviewController {
     private async convertToFeedDto(review: Review, images: Image[], user: User): Promise<FeedDto> {
         let userImage = review.walk.user.image ? review.walk.user.image.value : null;
         let userName = review.walk.user.name.value;
+        let userId = review.walk.user.id;
 
         if (review.walk.user.status === UserStatus.DELETE) {
             userImage = null;
             userName = '탈퇴한 회원';
+            userId = 'jonjaehaji-aneum';
         }
 
         return ({
@@ -113,6 +115,7 @@ export class ReviewController {
             vehicle: review.vehicle,
             star: review.star.value,
             content: review.content.value,
+            userId,
             userImage,
             userName,
             walkwayId: review.walk.walkway.id,
@@ -345,7 +348,7 @@ export class ReviewController {
             throw new HttpException('FAIL TO GET ALL REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviews = _.map(getAllReviewUseCaseResponse.reviews, (review) => {
+        const reviews = _.map(getAllReviewUseCaseResponse.reviews, function(review): ReviewDto {
             let userId = review.walk.user.id;
             let userImage = review.walk.user.image ? review.walk.user.image.value : null;
             let userName = review.walk.user.name.value;
