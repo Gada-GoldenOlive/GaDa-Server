@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { IPaginationOptions, paginate, Pagination } from "nestjs-typeorm-paginate";
 
 import { Walk } from '../../domain/Walk/Walk';
 import { WalkEntity } from '../../entity/Walk.entity';
@@ -11,10 +12,12 @@ import { WalkwayStatus } from '../../domain/Walkway/WalkwayStatus';
 import { UserStatus } from '../../../user/domain/User/UserStatus';
 import { User } from '../../../user/domain/User/User';
 import { WALK_FINISH_STATUS } from '../../domain/Walk/WalkFinishStatus';
+import { PaginationResult } from "../../../common/pagination/PaginationResponse";
 
 export interface GetAllWalkOptions {
     user: User;
     finishStatus: WALK_FINISH_STATUS;
+    paginationOptions?: IPaginationOptions;
 }
 
 export class MysqlWalkRepository implements IWalkRepository {
@@ -23,9 +26,14 @@ export class MysqlWalkRepository implements IWalkRepository {
         private readonly walkRepository: Repository<WalkEntity>,
     ) {}
 
-    async getAll(options: GetAllWalkOptions): Promise<Walk[]> {
+    async paginate(options: IPaginationOptions): Promise<Pagination<WalkEntity>> {
+        return paginate<WalkEntity>(this.walkRepository, options);
+    }
+
+    async getAll(options: GetAllWalkOptions): Promise<PaginationResult<Walk>> {
         const user = options.user;
         const finishStatus = options.finishStatus;
+        const paginationOptions = options.paginationOptions;
 
         const query = this.walkRepository
         .createQueryBuilder('walk')
@@ -43,9 +51,21 @@ export class MysqlWalkRepository implements IWalkRepository {
         
         query.orderBy('walk.createdAt', 'DESC');
 
+        if (paginationOptions) {
+            const walks = await paginate(query, paginationOptions);
+
+            return {
+                items: MysqlWalkRepositoryMapper.toDomains(walks.items),
+                meta: walks.meta,
+                links: walks.links,
+            };
+        }
+
         const walks = await query.getMany();
 
-        return MysqlWalkRepositoryMapper.toDomains(walks);
+        return {
+            items: MysqlWalkRepositoryMapper.toDomains(walks),
+        }
     }
 
     async getOne(id: string) {
