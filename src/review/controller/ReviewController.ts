@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, HttpException, Param, ParseIntPipe, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -312,8 +312,10 @@ export class ReviewController {
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
         summary: '리뷰 목록 조회 (산책로 세부정보>리뷰)',
-        description: 'walkwayId를 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 / '
-        + '보내지 않을 경우: 전체 리뷰 리스트 반환'
+        description: 'walkwayId를 보낼 경우: 해당하는 walkway의 리뷰 리스트 반환 <br>'
+        + '보내지 않을 경우: 전체 리뷰 리스트 반환<br><br>'
+        + 'page는 page index, 1부터 시작 (default: 1)<br>'
+        + 'limit는 한 페이지 내의 아이템 수 (default: 10)'
     })
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
@@ -321,6 +323,8 @@ export class ReviewController {
     })
     async getAll(
         @Query('walkwayId') walkwayId?: string,
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
     ): Promise<GetAllReviewResponse> {
         const walkwayResponse = await this.getWalkwayUseCase.execute({
             id: walkwayId,
@@ -337,6 +341,11 @@ export class ReviewController {
             }
             getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
                 walkway: walkwayResponse.walkway,
+                paginationOptions: {
+                    page,
+                    limit,
+                    route: 'http://15.165.77.113:3000/like-reviews',
+                },
             });
         }
 
@@ -380,6 +389,8 @@ export class ReviewController {
         return {
             reviews,
             averageStar,
+            links: getAllReviewUseCaseResponse.links,
+            meta: getAllReviewUseCaseResponse.meta,
         };
     }
 
@@ -392,13 +403,22 @@ export class ReviewController {
     @ApiOperation({
         summary: '유저가 좋아요한 피드 목록 조회',
         description: 'token에 해당하는 유저가 좋아요 한 피드 목록 리턴'
+        + 'page는 page index, 1부터 시작 (default: 1)<br>'
+        + 'limit는 한 페이지 내의 아이템 수 (default: 10)'
     })
     async getAllLikeReview(
         @Request() request,
-    ): Promise<GetAllFeedResponse> {
-        const getAllLikeUseCaseResponse = await this.getAllLikeUseCase.execute({
-            user: request.user,
-        });
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+        ): Promise<GetAllFeedResponse> {
+            const getAllLikeUseCaseResponse = await this.getAllLikeUseCase.execute({
+                user: request.user,
+                paginationOptions: {
+                    page,
+                    limit,
+                    route: 'http://15.165.77.113:3000/like-reviews',
+                },
+            });
 
         if (getAllLikeUseCaseResponse.code !== GetLikeUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL LIKES',StatusCodes.INTERNAL_SERVER_ERROR);
@@ -421,6 +441,8 @@ export class ReviewController {
 
         return {
             feeds,
+            meta: getAllLikeUseCaseResponse.meta,
+            links: getAllLikeUseCaseResponse.links,
         };
     }
 
@@ -434,18 +456,27 @@ export class ReviewController {
         summary: '전체 피드 목록 조회 (피드 페이지)',
         description: 'order: "DISTANCE" (거리순), "LATEST" (최신순), "LIKE" (좋아요순)<br>'
         + '&nbsp; - "DISTANCE의 경우 현 위치를 lat, lng으로 넘겨줘야 함.<br>'
-        + '&nbsp; - 디폴트는 최신순'
+        + '&nbsp; - 디폴트는 최신순<br><br>'
+        + 'page는 page index, 1부터 시작 (default: 1)<br>'
+        + 'limit는 한 페이지 내의 아이템 수 (default: 10)'
     })
     async getAllFeed(
         @Request() request,
         @Query('order') order?: REVIEW_ORDER_OPTIONS,
         @Query('lat') lat?: number,
         @Query('lng') lng?: number,
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
     ): Promise<GetAllFeedResponse> {
         const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
             reviewOrderOption: order,
             lat,
             lng,
+            paginationOptions: {
+                page,
+                limit,
+                route: 'http://15.165.77.113:3000/reviews/feeds',
+            },
         });
 
         if (getAllReviewUseCaseResponse.code === GetAllReviewUseCaseCodes.NO_CURRENT_LOCATION) {
@@ -499,6 +530,8 @@ export class ReviewController {
 
         return {
             feeds,
+            meta: getAllReviewUseCaseResponse.meta,
+            links: getAllReviewUseCaseResponse.links,
         };
     }
 
@@ -510,20 +543,31 @@ export class ReviewController {
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
         summary: 'userId에 해당하는 유저가 작성한 피드 목록 조회 (마이페이지>작성한 산책로)',
+        description: 'page는 page index, 1부터 시작 (default: 1)<br>'
+        + 'limit는 한 페이지 내의 아이템 수 (default: 10)'
     })
     async getAllFeedByUser(
         @Request() request,
         @Param('userId') userId?: string,
-    ): Promise<GetAllFeedResponse> {
-        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-            user: request.user,
-        });
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+        ): Promise<GetAllFeedResponse> {
+            const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+                user: request.user,
+                paginationOptions: {
+                    page,
+                    limit,
+                    route: `http://15.165.77.113:3000/reviews/feeds/${userId}`,
+                },
+            });
 
         if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET ALL FEED', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const reviewIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => review.id);
+        const reviews = getAllReviewUseCaseResponse.reviews;
+
+        const reviewIds = _.map(reviews, (review) => review.id);
 
         const getAllReviewImageUseCaseReponse = await this.getAllReviewImageUseCase.execute({
             reviewIds,
@@ -533,7 +577,7 @@ export class ReviewController {
             throw new HttpException('FAIL TO GET ALL FEED IMAGE', StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
-        const feeds: FeedDto[] = await Promise.all(_.map(getAllReviewUseCaseResponse.reviews, (review) => {
+        const feeds: FeedDto[] = await Promise.all(_.map(reviews, (review) => {
             const images = _.filter(getAllReviewImageUseCaseReponse.images, (image) => image.review.id === review.id);
 
             return this.convertToFeedDto(review, images, request.user);
@@ -541,6 +585,8 @@ export class ReviewController {
 
         return {
             feeds,
+            meta: getAllReviewUseCaseResponse.meta,
+            links: getAllReviewUseCaseResponse.links,
         };
     }
 

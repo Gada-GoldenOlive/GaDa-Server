@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CommonResponse } from '../../../common/controller/dto/CommonResponse';
 
+import { CommonResponse } from '../../../common/controller/dto/CommonResponse';
+import { PaginationDto } from '../../../common/pagination/PaginationResponse';
 import { VEHCILE_STATUS, Vehicle } from '../../domain/Review/Vehicle';
 
 export class ImageDto {
@@ -73,7 +74,7 @@ export class FeedDto extends ReviewDto {
     like: boolean;
 }
 
-export class GetAllReviewResponse {
+export class GetAllReviewResponse extends PaginationDto {
     @ApiProperty({
         type: [ReviewDto],
     })
@@ -87,7 +88,7 @@ export class GetFeedResponse extends CommonResponse {
     feed: FeedDto;
 }
 
-export class GetAllFeedResponse {
+export class GetAllFeedResponse extends PaginationDto {
     @ApiProperty({
         type: [FeedDto],
     })

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, HttpException, Param, ParseIntPipe, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { LineString } from 'geojson';
@@ -7,7 +7,7 @@ import { LineString } from 'geojson';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkRequest, CreateWalkwayRequest, UpdateWalkRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkDetailDto, WalkListDto, WalkwayDto } from './dto/WalkwayResponse';
+import { GetAllWalkPaginationResponse, GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkDetailDto, WalkListDto, WalkwayDto } from './dto/WalkwayResponse';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -422,48 +422,31 @@ export class WalkwayController {
     @Get('/walks')
     @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
-        type: GetAllWalkResponse,
+        type: GetAllWalkPaginationResponse,
     })
     @ApiOperation({
-        summary: '유저의 산책기록을 최신순으로 조회',
-        description: 'rate는 (실제 이동한 거리/산책로의 거리) * 100 / userId는 산책로 작성자가 아닌, 산책기록을 남긴 유저'
-        + ' / option이 0이면 산책로 정보와 함께 전체 walk 목록 리턴(최근활동), 1이면 time, distance에 유저 기록과 함께 아직 리뷰가 없는 walk 목록 리턴(산책로가져오기)'
-        + ' / option을 주지 않으면 최근활동'
+        summary: '유저의 전체 산책기록을 최신순으로 조회 (최근활동)',
+        description: 'rate는 (실제 이동한 거리/산책로의 거리) * 100 <br>'
+        + 'userId는 산책로 작성자가 아닌, 산책기록을 남긴 유저이고 distance, time은 walkway의 정보'
+        + 'page는 page index, 1부터 시작 (default: 1)<br>'
+        + 'limit는 한 페이지 내의 아이템 수 (default: 10)'
     })
     async getAllWalk(
         @Request() request,
-        @Query('option') option?: number,
-    ): Promise<GetAllWalkResponse> {
-        let walks;
-        option = _.isNil(option) ? GET_ALL_WALK_OPTION.WALKWAY_INFO : option;
-
-        const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
-            user: request.user,
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+        ): Promise<GetAllWalkPaginationResponse> {
+            const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
+                user: request.user,
+                paginationOptions: {
+                    page,
+                    limit,
+                    route: 'http://15.165.77.113:3000/walkways/walks',
+                },
         });
 
         if (getAllWalkUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-
-        walks = getAllWalkUseCaseResponse.walks;
-
-        // NOTE: 이미 리뷰를 작성한 walk를 필터링
-        if (option == GET_ALL_WALK_OPTION.USER_INFO) {
-            const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
-                user: request.user,
-            });
-
-            if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
-                throw new HttpException('FAIL TO FIND ALL WALK BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
-            }
-
-            const review_walkIds = _.map(getAllReviewUseCaseResponse.reviews, (review) => 
-                review.walk.id,
-            );
-
-            walks = _.filter(walks, (walk) => {
-                return !review_walkIds.includes(walk.id);
-            });
         }
 
         const getRate = (walkDistance, walkwayDistance) => {
@@ -472,12 +455,81 @@ export class WalkwayController {
             return rate > 100 ? 100 : rate;
         };
 
-        walks = _.map(walks, function(walk): WalkListDto {
+        const walks = _.map(getAllWalkUseCaseResponse.walks, function(walk): WalkListDto {
             return {
                 id: walk.id,
                 finishStatus: walk.finishStatus,
                 rate: getRate(walk.distance.value, walk.walkway.distance.value),
-                distance: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.distance.value : walk.distance.value,
+                distance: walk.walkway.distance.value,
+                time: walk.walkway.time.value,
+                title: walk.walkway.title.value,
+                image: walk.walkway.image ? walk.walkway.image.value : null,
+                createdAt: walk.createdAt,
+            };
+        });
+
+        return {
+            walks,
+            meta: getAllWalkUseCaseResponse.meta,
+            links: getAllWalkUseCaseResponse.links,
+        };
+    }
+
+    @Get('/no-review-walks')
+    @UseGuards(JwtAuthGuard)
+    @ApiOkResponse({
+        type: GetAllWalkResponse,
+    })
+    @ApiOperation({
+        summary: '아직 리뷰를 작성하지 않은 산책기록을 최신순으로 조회 (산책로가져오기)',
+        description: 'rate는 (실제 이동한 거리/산책로의 거리) * 100 <br>'
+        + 'userId는 산책로 작성자가 아닌, 산책기록을 남긴 유저이고 time, distance는 유저의 산책 기록'
+    })
+    async getAllNonReviewWalk(
+        @Request() request,
+    ): Promise<GetAllWalkResponse> {
+        const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllWalkUseCaseResponse.code !== GetAllPinUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        let _walks = getAllWalkUseCaseResponse.walks;
+
+        // NOTE: 이미 리뷰를 작성한 walk를 필터링
+        const getAllReviewUseCaseResponse = await this.getAllReviewUseCase.execute({
+            user: request.user,
+        });
+
+        if (getAllReviewUseCaseResponse.code !== GetAllReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND ALL WALK BY REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const reviews = getAllReviewUseCaseResponse.reviews;
+
+        const review_walkIds = _.map(reviews, (review) => 
+            review.walk.id,
+        );
+
+        _walks = _.filter(_walks, (walk) => {
+            return !review_walkIds.includes(walk.id);
+        });
+        
+        const getRate = (walkDistance, walkwayDistance) => {
+            let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+        
+            return rate > 100 ? 100 : rate;
+        };
+
+        const walks = _.map(_walks, function(walk): WalkListDto {
+            return {
+                id: walk.id,
+                finishStatus: walk.finishStatus,
+                rate: getRate(walk.distance.value, walk.walkway.distance.value),
+                distance: walk.distance.value,
+                time: walk.time.value,
                 title: walk.walkway.title.value,
                 image: walk.walkway.image ? walk.walkway.image.value : null,
                 createdAt: walk.createdAt,

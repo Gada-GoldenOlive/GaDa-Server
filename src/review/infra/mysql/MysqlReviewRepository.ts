@@ -1,5 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { paginate, Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
 
 import { User } from '../../../user/domain/User/User';
 import { Walkway } from '../../../walkway/domain/Walkway/Walkway';
@@ -10,6 +11,7 @@ import { ReviewStatus } from '../../domain/Review/ReviewStatus';
 import { ReviewEntity } from '../../entity/Review.entity';
 import { IReviewRepository } from '../IReviewRepository';
 import { MysqlReviewRepositoryMapper } from './mapper/MysqlReviewRepositoryMapper';
+import { PaginationResult } from '../../../common/pagination/PaginationResponse';
 
 export type REVIEW_ORDER_OPTIONS = 'DISTANCE' | 'LATEST' | 'LIKE';
 
@@ -24,6 +26,7 @@ export interface GetAllReviewOptions {
     user?: User;
     reviewOrderOption?: REVIEW_ORDER_OPTIONS;
     curPoint?: Point;
+    paginationOptions?: IPaginationOptions;
 }
 
 export class MysqlReviewRepository implements IReviewRepository {
@@ -31,6 +34,10 @@ export class MysqlReviewRepository implements IReviewRepository {
         @InjectRepository(ReviewEntity)
         private readonly reviewRepository: Repository<ReviewEntity>,
     ) {}
+
+    async paginate(options: IPaginationOptions): Promise<Pagination<ReviewEntity>> {
+        return paginate<ReviewEntity>(this.reviewRepository, options);
+    }
 
     async getOne(id: string): Promise<Review> {
         const review = await this.reviewRepository.findOne({
@@ -56,11 +63,12 @@ export class MysqlReviewRepository implements IReviewRepository {
         return true;
     }
 
-    async getAll(options: GetAllReviewOptions): Promise<Review[]> {
+    async getAll(options: GetAllReviewOptions): Promise<PaginationResult<Review>> {
         const walkway = options.walkway;
         const user = options.user;
         const reviewOrderOption = options.reviewOrderOption;
         const curPoint = options.curPoint;
+        const paginationOptions = options.paginationOptions;
 
         const query = this.reviewRepository
         .createQueryBuilder('review')
@@ -80,9 +88,21 @@ export class MysqlReviewRepository implements IReviewRepository {
         else {
             query.orderBy('review.createdAt', 'DESC');
         }
-        
+
+        if (paginationOptions) {
+            const reviews = await paginate(query, paginationOptions);
+
+            return {
+                items: MysqlReviewRepositoryMapper.toDomains(reviews.items),
+                meta: reviews.meta,
+                links: reviews.links,
+            };
+        }
+
         const reviews = await query.getMany();
 
-        return MysqlReviewRepositoryMapper.toDomains(reviews);
+        return {
+            items: MysqlReviewRepositoryMapper.toDomains(reviews),
+        }
     }
 }

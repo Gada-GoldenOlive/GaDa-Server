@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Point } from '../../domain/Walkway/WalkwayStartPoint';
 import { WalkFinishStatus, WALK_FINISH_STATUS } from '../../domain/Walk/WalkFinishStatus';
+import { PaginationDto } from '../../../common/pagination/PaginationResponse';
 
 
 export class PointDto implements Point {
@@ -73,6 +74,9 @@ export class WalkDto {
     @ApiProperty()
     distance: number;
 
+    @ApiProperty()
+    time: number;
+
     @ApiProperty({
         enum: WalkFinishStatus
     })
@@ -95,9 +99,6 @@ export class WalkListDto extends WalkDto {
 
 export class WalkDetailDto extends WalkDto {
     @ApiProperty()
-    time: number;
-
-    @ApiProperty()
     pinCount: number;
 
     @ApiProperty()
@@ -105,6 +106,13 @@ export class WalkDetailDto extends WalkDto {
 }
 
 export class GetAllWalkResponse {
+    @ApiProperty({
+        type: [WalkListDto],
+    })
+    walks?: WalkListDto[];
+}
+
+export class GetAllWalkPaginationResponse extends PaginationDto {
     @ApiProperty({
         type: [WalkListDto],
     })

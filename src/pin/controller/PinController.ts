@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StatusCodes } from 'http-status-codes';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, HttpException, Param, ParseIntPipe, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -336,8 +336,10 @@ export class PinController {
     @Get('/comments')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
-        summary: '핀 목록 조회',
+        summary: '댓글 목록 조회',
         description: 'pinId에 해당하는 핀의 모든 댓글 리턴.'
+        + 'page는 page index, 1부터 시작 (default: 1)<br>'
+        + 'limit는 한 페이지 내의 아이템 수 (default: 10)'
     })
     @HttpCode(StatusCodes.OK)
     @ApiOkResponse({
@@ -345,10 +347,17 @@ export class PinController {
     })
     async getAllComment(
         @Query('pinId') pinId: string,
-    ): Promise<GetAllCommentResponse> {
-        const getAllCommentUseCaseResponse = await this.getAllCommentUseCase.execute({
-            pinId,
-        });
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+        ): Promise<GetAllCommentResponse> {
+            const getAllCommentUseCaseResponse = await this.getAllCommentUseCase.execute({
+                pinId,
+                paginationOptions: {
+                    page,
+                    limit,
+                    route: 'http://15.165.77.113:3000/pins/comments',
+                },
+            });
 
         if (getAllCommentUseCaseResponse.code !== GetAllCommentUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO GET COMMENT', StatusCodes.INTERNAL_SERVER_ERROR);
@@ -367,6 +376,8 @@ export class PinController {
 
         return {
             comments,
+            meta: getAllCommentUseCaseResponse.meta,
+            links: getAllCommentUseCaseResponse.links,
         };
     }
 
