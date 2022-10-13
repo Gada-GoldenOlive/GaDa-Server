@@ -23,7 +23,8 @@ export class DeleteLikeUseCase implements UseCase<IDeleteLikeUseCaseRequest, IDe
 		try {
 			// NOTE: 업데이트 요청한 Like가 존재하지 않는 경우
 			const foundLike = await this.likeRepository.findOne({
-				id: request.id,
+				user: request.user,
+				review: request.review,
 			});
 
 			if (!foundLike) {
@@ -38,7 +39,7 @@ export class DeleteLikeUseCase implements UseCase<IDeleteLikeUseCaseRequest, IDe
 				review: foundLike.review,
 				createdAt: foundLike.createdAt,
 				updatedAt: new Date(),
-			}, request.id).value;
+			}, foundLike.id).value;
 			
 			await this.likeRepository.save(like);
 

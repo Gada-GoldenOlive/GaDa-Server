@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Logger, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
-import { Cron } from '@nestjs/schedule';
+// import { Cron } from '@nestjs/schedule';
 
 import { LocalAuthGuard } from '../../auth/local-auth.gaurd';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
@@ -105,7 +105,7 @@ export class UserController {
         };
     }
 
-    @Cron('0 0 0 * * 1')
+    // @Cron('0 0 0 * * 1')
     async resetWeeklyRecord() {
         const getAllUserUseCaseResponse = await this.getAllUserUseCase.execute({});
 

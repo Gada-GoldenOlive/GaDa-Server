@@ -726,21 +726,36 @@ export class ReviewController {
         }
     }
 
-    @Delete('/likes/:likeId')
-    @UseGuards(JwtAuthGuard)
+    @Delete('/likes/:reviewId')
     @UseGuards(LikeOwnerGuard)
+    @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.NO_CONTENT)
     @ApiResponse({
         type: CommonResponse
     })
     @ApiOperation({
         summary: '좋아요 취소',
+        description: '토큰에 해당하는 유저가 reviewId에 해당하는 리뷰에 좋아요한 내역을 삭제함.'
     })
     async deleteLike(
-        @Param('likeId') likeId: string,
+        @Param('reviewId') reviewId: string,
+        @Request() request,
     ): Promise<CommonResponse> {
+        const getReviewUseCaseResponse = await this.getReviewUseCase.execute({
+            id: reviewId,
+        });
+          
+        if (getReviewUseCaseResponse.code === GetReviewUseCaseCodes.NOT_EXIST_REVIEW) {
+            throw new HttpException('NO EXIST REVIEW', StatusCodes.NOT_FOUND);
+        }
+
+        if (getReviewUseCaseResponse.code !== GetReviewUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND REVIEW', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
         const deleteLikeUseCaseResponse = await this.deleteLikeUseCase.execute({
-            id: likeId,
+            review: getReviewUseCaseResponse.review,
+            user: request.user,
         });
 
         if (deleteLikeUseCaseResponse.code === DeleteLikeUseCaseCodes.NOT_EXIST_LIKE) {
