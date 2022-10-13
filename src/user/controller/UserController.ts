@@ -110,7 +110,7 @@ export class UserController {
         const getAllUserUseCaseResponse = await this.getAllUserUseCase.execute({});
 
         if (getAllUserUseCaseResponse.code !== GetAllUserUseCaseCodes.SUCCESS) {
-            Logger.log('FAIL TO GET ALL USER');
+            throw new Error('FAIL TO GET ALL USER');
         }
 
         const users = getAllUserUseCaseResponse.users;
@@ -125,11 +125,11 @@ export class UserController {
             });
 
             if (updateUserUseCaseResponse.code === UpdateUserUseCaseCodes.NOT_EXIST_USER) {
-                Logger.log('FAIL TO FIND USER');
+                Logger.error('FAIL TO FIND USER BY USERID: ' + user.id);
             }
 
             if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
-                Logger.log('FAIL TO UPDATE USER ' + user.loginId);
+                Logger.error('FAIL TO UPDATE USER ' + user.loginId);
             }
         }));
     }

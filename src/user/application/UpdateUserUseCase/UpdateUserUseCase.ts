@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -18,7 +19,6 @@ import { UserTotalTime } from '../../domain/User/UserTotalTime';
 import { UserTotalDistance } from '../../domain/User/UserTotalDistance';
 import { UserWeekDistance } from '../../domain/User/UserWeekDistance';
 import { UserWeekTime } from '../../domain/User/UserWeekTime';
-import _ from 'lodash';
 
 export enum UpdateUserUseCaseCodes {
 	SUCCESS = 'SUCCESS',

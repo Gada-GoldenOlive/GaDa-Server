@@ -14,6 +14,10 @@ export interface FindOneUserOptions {
     name?: string;
 }
 
+export interface FindAllUserSearchOptions {
+    loginId?: string;
+}
+
 export class MysqlUserRepository implements IUserRepository {
     constructor(
         @InjectRepository(UserEntity)
@@ -43,7 +47,9 @@ export class MysqlUserRepository implements IUserRepository {
         return true;
     }
     
-    async findAll(loginId?: string): Promise<User[]> {
+    async findAll(options: FindAllUserSearchOptions): Promise<User[]> {
+        const loginId = options.loginId;
+        
         const query = this.userRepository
         .createQueryBuilder('user')
         .where('user.status = :normal', { normal: UserStatus.NORMAL });

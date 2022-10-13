@@ -19,7 +19,9 @@ export class GetAllUserUseCase implements UseCase<IGetAllUserUseCaseRequest, IGe
 
     async execute(request: IGetAllUserUseCaseRequest): Promise<IGetAllUserUseCaseResponse> {
         try {
-            const users = await this.userRepository.findAll(request.loginId);
+            const users = await this.userRepository.findAll({
+                loginId: request.loginId,
+            });
 
             return {
                 code: GetAllUserUseCaseCodes.SUCCESS,
