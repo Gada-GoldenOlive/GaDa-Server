@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -16,6 +17,8 @@ import { IUpdateUserUseCaseRequest } from './dto/IUpdateUserUseCaseRequest';
 import { IUpdateUserUseCaseResponse } from './dto/IUpdateUserUseCaseResponse';
 import { UserTotalTime } from '../../domain/User/UserTotalTime';
 import { UserTotalDistance } from '../../domain/User/UserTotalDistance';
+import { UserWeekDistance } from '../../domain/User/UserWeekDistance';
+import { UserWeekTime } from '../../domain/User/UserWeekTime';
 
 export enum UpdateUserUseCaseCodes {
 	SUCCESS = 'SUCCESS',
@@ -76,10 +79,12 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 			else request.password = await hashing(request.password);
 			if (!request.name) request.name = foundUser.name.value;
 			if (!request.image) foundUser.image ? request.image = foundUser.image.value : request.image = null;
-			if (!request.goalDistance) request.goalDistance = foundUser.goalDistance.value;
-			if (!request.goalTime) request.goalTime = foundUser.goalTime.value;
-			if (!request.totalDistance) request.totalDistance = foundUser.totalDistance.value;
-			if (!request.totalTime) request.totalTime = foundUser.totalTime.value;
+			if (!request.goalDistance && request.goalDistance !== 0) request.goalDistance = foundUser.goalDistance.value;
+			if (!request.goalTime && request.goalTime !== 0) request.goalTime = foundUser.goalTime.value;
+			if (!request.totalDistance && request.totalDistance !== 0) request.totalDistance = foundUser.totalDistance.value;
+			if (!request.totalTime && request.totalTime !== 0) request.totalTime = foundUser.totalTime.value;
+			if (!request.weekDistance && request.weekDistance !== 0) request.weekDistance = foundUser.weekDistance.value;
+			if (!request.weekTime && request.weekTime !== 0) request.weekTime = foundUser.weekTime.value;
 			if (!request.refreshToken) request.refreshToken = foundUser.refreshToken ? foundUser.refreshToken.value : null;
 			else request.refreshToken = await hashing(request.refreshToken);
 
@@ -92,11 +97,13 @@ export class UpdateUserUseCase implements UseCase<IUpdateUserUseCaseRequest, IUp
 				goalTime: UserGoalTime.create(request.goalTime).value,
 				totalDistance: UserTotalDistance.create(request.totalDistance).value,
 				totalTime: UserTotalTime.create(request.totalTime).value,
+				weekDistance: UserWeekDistance.create(request.weekDistance).value,
+				weekTime: UserWeekTime.create(request.weekTime).value,
 				createdAt: foundUser.createdAt,
 				updatedAt: new Date(),
 				refreshToken: request.refreshToken ? UserRefreshToken.create(request.refreshToken).value : null,
 			}, request.id).value;
-			
+
 			await this.userRepository.save(user);
 
 			return {

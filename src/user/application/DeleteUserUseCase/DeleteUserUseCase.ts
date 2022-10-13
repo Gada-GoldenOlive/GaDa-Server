@@ -46,6 +46,8 @@ export class DeleteUserUseCase implements UseCase<IDeleteUserUseCaseRequest, IDe
 				goalTime: UserGoalTime.create(foundUser.goalTime.value).value,
 				totalDistance: foundUser.totalDistance,
 				totalTime: foundUser.totalTime,
+				weekDistance: foundUser.weekDistance,
+				weekTime: foundUser.weekTime,
 				createdAt: foundUser.createdAt,
 				updatedAt: new Date(),
 				status: UserStatus.DELETE,

@@ -12,6 +12,8 @@ import { UserRefreshToken } from './UserRefreshToken';
 import { UserStatus, USER_STATUS } from './UserStatus';
 import { UserTotalDistance } from './UserTotalDistance';
 import { UserTotalTime } from './UserTotalTime';
+import { UserWeekDistance } from './UserWeekDistance';
+import { UserWeekTime } from './UserWeekTime';
 
 export interface UserNewProps {
     loginId: UserLoginId;
@@ -22,6 +24,8 @@ export interface UserNewProps {
     goalTime?: UserGoalTime;
     totalDistance?: UserTotalDistance;
     totalTime?: UserTotalTime;
+    weekDistance?: UserWeekDistance;
+    weekTime?: UserWeekTime;
     status?: USER_STATUS;
     refreshToken?: UserRefreshToken;
 }
@@ -51,6 +55,8 @@ export class User extends AggregateRoot<UserProps> {
             ...props,
             totalDistance: UserTotalDistance.create(initialNumber).value,
             totalTime: UserTotalTime.create(initialNumber).value,
+            weekDistance: UserWeekDistance.create(initialNumber).value,
+            weekTime: UserWeekTime.create(initialNumber).value,
             status: this.getUserStatusAndSetIfStatusIsUndefined(props),
             image: this.getUserImageAndSetIfImageIsUndefined(props),
             createdAt: new Date(),
@@ -92,6 +98,14 @@ export class User extends AggregateRoot<UserProps> {
 
     get totalTime(): UserTotalTime {
         return this.props.totalTime;
+    }
+
+    get weekDistance(): UserWeekDistance {
+        return this.props.weekDistance;
+    }
+
+    get weekTime(): UserWeekTime {
+        return this.props.weekTime;
     }
 
     get status(): USER_STATUS {

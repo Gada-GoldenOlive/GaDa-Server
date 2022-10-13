@@ -6,7 +6,7 @@
  * 
  * 더 추가 가능
  */
-export type ACHIEVE_STATUS = 'HIDDEN' | 'NON_ACHIEVE' | 'ACHIEVED' | 'DELETE';
+export type ACHIEVE_STATUS = 'HIDDEN' | 'NON_ACHIEVE' | 'ACHIEVE' | 'DELETE';
 
 export enum AchieveStatus {
     HIDDEN = 'HIDDEN',
