@@ -15,7 +15,7 @@ import { GetAllWalkwayUseCase, GetAllWalkwayUseCaseCodes } from '../application/
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 import { Point } from '../domain/Walkway/WalkwayEndPoint';
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
-import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
+import { GetAllWalkUseCase, GetAllWalkUseCaseCodes } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
 import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/CreateWalkwayUseCase/CreateWalkwayUseCase';
 import { WalkwayOwnerGuard } from '../walkway-owner.guard';
@@ -34,6 +34,7 @@ import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 import { DeleteWalkwayUseCase, DeleteWalkwayUseCaseCodes } from '../application/DeleteWalkwayUseCase/DeleteWalkwayUseCase';
 import { UpdateWalkwayUseCase, UpdateWalkwayUseCaseCodes } from '../application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 import { Walkway } from '../domain/Walkway/Walkway';
+import { WalkFinishStatus } from '../domain/Walk/WalkFinishStatus';
 
 @Controller('walkways')
 @ApiTags('산책로')
@@ -169,7 +170,7 @@ export class WalkwayController {
         @Body() body: CreateWalkwayRequest,
     ): Promise<CommonResponse> {
         this.achieves = [];
-        
+
         const createWalkwayUseCaseResponse = await this.createWalkwayUseCase.execute({
             title: body.title,
             address: body.address,
@@ -328,6 +329,35 @@ export class WalkwayController {
         }
         if (user.totalTime.value >= 10800) {
             await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.THREE, this.achieves);  
+        }
+
+        if (body.finishStatus === WalkFinishStatus.FINISHED) {
+            const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
+                user,
+                finishStatus: WalkFinishStatus.FINISHED,
+            });
+
+            if (getAllWalkUseCaseResponse.code !== GetAllWalkUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO GET ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+            const walks = getAllWalkUseCaseResponse.walks;
+
+            if (walks.length >= 100) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.HUNDRED, this.achieves);
+            }
+            else if (walks.length >= 20) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.TWENTY, this.achieves);
+            }
+            else if (walks.length >= 10) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.TEN, this.achieves);
+            }
+            else if (walks.length >= 5) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.FIVE, this.achieves);
+            }
+            else if (walks.length >= 3) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.THREE, this.achieves);
+            }
         }
 
         if (this.achieves.length !== 0) {

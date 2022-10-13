@@ -1,6 +1,7 @@
 import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
+import { WALK_FINISH_STATUS } from '../../domain/Walk/WalkFinishStatus';
 import { IWalkRepository, WALK_REPOSITORY } from '../../infra/IWalkRepository';
 import { IGetAllWalkUseCaseRequest } from './dto/GetAllWalkUseCaseRequest';
 import { IGetAllWalkUseCaseResponse } from './dto/GetAllWalkUseCaseResponse';
@@ -18,7 +19,10 @@ export class GetAllWalkUseCase implements UseCase<IGetAllWalkUseCaseRequest, IGe
 
     async execute(request: IGetAllWalkUseCaseRequest): Promise<IGetAllWalkUseCaseResponse> {
         try {
-            const walks = await this.walkRepository.findAll(request.user);
+            const walks = await this.walkRepository.getAll({
+                user: request.user,
+                finishStatus: request.finishStatus as WALK_FINISH_STATUS,
+            });
 
             return {
                 code: GetAllWalkUseCaseCodes.SUCCESS,

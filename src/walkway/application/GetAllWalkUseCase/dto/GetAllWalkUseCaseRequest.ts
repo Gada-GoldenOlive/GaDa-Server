@@ -1,4 +1,5 @@
 import { User } from "../../../../user/domain/User/User";
+import { WalkFinishStatus } from '../../../domain/Walk/WalkFinishStatus';
 
 export enum GET_ALL_WALK_OPTION {
     WALKWAY_INFO,
@@ -6,5 +7,6 @@ export enum GET_ALL_WALK_OPTION {
 }
 
 export interface IGetAllWalkUseCaseRequest {
-    user: User,
+    user: User;
+    finishStatus?: WalkFinishStatus;
 }
