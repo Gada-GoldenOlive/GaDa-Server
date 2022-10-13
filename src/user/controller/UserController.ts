@@ -407,6 +407,8 @@ export class UserController {
     async getAllFriends(
         @Request() request,
     ): Promise<GetAllFriendResponse> {
+        this.achieves = [];
+
         const getAllFriendUseCaseResponse = await this.getAllFriendUseCase.execute({
             userId: request.user.id,
             isRank: true,
@@ -442,6 +444,28 @@ export class UserController {
             return b.user.totalDistance.value - a.user.totalDistance.value;
         });
 
+        // NOTE: 친구 둘 이상이고 내가 1등
+        if (_friends.length > 1 && _friends[0].user === request.user) {
+            await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.BEST, this.achieves);
+        }
+
+        // NOTE: 나 빼고 친구수 달성
+        if (_friends.length - 1 >= 50) {
+            await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.FIFTY, this.achieves);
+        }
+        if (_friends.length - 1 >= 20) {
+            await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.TWENTY, this.achieves);
+        }
+        if (_friends.length - 1 >= 10) {
+            await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.TEN, this.achieves);
+        }
+        if (_friends.length - 1 >= 5) {
+            await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.FIVE, this.achieves);
+        }
+        if (_friends.length - 1 >= 3) {
+            await this.pushAchieve(request.user, BadgeCategory.FRIEND, BadgeCode.THREE, this.achieves);
+        }
+
         const friends = _.map(_friends, function(friend): FriendDto {
             return {
                 id: friend.id,
@@ -456,6 +480,35 @@ export class UserController {
         const is_exist_unread_request = !_.isEmpty(_.filter(getAllFriendUseCaseResponse.friends, (friend) => {
             return (friend.user2.id === request.user.id && friend.status === FriendStatus.REQUESTED);
         }));
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+
+            return {
+                code: StatusCodes.OK,
+                responseMessage: 'SUCCESS TO GET FRIEND LIST AND GET BADGE',
+                friends,
+                is_exist_unread_request,
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
+        }
 
         return {
             code: StatusCodes.OK,
