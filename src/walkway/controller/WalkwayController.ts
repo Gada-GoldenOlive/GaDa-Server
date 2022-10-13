@@ -88,12 +88,6 @@ export class WalkwayController {
         };
         return +(geojsonLength(line));
     };
-    
-    private getRate(walkDistance, walkwayDistance) {
-        let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
-    
-        return rate > 100 ? 100 : rate;
-    };
 
     private async convertToWalkwayDto(walkway: Walkway, lat: number, lng: number): Promise<WalkwayDto> {
         const getAllPinUseCaseResponse = await this.getAllPinUseCase.execute({
@@ -470,11 +464,17 @@ export class WalkwayController {
             });
         }
 
+        const getRate = (walkDistance, walkwayDistance) => {
+            let rate = +((walkDistance / walkwayDistance) * 100).toFixed(1);
+        
+            return rate > 100 ? 100 : rate;
+        };
+
         walks = _.map(walks, function(walk): WalkListDto {
             return {
                 id: walk.id,
                 finishStatus: walk.finishStatus,
-                rate: this.getRate(walk.distance.value, walk.walkway.distance.value),
+                rate: getRate(walk.distance.value, walk.walkway.distance.value),
                 distance: option === GET_ALL_WALK_OPTION.WALKWAY_INFO ? walk.walkway.distance.value : walk.distance.value,
                 title: walk.walkway.title.value,
                 image: walk.walkway.image ? walk.walkway.image.value : null,
