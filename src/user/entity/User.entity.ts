@@ -78,6 +78,18 @@ export class UserEntity extends CoreEntity {
     totalTime: number;
 
     @Column({
+        nullable: true,
+        type: 'int',
+    })
+    weekDistance: number;
+
+    @Column({
+        nullable: true,
+        type: 'int',
+    })
+    weekTime: number;
+
+    @Column({
         nullable: false,
         type: 'enum',
         enum: UserStatus,

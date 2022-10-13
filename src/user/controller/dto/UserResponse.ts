@@ -31,6 +31,12 @@ export class UserDto {
 
     @ApiProperty()
     totalTime: number;
+
+    @ApiProperty()
+    weekDistance: number;
+
+    @ApiProperty()
+    weekTime: number;
 }
 
 export class GetAllUserResponse extends CommonResponse {

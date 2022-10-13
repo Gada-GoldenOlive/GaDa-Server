@@ -15,7 +15,6 @@ export interface FindOneUserOptions {
 }
 
 export interface FindAllUserSearchOptions {
-    userId?: string;
     loginId?: string;
 }
 
@@ -49,16 +48,14 @@ export class MysqlUserRepository implements IUserRepository {
     }
     
     async findAll(options: FindAllUserSearchOptions): Promise<User[]> {
-        const userId = options.userId;
         const loginId = options.loginId;
-
+        
         const query = this.userRepository
         .createQueryBuilder('user')
         .where('user.status = :normal', { normal: UserStatus.NORMAL });
 
         if (loginId) {
-            query.andWhere('user.id != :userId', { userId })
-            .andWhere('user.loginId like :loginId', { loginId: `%${loginId}%` });
+            query.andWhere('user.loginId like :loginId', { loginId: `%${loginId}%` });
         }
 
         const users = await query.getMany();

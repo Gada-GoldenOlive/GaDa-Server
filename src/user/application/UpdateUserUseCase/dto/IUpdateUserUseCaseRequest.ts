@@ -6,6 +6,8 @@ export interface IUpdateUserUseCaseRequest {
     image?: string;
     totalDistance?: number;
     totalTime?: number;
+    weekDistance?: number;
+    weekTime?: number;
     goalDistance?: number;
     goalTime?: number;
     refreshToken?: string;

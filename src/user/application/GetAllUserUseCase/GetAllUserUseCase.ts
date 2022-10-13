@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
-import { User } from '../../domain/User/User';
 import { IUserRepository, USER_REPOSITORY } from '../../infra/IUserRepository';
 import { IGetAllUserUseCaseRequest } from './dto/IGetAllUserUseCaseRequest';
 import { IGetAllUserUseCaseResponse } from './dto/IGetAllUserUseCaseResponse';
@@ -21,7 +20,6 @@ export class GetAllUserUseCase implements UseCase<IGetAllUserUseCaseRequest, IGe
     async execute(request: IGetAllUserUseCaseRequest): Promise<IGetAllUserUseCaseResponse> {
         try {
             const users = await this.userRepository.findAll({
-                userId: request.userId,
                 loginId: request.loginId,
             });
 

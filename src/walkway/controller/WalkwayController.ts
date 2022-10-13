@@ -284,6 +284,8 @@ export class WalkwayController {
             id: request.user.id,
             totalDistance: request.user.totalDistance.value + body.distance,
             totalTime: request.user.totalTime.value + body.time,
+            weekDistance: request.user.weekDistance.value + body.distance,
+            weekTime: request.user.weekTime.value + body.time,
         });
 
         if (updateUserUseCaseResponse.code !== UpdateUserUseCaseCodes.SUCCESS) {
