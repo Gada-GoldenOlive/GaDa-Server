@@ -22,7 +22,7 @@ export class GetWalkUseCase implements UseCase<IGetWalkUseCaseRequest, IGetWalkU
         try {
             if (_.isNil(request.id)) return null;
             
-            const walk = await this.walkRepository.findOne(request.id);
+            const walk = await this.walkRepository.getOne(request.id);
 
             if (!walk) {
                 return {
