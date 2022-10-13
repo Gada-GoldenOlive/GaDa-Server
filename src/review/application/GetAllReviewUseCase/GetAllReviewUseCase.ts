@@ -27,16 +27,19 @@ export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAll
                 };
             }
 
-            const reviews = await this.reviewRepository.getAll({
+            const result = await this.reviewRepository.getAll({
                 reviewOrderOption: request.reviewOrderOption,
                 user: request.user,
                 walkway: request.walkway,
                 curPoint: {
                     lat: request.lat,
                     lng: request.lng,
-                }
+                },
+                paginationOptions: request.paginationOptions,
             });
-            
+
+            const reviews = result.items;
+
             let averageStar = 0;
             if (!_.isEmpty(reviews)) {
                 let sumStar: number = 0;
@@ -51,6 +54,8 @@ export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAll
             return {
                 code: GetAllReviewUseCaseCodes.SUCCESS,
                 reviews,
+                meta: result.meta,
+                links: result.links,
                 averageStar,
             };
         } catch {

@@ -1,4 +1,5 @@
 import { InjectRepository } from "@nestjs/typeorm";
+import { IPaginationOptions, paginate, Pagination } from "nestjs-typeorm-paginate";
 import { Repository } from "typeorm";
 
 import { User } from "../../../user/domain/User/User";
@@ -10,6 +11,7 @@ import { ReviewStatus } from "../../domain/Review/ReviewStatus";
 import { LikeEntity } from "../../entity/Like.entity";
 import { ILikeRepository } from "../ILikeRepository";
 import { MysqlLikeRepositoryMapper } from "./mapper/MysqlLikeRepositoryMapper";
+import { PaginationResult } from "../../../common/pagination/PaginationResponse";
 
 export interface GetLikeOptions {
     user?: User;
@@ -21,6 +23,7 @@ export interface GetLikeOptions {
 export interface GetAllLikeOptions {
     user?: User;
     review?: Review;
+    paginationOptions?: IPaginationOptions;
 }
 
 export class MysqlLikeRepository implements ILikeRepository {
@@ -28,6 +31,10 @@ export class MysqlLikeRepository implements ILikeRepository {
         @InjectRepository(LikeEntity)
         private readonly likeRepository: Repository<LikeEntity>,
     ) {}
+
+    async paginate(options: IPaginationOptions): Promise<Pagination<LikeEntity>> {
+        return paginate<LikeEntity>(this.likeRepository, options);
+    }
 
     async findOne(options: GetLikeOptions): Promise<Like> {
         const user = options.user;
@@ -60,9 +67,10 @@ export class MysqlLikeRepository implements ILikeRepository {
         return MysqlLikeRepositoryMapper.toDomain(like);
     }
 
-    async findAll(options: GetAllLikeOptions): Promise<Like[]> {
+    async findAll(options: GetAllLikeOptions): Promise<PaginationResult<Like>> {
         const user = options.user;
         const review = options.review;
+        const paginationOptions = options.paginationOptions;
 
         const query = await this.likeRepository
         .createQueryBuilder('like')
@@ -84,9 +92,21 @@ export class MysqlLikeRepository implements ILikeRepository {
 
         query.orderBy('like.createdAt', 'DESC');
 
+        if (paginationOptions) {
+            const likes = await paginate(query, paginationOptions);
+
+            return {
+                items: MysqlLikeRepositoryMapper.toDomains(likes.items),
+                meta: likes.meta,
+                links: likes.links,
+            };
+        }
+
         const likes = await query.getMany();
 
-        return MysqlLikeRepositoryMapper.toDomains(likes);
+        return {
+            items: MysqlLikeRepositoryMapper.toDomains(likes),
+        }
     }
 
     async save(like: Like): Promise<boolean> {

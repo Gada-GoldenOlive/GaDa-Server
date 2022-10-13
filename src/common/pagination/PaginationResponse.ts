@@ -63,7 +63,7 @@ class LinkDto {
 
 export class PaginationDto {
     @ApiProperty()
-    meta: MetaDto;
+    meta?: MetaDto;
 
     @ApiProperty({
         description: '해당 페이지가 존재하지 않으면 빈문자열("") 리턴'
