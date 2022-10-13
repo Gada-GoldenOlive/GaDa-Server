@@ -15,7 +15,7 @@ import { GetAllWalkwayUseCase, GetAllWalkwayUseCaseCodes } from '../application/
 import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseCase/GetSeoulmapWalkwayUseCase';
 import { Point } from '../domain/Walkway/WalkwayEndPoint';
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
-import { GetAllWalkUseCase } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
+import { GetAllWalkUseCase, GetAllWalkUseCaseCodes } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
 import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
 import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/CreateWalkwayUseCase/CreateWalkwayUseCase';
 import { WalkwayOwnerGuard } from '../walkway-owner.guard';
@@ -34,6 +34,7 @@ import { AchieveStatus } from '../../badge/domain/Achieve/AchieveStatus';
 import { DeleteWalkwayUseCase, DeleteWalkwayUseCaseCodes } from '../application/DeleteWalkwayUseCase/DeleteWalkwayUseCase';
 import { UpdateWalkwayUseCase, UpdateWalkwayUseCaseCodes } from '../application/UpdateWalkwayUseCase/UpdateWalkwayUseCase';
 import { Walkway } from '../domain/Walkway/Walkway';
+import { WalkFinishStatus } from '../domain/Walk/WalkFinishStatus';
 
 @Controller('walkways')
 @ApiTags('산책로')
@@ -55,6 +56,8 @@ export class WalkwayController {
         private readonly getAchieveUseCase: GetAchieveUseCase,
         private readonly updateAchieveUseCase: UpdateAchieveUseCase,
     ) {}
+
+    private achieves: Achieve[] = null;
 
     private async pushAchieve(user: User, category: BadgeCategory, code: BadgeCode, achieves: Achieve[]): Promise<boolean> {
         const getAchieveUseCaseResponse = await this.getAchieveUseCase.execute({
@@ -166,6 +169,8 @@ export class WalkwayController {
         @Request() request,
         @Body() body: CreateWalkwayRequest,
     ): Promise<CommonResponse> {
+        this.achieves = [];
+
         const createWalkwayUseCaseResponse = await this.createWalkwayUseCase.execute({
             title: body.title,
             address: body.address,
@@ -178,6 +183,35 @@ export class WalkwayController {
 
         if (createWalkwayUseCaseResponse.code !== CreateWalkwayUseCaseCodes.SUCCESS) {
             throw new HttpException('FAIL TO CREATE WALKWAY', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+        
+        await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.FIRST, this.achieves);
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
+                const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
+                    id: achieve.id,
+                    status: AchieveStatus.ACHIEVE,
+                });
+    
+                if (updateAchieveUseCaseResponse.code !== UpdateAchieveUseCaseCodes.SUCCESS) {
+                    throw new HttpException('FAIL TO UPDATE ACHIEVE', StatusCodes.INTERNAL_SERVER_ERROR);
+                }
+            });
+
+            return {
+                code: StatusCodes.CREATED,
+                responseMessage: 'SUCCESS TO CREATE WALKWAY AND GET BADGE',
+                achieves: _.map(this.achieves, (achieve) => {
+                    return {
+                        badge: {
+                            title: achieve.badge.title.value,
+                            image: achieve.badge.image.value,
+                        },
+                        status: achieve.status,
+                    };
+                }),
+            };
         }
 
         return {
@@ -229,6 +263,8 @@ export class WalkwayController {
         @Request() request,
         @Body() body: CreateWalkRequest,
     ): Promise<CommonResponse> {
+        this.achieves = [];
+
         const walkwayResponse = await this.getWalkwayUseCase.execute({
             id: body.walkwayId,
         });
@@ -261,43 +297,71 @@ export class WalkwayController {
         }
 
         const user = updateUserUseCaseResponse.user;
-        const achieves: Achieve[] = [];
 
         if (user.totalDistance.value >= 50000) {
-            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.FIFTY, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.FIFTY, this.achieves);
         }
         
         if (user.totalDistance.value >= 20000) {
-            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.TWENTY, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.TWENTY, this.achieves);
         }
         if (user.totalDistance.value >= 10000) {
-            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.TEN, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.TEN, this.achieves);
         }
         if (user.totalDistance.value >= 5000) {
-            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.FIVE, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.FIVE, this.achieves);
         }
         if (user.totalDistance.value >= 3000) {
-            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.THREE, achieves);   
+            await this.pushAchieve(request.user, BadgeCategory.DISTANCE, BadgeCode.THREE, this.achieves);   
         }
 
         if (user.totalTime.value >= 180000) {
-            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.FIFTY, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.FIFTY, this.achieves);
         }
         if (user.totalTime.value >= 72000) {
-            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.TWENTY, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.TWENTY, this.achieves);
         }
         if (user.totalTime.value >= 36000) {
-            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.TEN, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.TEN, this.achieves);
         }
         if (user.totalTime.value >= 18000) {
-            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.FIVE, achieves);
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.FIVE, this.achieves);
         }
         if (user.totalTime.value >= 10800) {
-            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.THREE, achieves);  
+            await this.pushAchieve(request.user, BadgeCategory.WALKTIME, BadgeCode.THREE, this.achieves);  
         }
 
-        if (achieves.length !== 0) {
-            _.map(achieves, async (achieve) => {
+        if (body.finishStatus === WalkFinishStatus.FINISHED) {
+            const getAllWalkUseCaseResponse = await this.getAllWalkUseCase.execute({
+                user,
+                finishStatus: WalkFinishStatus.FINISHED,
+            });
+
+            if (getAllWalkUseCaseResponse.code !== GetAllWalkUseCaseCodes.SUCCESS) {
+                throw new HttpException('FAIL TO GET ALL WALK', StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+            const walks = getAllWalkUseCaseResponse.walks;
+
+            if (walks.length >= 100) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.HUNDRED, this.achieves);
+            }
+            else if (walks.length >= 20) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.TWENTY, this.achieves);
+            }
+            else if (walks.length >= 10) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.TEN, this.achieves);
+            }
+            else if (walks.length >= 5) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.FIVE, this.achieves);
+            }
+            else if (walks.length >= 3) {
+                await this.pushAchieve(request.user, BadgeCategory.WALKWAY, BadgeCode.THREE, this.achieves);
+            }
+        }
+
+        if (this.achieves.length !== 0) {
+            _.map(this.achieves, async (achieve) => {
                 const updateAchieveUseCaseResponse = await this.updateAchieveUseCase.execute({
                     id: achieve.id,
                     status: AchieveStatus.ACHIEVE,
@@ -311,7 +375,7 @@ export class WalkwayController {
             return {
                 code: StatusCodes.CREATED,
                 responseMessage: 'SUCCESS TO CREATE WALK AND GET BADGE',
-                achieves: _.map(achieves, (achieve) => {
+                achieves: _.map(this.achieves, (achieve) => {
                     return {
                         badge: {
                             title: achieve.badge.title.value,
