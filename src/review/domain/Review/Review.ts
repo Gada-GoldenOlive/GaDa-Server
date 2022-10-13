@@ -8,11 +8,11 @@ import { ReviewContent } from './ReviewContent';
 import { ReviewStar } from './ReviewStar';
 import { ReviewStatus, REVIEW_STATUS } from './ReviewStatus';
 import { ReviewTitle } from './ReviewTitle';
-import { VEHCILE_STATUS } from './Vehicle';
+import { VEHCILE_STATUS, Vehicle } from './Vehicle';
 
 export interface ReviewNewProps {
     title: ReviewTitle;
-    vehicle: VEHCILE_STATUS;
+    vehicle?: VEHCILE_STATUS;
     star: ReviewStar;
     content: ReviewContent;
     images?: Image[];
@@ -32,13 +32,14 @@ export class Review extends AggregateRoot<ReviewProps> {
 
     static createNew(props: ReviewNewProps): Result<Review> {
         // NOTE: 이미지는 프론트로부터 전달 안 될 수 O, 나머지는 각각의 domain에서 empty 검사 해주니까 또 적어줄 필요 X
-        if (_.isNil(props.title) || _.isNil(props.vehicle) || _.isNil(props.star) ||  _.isNil(props.content)) {
+        if (_.isNil(props.title) || _.isNil(props.star) ||  _.isNil(props.content)) {
             return Result.fail(PROPS_VALUES_ARE_REQUIRED);
         }
 
         return Result.ok(new Review({
             ...props,
             status: this.getReviewStatusAndSetIfStatusIsUndefined(props),
+            vehicle: this.getReviewVehicleAndSetIfStatusIsUndefined(props),
             createdAt: new Date(),
             updatedAt: new Date(),
         }));
@@ -91,5 +92,14 @@ export class Review extends AggregateRoot<ReviewProps> {
         }
         
         return status;
+    }
+
+    private static getReviewVehicleAndSetIfStatusIsUndefined(props: ReviewNewProps) {
+        let { vehicle } = props;
+        if (_.isNil(props.vehicle) || _.isEmpty(props.vehicle)) {
+            vehicle = Vehicle.MANUAL;
+        }
+        
+        return vehicle;
     }
 }
