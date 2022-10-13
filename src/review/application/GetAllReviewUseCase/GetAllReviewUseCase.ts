@@ -3,12 +3,14 @@ import { Inject } from '@nestjs/common';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { IReviewRepository, REVIEW_REPOSITORY } from '../../infra/IReviewRepository';
-import { GetAllReviewOptions } from '../../infra/mysql/MysqlReviewRepository';
+import { GetAllReviewOptions, ReviewOrderOptions } from '../../infra/mysql/MysqlReviewRepository';
 import { IGetAllReviewUseCaseResponse } from './dto/IGetAllReviewUseCaseResponse';
+import { IGetAllReviewUseCaseRequest } from './dto/IGetAllReviewUseCaseRequest';
 
 export enum GetAllReviewUseCaseCodes {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
+    NO_CURRENT_LOCATION = 'Current location is required for ordering by distance.'
 }
 
 export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAllReviewUseCaseResponse> {
@@ -17,9 +19,23 @@ export class GetAllReviewUseCase implements UseCase<GetAllReviewOptions, IGetAll
         private readonly reviewRepository: IReviewRepository,
     ) {}
 
-    async execute(request: GetAllReviewOptions): Promise<IGetAllReviewUseCaseResponse> {
+    async execute(request: IGetAllReviewUseCaseRequest): Promise<IGetAllReviewUseCaseResponse> {
         try {
-            const reviews = await this.reviewRepository.getAll(request);
+            if (request.reviewOrderOption === ReviewOrderOptions.DISTANCE && (_.isNil(request.lat) || _.isNil(request.lng))) {
+                return {
+                    code: GetAllReviewUseCaseCodes.NO_CURRENT_LOCATION,
+                };
+            }
+
+            const reviews = await this.reviewRepository.getAll({
+                reviewOrderOption: request.reviewOrderOption,
+                user: request.user,
+                walkway: request.walkway,
+                curPoint: {
+                    lat: request.lat,
+                    lng: request.lng,
+                }
+            });
             
             let averageStar = 0;
             if (!_.isEmpty(reviews)) {
