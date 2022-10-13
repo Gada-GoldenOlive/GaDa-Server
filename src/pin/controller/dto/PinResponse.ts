@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PaginationDto } from '../../../common/pagination/PaginationResponse';
 import { Point } from '../../domain/Pin/PinLocation';
 
 export class LocationDto implements Point {
@@ -67,7 +68,7 @@ export class CommentDto {
     updatedAt: Date;
 }
 
-export class GetAllCommentResponse {
+export class GetAllCommentResponse extends PaginationDto {
     @ApiProperty({
         type: [CommentDto],
     })

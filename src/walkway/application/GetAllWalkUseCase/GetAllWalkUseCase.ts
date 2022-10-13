@@ -19,14 +19,17 @@ export class GetAllWalkUseCase implements UseCase<IGetAllWalkUseCaseRequest, IGe
 
     async execute(request: IGetAllWalkUseCaseRequest): Promise<IGetAllWalkUseCaseResponse> {
         try {
-            const walks = await this.walkRepository.getAll({
+            const result = await this.walkRepository.getAll({
                 user: request.user,
                 finishStatus: request.finishStatus as WALK_FINISH_STATUS,
+                paginationOptions: request.paginationOptions,
             });
 
             return {
                 code: GetAllWalkUseCaseCodes.SUCCESS,
-                walks,
+                walks: result.items,
+                meta: result.meta,
+                links: result.links,
             };
         } catch {
             return {
