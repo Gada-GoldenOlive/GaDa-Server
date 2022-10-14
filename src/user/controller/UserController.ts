@@ -471,8 +471,7 @@ export class UserController {
         });
 
         _friends = _friends.sort((a, b) => {
-            // TODO: 일단 totalDistance로 정렬 했는데, record관련 usecase 구현하고 나면 record.distance로 수정해야함.
-            return b.user.totalDistance.value - a.user.totalDistance.value;
+            return b.user.weekDistance.value - a.user.weekDistance.value;
         });
 
         // NOTE: 친구 둘 이상이고 내가 1등
@@ -503,8 +502,7 @@ export class UserController {
                 userId: friend.user.id,
                 name: friend.user.name.value,
                 image: friend.user.image ? friend.user.image.value : null,
-                // TODO: 얘도 record 구현하고 나면 record.distance로 수정해야함.
-                distance: friend.user.totalDistance.value,
+                distance: friend.user.weekDistance.value,
             };
         });
 
