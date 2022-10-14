@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, HttpException, Param, ParseIntPipe, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, HttpException, Param, ParseFloatPipe, ParseIntPipe, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
 import { LineString } from 'geojson';
@@ -552,8 +552,8 @@ export class WalkwayController {
     })
     async getWalkway(
         @Param('walkwayId') walkwayId: string,
-        @Query('lat') lat: number,
-        @Query('lng') lng: number
+        @Query('lat', new DefaultValuePipe(37.5666805), ParseFloatPipe) lat: number=37.5666805,
+        @Query('lng', new DefaultValuePipe(126.9784147), ParseFloatPipe) lng: number=126.9784147,
     ): Promise<GetWalkwayResponse> {
         const getWalkwayUseCaseResponse = await this.getWalkwayUseCase.execute({
             id: walkwayId,
@@ -628,8 +628,8 @@ export class WalkwayController {
     async update(
         @Body() body: UpdateWalkwayRequest,
         @Param('walkwayId') walkwayId: string,
-        @Query('lat') lat: number,
-        @Query('lng') lng: number,
+        @Query('lat', new DefaultValuePipe(37.5666805), ParseFloatPipe) lat: number=37.5666805,
+        @Query('lng', new DefaultValuePipe(126.9784147), ParseFloatPipe) lng: number=126.9784147,
     ): Promise<GetWalkwayResponse> {
         const updateWalkwayUseCaseResponse = await this.updateWalkwayUseCase.execute({
             id: walkwayId,
