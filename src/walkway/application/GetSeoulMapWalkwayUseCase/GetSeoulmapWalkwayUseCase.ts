@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { template } from 'lodash';
 import { HttpService } from '@nestjs/axios';
 import { LineString } from 'geojson';
 import { firstValueFrom } from 'rxjs';
@@ -31,11 +31,12 @@ export class GetSeoulmapWalkwayUseCase {
             title: this.getTitle(response['COT_CONTS_NAME'], address),
             address: address,
             distance: distance,
-            image: 'https://picsum.photos/400/250/?image=481',
+            image: null,
             time: +(distance / DEFAULT_SPEED).toFixed(0),   // s
             path: this.getPath(response['COT_COORD_DATA']),
             user: null,
         };
+        console.log(value.title)
         return value;
     }
 
@@ -74,7 +75,7 @@ export class GetSeoulmapWalkwayUseCase {
         let temp = response['COT_ADDR_FULL_NEW'];
         if (_.isEmpty(temp)) 
             temp = response['COT_ADDR_FULL_OLD'];
-        return temp.replace(/[0-9]*-?[0-9]*$/, '').trim();
+        return temp;
     }
 
     getTitle(contsName: any, address: string): string {
@@ -84,12 +85,12 @@ export class GetSeoulmapWalkwayUseCase {
                 contsName = contsName.substring(0, contsName.length - 2);
             contsName = contsName.trim();
             if (contsName.length == 0)
-                return address + ' 산책로';
+                return address.replace(/[0-9]*-?[0-9]*$/, '').trim() + ' 산책로';
             if (!contsName.endsWith('산책로'))
                 contsName += ' 산책로';
             return contsName;
         }
-        return address + ' 산책로';
+        return address.replace(/[0-9]*-?[0-9]*$/, '').trim() + ' 산책로';
     }
 
     changeDuplicateTitle(walkways: any): any {
