@@ -7,7 +7,7 @@ import { LineString } from 'geojson';
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { CreateSeoulmapWalkwaysUseCase, CreateSeoulmapWalkwaysUseCaseCodes } from '../application/CreateSeoulmapWalkwaysUseCase/CreateSeoulmapWalkwaysUseCase';
 import { CreateWalkRequest, CreateWalkwayRequest, UpdateWalkRequest, UpdateWalkwayRequest } from './dto/WalkwayRequest';
-import { GetAllWalkPaginationResponse, GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkDetailDto, WalkListDto, WalkwayDto } from './dto/WalkwayResponse';
+import { CreateResponse, GetAllWalkPaginationResponse, GetAllWalkResponse, GetAllWalkwayResponse, GetWalkResponse, GetWalkwayResponse, PointDto, WalkDetailDto, WalkListDto, WalkwayDto } from './dto/WalkwayResponse';
 import { GetWalkwayUseCase, GetWalkwayUseCaseCodes } from '../application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { GetAllPinUseCase, GetAllPinUseCaseCodes } from '../../pin/application/GetAllPinUseCase/GetAllPinUseCase';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../../review/application/GetAllReviewUseCase/GetAllReviewUseCase';
@@ -16,7 +16,6 @@ import { GetSeoulmapWalkwayUseCase } from '../application/GetSeoulMapWalkwayUseC
 import { Point } from '../domain/Walkway/WalkwayEndPoint';
 import { CreateWalkUseCase, CreateWalkUseCaseCodes } from '../application/CreateWalkUseCase/CreateWalkUseCase';
 import { GetAllWalkUseCase, GetAllWalkUseCaseCodes } from '../application/GetAllWalkUseCase/GetAllWalkUseCase';
-import { GET_ALL_WALK_OPTION } from '../application/GetAllWalkUseCase/dto/GetAllWalkUseCaseRequest';
 import { CreateWalkwayUseCase, CreateWalkwayUseCaseCodes } from '../application/CreateWalkwayUseCase/CreateWalkwayUseCase';
 import { WalkwayOwnerGuard } from '../walkway-owner.guard';
 import { WalkOwnerGuard } from '../walk-owner.guard';
@@ -154,7 +153,7 @@ export class WalkwayController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
-        type: CommonResponse,
+        type: CreateResponse,
     })
     @ApiOperation({
         summary: '산책로 생성',
@@ -162,7 +161,7 @@ export class WalkwayController {
     async create(
         @Request() request,
         @Body() body: CreateWalkwayRequest,
-    ): Promise<CommonResponse> {
+    ): Promise<CreateResponse> {
         this.achieves = [];
 
         const createWalkwayUseCaseResponse = await this.createWalkwayUseCase.execute({
@@ -173,6 +172,7 @@ export class WalkwayController {
             path: body.path,
             image: body.image,
             user: request.user,
+            status: body.status,
         });
 
         if (createWalkwayUseCaseResponse.code !== CreateWalkwayUseCaseCodes.SUCCESS) {
@@ -205,12 +205,14 @@ export class WalkwayController {
                         status: achieve.status,
                     };
                 }),
+                id: createWalkwayUseCaseResponse.walkway.id,
             };
         }
 
         return {
             code: StatusCodes.CREATED,
-            responseMessage: 'SUCCESS TO CREATE WALKWAY'
+            responseMessage: 'SUCCESS TO CREATE WALKWAY',
+            id: createWalkwayUseCaseResponse.walkway.id,
         };
     }
 
@@ -248,7 +250,7 @@ export class WalkwayController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiCreatedResponse({
-        type: CommonResponse,
+        type: CreateResponse,
     })
     @ApiOperation({
         summary: 'walk(산책기록) 생성',
@@ -256,7 +258,7 @@ export class WalkwayController {
     async createWalk(
         @Request() request,
         @Body() body: CreateWalkRequest,
-    ): Promise<CommonResponse> {
+    ): Promise<CreateResponse> {
         this.achieves = [];
 
         const walkwayResponse = await this.getWalkwayUseCase.execute({
@@ -380,12 +382,14 @@ export class WalkwayController {
                         status: achieve.status,
                     };
                 }),
+                id: createWalkUseCaseResponse.walk.id,
             };
         }
 
         return {
             code: StatusCodes.CREATED,
             responseMessage: 'SUCCESS TO CREATE WALK',
+            id: createWalkUseCaseResponse.walk.id,
         };
     }
 
@@ -401,9 +405,11 @@ export class WalkwayController {
     async getAll(
         @Query('lat') lat: number,
         @Query('lng') lng: number,
+        @Request() request,
     ) {
         const getAllWalkwayResponse = await this.getAllWalkwayUseCase.execute({
             coordinates: { lat, lng },
+            userId: request.user.id,
         });
 
         if (getAllWalkwayResponse.code !== GetAllWalkwayUseCaseCodes.SUCCESS) {
@@ -635,6 +641,7 @@ export class WalkwayController {
             id: walkwayId,
             title: body.title,
             image: body.image,
+            status: body.status,
         });
 
         if (updateWalkwayUseCaseResponse.code !== UpdateWalkwayUseCaseCodes.SUCCESS) {

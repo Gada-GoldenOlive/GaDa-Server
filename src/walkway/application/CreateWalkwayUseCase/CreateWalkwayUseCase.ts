@@ -37,11 +37,13 @@ export class CreateWalkwayUseCase implements UseCase<ICreateWalkwayUseCaseReques
                 endPoint: WalkwayEndPoint.create(request.path[request.path.length - 1]).value,
                 user: request.user,
                 image: request.image ? ImageUrl.create(request.image).value : null,
+                status: request.status,
             }).value;
             await this.walkwayRespository.save(walkway);
 
             return {
                 code: CreateWalkwayUseCaseCodes.SUCCESS,
+                walkway,
             };
         } catch {
             return {

@@ -35,6 +35,7 @@ export class CreateWalkUseCase implements UseCase<ICreateWalkUseCaseRequest, ICr
 
             return {
                 code: CreateWalkUseCaseCodes.SUCCESS,
+                walk,
             };
         } catch {
             return {

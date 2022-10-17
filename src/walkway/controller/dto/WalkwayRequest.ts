@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { PointDto } from './WalkwayResponse';
 import { WalkFinishStatus, WALK_FINISH_STATUS } from "../../domain/Walk/WalkFinishStatus";
+import { WALKWAY_STATUS, WalkwayStatus } from "../../domain/Walkway/WalkwayStatus";
 
 export class CreateWalkwayRequest {
     @ApiProperty()
@@ -23,6 +24,11 @@ export class CreateWalkwayRequest {
 
     @ApiPropertyOptional()
     image?: string;
+
+    @ApiProperty({
+        enum: WalkwayStatus
+    })
+    status: WALKWAY_STATUS;
 }
 
 export class UpdateWalkwayRequest {
@@ -31,6 +37,11 @@ export class UpdateWalkwayRequest {
 
     @ApiPropertyOptional()
     image?: string;
+
+    @ApiProperty({
+        enum: WalkwayStatus
+    })
+    status: WALKWAY_STATUS;
 }
 
 export class CreateWalkRequest {

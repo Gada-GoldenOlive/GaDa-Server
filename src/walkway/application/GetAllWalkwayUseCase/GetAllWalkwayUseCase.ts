@@ -18,7 +18,7 @@ export class GetAllWalkwayUseCase implements UseCase<IGetAllWalkwayUseCaseReques
 
     async execute(request: IGetAllWalkwayUseCaseRequest): Promise<IGetAllWalkwayUseCaseResponse> {
         try {
-            const walkways = await this.walkwayRepository.findAll(request.coordinates);
+            const walkways = await this.walkwayRepository.findAll(request.coordinates, request.userId);
 
             return {
                 code: GetAllWalkwayUseCaseCodes.SUCCESS,

@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Point } from '../../domain/Walkway/WalkwayStartPoint';
 import { WalkFinishStatus, WALK_FINISH_STATUS } from '../../domain/Walk/WalkFinishStatus';
 import { PaginationDto } from '../../../common/pagination/PaginationResponse';
+import {CommonResponse} from "../../../common/controller/dto/CommonResponse";
 
 
 export class PointDto implements Point {
@@ -122,4 +123,9 @@ export class GetAllWalkPaginationResponse extends PaginationDto {
 export class GetWalkResponse {
     @ApiProperty()
     walk?: WalkDetailDto;
+}
+
+export class CreateResponse extends CommonResponse {
+    @ApiProperty()
+    id: string
 }
