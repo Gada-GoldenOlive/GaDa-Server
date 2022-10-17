@@ -1,6 +1,7 @@
+import { Logger } from '@nestjs/common';
 import _ from 'lodash';
-import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 
+import { MysqlUserRepositoryMapper } from '../../../../user/infra/mysql/mapper/MysqlUserRepositoryMapper';
 import { Comment } from '../../../domain/Comment/Comment';
 import { CommentContent } from '../../../domain/Comment/CommentContent';
 import { CommentEntity } from '../../../entity/Comment.entity';
@@ -43,5 +44,9 @@ export class MysqlCommentRepositoryMapper {
         entity.updatedAt = comment.updatedAt;
 
         return entity;
+    }
+
+    static toEntities(comments: Comment[]): CommentEntity[] {
+        return _.map(comments, (comment) => this.toEntity(comment));
     }
 }
