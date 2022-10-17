@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {Brackets, Repository} from 'typeorm';
 
 import { Walkway } from '../../domain/Walkway/Walkway';
 import { Point } from '../../domain/Walkway/WalkwayStartPoint';
@@ -8,6 +8,7 @@ import { WalkwayStatus } from '../../domain/Walkway/WalkwayStatus';
 import { WalkwayEntity } from '../../entity/Walkway.entity';
 import { IWalkwayRepository } from '../IWalkwayRepository';
 import { MysqlWalkwayRepositoryMapper } from './mapper/MysqlWalkwayRepository.mapper';
+import {FriendStatus} from "../../../user/domain/Friend/FriendStatus";
 
 export class MysqlWalkwayRepository implements IWalkwayRepository {
     constructor(
@@ -24,15 +25,21 @@ export class MysqlWalkwayRepository implements IWalkwayRepository {
         return MysqlWalkwayRepositoryMapper.toDomain(walkway);
     }
 
-    async findAll(coordinates: Point): Promise<Walkway[]> {
+    async findAll(coordinates: Point, userId: string): Promise<Walkway[]> {
         const foundWalkways = await this.walkwayRepository
             .createQueryBuilder('walkway')
             .leftJoinAndSelect('walkway.user', 'user')
             .setParameter('curPoint', MysqlWalkwayRepositoryMapper.pointToString(coordinates))
-            .where(('st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint) <= 1200'))
-            .orWhere(('st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.endPoint) <= 1200'))
-            .andWhere('walkway.status = :normalStatus', { normalStatus: WalkwayStatus.NORMAL })
+            .where('(st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint) <= 1200 or st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.endPoint) <= 1200)')
+            .andWhere(new Brackets(query => {
+                query.where('walkway.status = :normalStatus', { normalStatus: WalkwayStatus.NORMAL })
+                .orWhere('(walkway.status = :privateStatus and user.id = :userId)', {
+                    privateStatus: WalkwayStatus.PRIVATE,
+                    userId: userId,
+                })
+            }))
             .orderBy('LEAST(st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint), st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.endPoint))')
+            .limit(10)
             .getMany();
 
         return MysqlWalkwayRepositoryMapper.toDomains(foundWalkways);

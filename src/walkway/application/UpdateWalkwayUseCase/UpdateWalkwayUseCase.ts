@@ -39,6 +39,7 @@ export class UpdateWalkwayUseCase implements UseCase<IUpdateWalkwayUseCaseReques
 
 			if (!request.title) request.title = foundWalkway.title.value;
 			if (!request.image) request.image = foundWalkway.image ? foundWalkway.image.value : null;
+			if (!request.status) request.status = foundWalkway.status;
 
 			const walkway = Walkway.create({
 				title: WalkwayTitle.create(request.title).value,
@@ -49,7 +50,7 @@ export class UpdateWalkwayUseCase implements UseCase<IUpdateWalkwayUseCaseReques
 				startPoint: WalkwayStartPoint.create(foundWalkway.startPoint.value).value,
 				endPoint: WalkwayEndPoint.create(foundWalkway.endPoint.value).value,
 				user: foundWalkway.user,
-				status: foundWalkway.status,
+				status: request.status,
 				image: request.image ? ImageUrl.create(request.image).value : null,
 				createdAt: foundWalkway.createdAt,
 				updatedAt: new Date(),
