@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+
 import { PaginationDto } from '../../../common/pagination/PaginationResponse';
 import { Point } from '../../domain/Pin/PinLocation';
 

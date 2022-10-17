@@ -77,7 +77,10 @@ export class PinController {
         type: CommonResponse,
     })
     @ApiOperation({
-        summary: '핀 생성',
+        summary: '핀 생성 (배지 리턴)',
+        description: '핀작성 n개 달성! 배지 리턴됨.<br>'
+        + '- status가 NON_ACHIEVE면 일반 배지, HIDDEN이면 히든 배지<br>'
+        + '- 배지는 하나씩 리턴됨'
     })
     async create(
         @Request() request,
@@ -173,7 +176,10 @@ export class PinController {
         type: CommonResponse,
     })
     @ApiOperation({
-        summary: '댓글 생성',
+        summary: '댓글 생성 (배지 리턴)',
+        description: '댓글 n개 작성! 배지 리턴 됨.<br>'
+        + '- status가 NON_ACHIEVE면 일반 배지, HIDDEN이면 히든 배지<br>'
+        + '- 배지는 하나씩 리턴됨'
     })
     async createComment(
         @Request() request,
@@ -523,12 +529,13 @@ export class PinController {
     @Delete('/:pinId')
     @UseGuards(PinOwnerGuard)
     @UseGuards(JwtAuthGuard)
-    @HttpCode(StatusCodes.NO_CONTENT)
+    @HttpCode(StatusCodes.OK)
     @ApiResponse({
         type: CommonResponse,
     })
     @ApiOperation({
         summary: '핀 삭제',
+        description: '삭제해도 이미 얻은 핀 개수 배지는 사라지지 않음'
     })
     async delete(
         @Param('pinId') pinId: string,

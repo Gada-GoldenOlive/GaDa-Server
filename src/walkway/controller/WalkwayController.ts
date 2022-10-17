@@ -156,7 +156,9 @@ export class WalkwayController {
         type: CreateResponse,
     })
     @ApiOperation({
-        summary: '산책로 생성',
+        summary: '산책로 생성 (배지 리턴)',
+        description: '산책로 생성! 배지가 리턴됨.<br>'
+        + '- 하나만 리턴됨'
     })
     async create(
         @Request() request,
@@ -253,7 +255,11 @@ export class WalkwayController {
         type: CreateResponse,
     })
     @ApiOperation({
-        summary: 'walk(산책기록) 생성',
+        summary: 'walk(산책기록) 생성 (배지 리턴)',
+        description: '"거리 nkm 달성!" / "산책 n시간 달성!" / "산책로 n개 달성!" 배지가 리턴될 수 있음.'
+        + '- status가 NON_ACHIEVE면 일반 배지, HIDDEN이면 히든 배지<br>'
+        + '- 여러 개 동시에 리턴 가능<br>'
+        + '- 거리 -> 산책 -> 산책로 배지 순으로 리턴됨'
     })
     async createWalk(
         @Request() request,

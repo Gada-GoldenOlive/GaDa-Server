@@ -8,4 +8,5 @@ export interface ICommentRepository {
     findAll(options: GetAllCommentOptions): Promise<PaginationResult<Comment>>;
     findOne(id: string): Promise<Comment>;
     save(comment: Comment): Promise<boolean>;
+    updateAll(comments: Comment[]): Promise<boolean>;
 }

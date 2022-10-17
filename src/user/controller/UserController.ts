@@ -140,8 +140,9 @@ export class UserController {
         type: LoginOrSignUpUserResponse,
     })
     @ApiOperation({
-        summary: '유저 생성',
-        description: '유저를 생성한 뒤, 해당 유저의 토큰을 리턴한다.'
+        summary: '유저 생성 (배지 리턴)',
+        description: '1. 유저를 생성한 뒤, 해당 유저의 토큰을 리턴한다.<br>'
+        + '2. 회원가입 완료! 배지 리턴됨'
     })
     async create(
         @Body() request: CreateUserRequest,
@@ -275,7 +276,8 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
     @ApiOperation({
-        summary: 'loginId에 해당하는 유저에게 친구 신청',
+        summary: 'loginId에 해당하는 유저에게 친구 신청 (배지 리턴)',
+        description: '첫 친구 신청시 "처음 친구 신청!" 배지 리턴됨'
     })
     @ApiCreatedResponse({
         type: CommonResponse,
@@ -430,10 +432,13 @@ export class UserController {
         type: GetAllFriendResponse,
     })
     @ApiOperation({
-        summary: '친구 목록 조회',
-        description: '토큰에 해당하는 유저의 친구 목록 리턴. / '
-        + '본인을 포함한 친구목록을 그 주의 달성거리 순으로 정렬해서 리턴. 본인의 경우 id를 null로 설정 / '
-        + '읽지 않은 친구신청이 있는지 여부도 함께 리턴함.'
+        summary: '친구 목록 조회 (배지 리턴)',
+        description: '1. 토큰에 해당하는 유저의 친구 목록 리턴.<br>'
+        + '- 본인을 포함한 친구목록을 그 주의 달성거리 순으로 정렬해서 리턴. 본인의 경우 id를 null로 설정<br>'
+        + '- 읽지 않은 친구신청이 있는지 여부도 함께 리턴함.<br>'
+        + '2. "친구 n명 달성!" 혹은 "1위 달성!" 배지 리턴될 수 있음<br>'
+        + '- status가 NON_ACHIEVE면 일반 배지, HIDDEN이면 히든 배지<br>'
+        + '- 여러 개 동시에 리턴 가능'
     })
     async getAllFriends(
         @Request() request,
@@ -753,7 +758,12 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
     @ApiOperation({
-        summary: '유저 수정 (프로필 수정), 유저 수정되면 수정된 유저 리턴해줍니다. 비번 수정도 됨'
+        summary: '유저 수정 (프로필 수정) (배지 리턴)',
+        description: '1. 유저 수정되면 수정된 유저 리턴해줍니다. 비번 수정도 됨<br>'
+        + '2. 목표 거리 설정! / 목표 시간 설정! 배지 리턴 가능<br>'
+        + '- status가 NON_ACHIEVE면 일반 배지, HIDDEN이면 히든 배지<br>'
+        + '- 두 개 동시에 리턴될 수 있음<br>'
+        + '- goalDistance, goalTime이 존재하는지를 기준으로 삼기 때문에 0으로 설정해도 리턴될 거임'
     })
     @ApiResponse({
         type: GetUserResponse,
