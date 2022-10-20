@@ -46,5 +46,15 @@ export class AuthService {
 
         return { accessToken, refreshToken };
     }
+
+    async checkToken(token: string): Promise<boolean> {
+        try {
+            const verify = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+
+            return verify;
+          } catch {
+            return;
+        }
+    }
 }
 

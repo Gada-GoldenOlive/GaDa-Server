@@ -272,6 +272,35 @@ export class UserController {
         };
     }
 
+    @Post('/login')
+    @UseGuards(LocalAuthGuard)
+    @HttpCode(StatusCodes.OK)
+    @ApiOkResponse({
+        type: LoginOrSignUpUserResponse,
+    })
+    @ApiOperation({
+        summary: '로그인',
+        description: 'loginId, password에 해당하는 유저가 존재한다면, 유저의 토큰을 리턴한다.'
+    })
+    async login(
+        @Request() request,
+        @Body() body: LoginRequest,
+    ): Promise<LoginOrSignUpUserResponse> {
+        const user = request.user;
+
+        const { accessToken, refreshToken } = await this.authService.getToken({
+            username: user.loginId.value,
+            sub: user.id,
+        });
+
+        return {
+            code: StatusCodes.OK,
+            responseMessage: 'SUCCESS TO LOGIN',
+            accessToken,
+            refreshToken,
+        };
+    }
+
     @Post('/friends')
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.CREATED)
@@ -689,35 +718,36 @@ export class UserController {
         }
     }
 
-    @Post('/login')
-    @UseGuards(LocalAuthGuard)
+    @Get('/check-token')
     @HttpCode(StatusCodes.OK)
-    @ApiOkResponse({
-        type: LoginOrSignUpUserResponse,
-    })
     @ApiOperation({
-        summary: '로그인',
-        description: 'loginId, password에 해당하는 유저가 존재한다면, 유저의 토큰을 리턴한다.'
+        summary: 'token 유효성 체크',
+        description: '헤더로 받은 token이 유효한 토큰인지 여부를 isValid로 리턴.'
     })
-    async login(
+    @ApiOkResponse({
+        type: CommonResponse,
+    })
+    async checkToken(
         @Request() request,
-        @Body() body: LoginRequest,
-    ): Promise<LoginOrSignUpUserResponse> {
-        const user = request.user;
+    ): Promise<CommonResponse> {
+        const token = request.headers.authorization.split('Bearer ')[1];
 
-        const { accessToken, refreshToken } = await this.authService.getToken({
-            username: user.loginId.value,
-            sub: user.id,
-        });
+        const verify = await this.authService.checkToken(token);
 
+        if (verify) {
+            return {
+                code: StatusCodes.OK,
+                responseMessage: 'Valid Token',
+                isValid: true,
+            };
+        }
         return {
             code: StatusCodes.OK,
-            responseMessage: 'SUCCESS TO LOGIN',
-            accessToken,
-            refreshToken,
+            responseMessage: 'Invalid Token',
+            isValid: false,
         };
     }
-    
+
     @Get('/:userId')
     @UseGuards(JwtAuthGuard)
     @HttpCode(StatusCodes.OK)
