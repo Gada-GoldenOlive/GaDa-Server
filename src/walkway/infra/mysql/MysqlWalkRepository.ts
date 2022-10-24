@@ -42,7 +42,10 @@ export class MysqlWalkRepository implements IWalkRepository {
         .leftJoinAndSelect('walk.user', 'user')
         .where('user.id = :userId', { userId: user.id })
         .andWhere('walk.status = :normal', { normal: WalkStatus.NORMAL })
-        .andWhere('walkway.status = :normal', { normal: WalkwayStatus.NORMAL })
+        .andWhere('(walkway.status = :normal or walkway.status = :private)', {
+            normal: WalkwayStatus.NORMAL,
+            private: WalkwayStatus.PRIVATE,
+        })
         .andWhere('user.status = :normal', { normal: UserStatus.NORMAL });
         
         if (finishStatus) {
@@ -75,10 +78,7 @@ export class MysqlWalkRepository implements IWalkRepository {
                 status: WalkStatus.NORMAL,
                 user: {
                     status: UserStatus.NORMAL,
-                },
-                walkway: {
-                    status: WalkwayStatus.NORMAL,
-                },
+                }
             },
             relations: [
                 'user',

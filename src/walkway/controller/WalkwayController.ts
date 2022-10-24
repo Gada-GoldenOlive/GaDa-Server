@@ -431,6 +431,35 @@ export class WalkwayController {
         };
     }
 
+    @Get('/my')
+    @UseGuards(JwtAuthGuard)
+    @ApiOkResponse({
+        type: GetAllWalkwayResponse,
+    })
+    @ApiOperation({
+        summary: '내가 만든 산책로 목록 조회',
+        description: 'token에 해당하는 유저가 만든 산책로 전체 목록을 최신순으로 리턴',
+    })
+        async getAllMyWalkway(
+        @Request() request,
+    ) {
+        const getAllWalkwayResponse = await this.getAllWalkwayUseCase.execute({
+            userId: request.user.id,
+        });
+
+        if (getAllWalkwayResponse.code !== GetAllWalkwayUseCaseCodes.SUCCESS) {
+            throw new HttpException('FAIL TO FIND WALKWAYS', StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+        const walkways: WalkwayDto[] = await Promise.all(_.map(getAllWalkwayResponse.walkways, (walkway) => {
+            return this.convertToWalkwayDto(walkway, 37.5666805, 126.9784147);
+        }));
+
+        return {
+            walkways,
+        };
+    }
+
     @Get('/walks')
     @UseGuards(JwtAuthGuard)
     @ApiOkResponse({
