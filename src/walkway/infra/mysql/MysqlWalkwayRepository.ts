@@ -8,7 +8,7 @@ import { WalkwayStatus } from '../../domain/Walkway/WalkwayStatus';
 import { WalkwayEntity } from '../../entity/Walkway.entity';
 import { IWalkwayRepository } from '../IWalkwayRepository';
 import { MysqlWalkwayRepositoryMapper } from './mapper/MysqlWalkwayRepository.mapper';
-import {FriendStatus} from "../../../user/domain/Friend/FriendStatus";
+import {query} from "express";
 
 export class MysqlWalkwayRepository implements IWalkwayRepository {
     constructor(
@@ -26,10 +26,12 @@ export class MysqlWalkwayRepository implements IWalkwayRepository {
     }
 
     async findAll(coordinates: Point, userId: string): Promise<Walkway[]> {
-        const foundWalkways = await this.walkwayRepository
-            .createQueryBuilder('walkway')
-            .leftJoinAndSelect('walkway.user', 'user')
-            .setParameter('curPoint', MysqlWalkwayRepositoryMapper.pointToString(coordinates))
+        const query = await this.walkwayRepository
+        .createQueryBuilder('walkway')
+        .leftJoinAndSelect('walkway.user', 'user');
+
+        if (coordinates) {
+            query.setParameter('curPoint', MysqlWalkwayRepositoryMapper.pointToString(coordinates))
             .where('(st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint) <= 1200 or st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.endPoint) <= 1200)')
             .andWhere(new Brackets(query => {
                 query.where('walkway.status = :normalStatus', { normalStatus: WalkwayStatus.NORMAL })
@@ -40,7 +42,17 @@ export class MysqlWalkwayRepository implements IWalkwayRepository {
             }))
             .orderBy('LEAST(st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint), st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.endPoint))')
             .limit(10)
-            .getMany();
+        }
+        else {
+            query.where('(walkway.status = :privateStatus or walkway.status = :normalStatus)', {
+                normalStatus: WalkwayStatus.NORMAL,
+                privateStatus: WalkwayStatus.PRIVATE,
+            })
+            .andWhere('user.id = :userId', { userId: userId })
+            .orderBy('walkway.createdAt', 'DESC');
+        }
+
+        const foundWalkways = await query.getMany();
 
         return MysqlWalkwayRepositoryMapper.toDomains(foundWalkways);
     }
