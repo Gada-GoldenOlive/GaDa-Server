@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { IPaginationOptions, paginate, Pagination } from "nestjs-typeorm-paginate";
@@ -10,6 +11,7 @@ import { CommentEntity } from "../../entity/Comment.entity";
 import { ICommentRepository } from "../ICommentRepository";
 import { MysqlCommentRepositoryMapper } from "./mapper/MysqlCommentRepositoryMapper";
 import { PaginationResult } from "../../../common/pagination/PaginationResponse";
+import { Logger } from '@nestjs/common';
 
 export interface GetAllCommentOptions {
     pinId?: string;
@@ -83,6 +85,23 @@ export class MysqlCommentRepository implements ICommentRepository {
         await this.commentRepository.save(
             MysqlCommentRepositoryMapper.toEntity(comment)
         );
+
+        return true;
+    }
+
+    async updateAll(comments: Comment[]): Promise<boolean> {
+        if (_.isElement(comments)) {
+            return false;
+        }
+
+        _.map(comments, async (comment) => {
+            await this.commentRepository
+            .createQueryBuilder()
+            .update('comment')
+            .set({ status: CommentStatus.DELETE })
+            .where('id = :id', { id: comment.id})
+            .execute();
+        }) ;
 
         return true;
     }

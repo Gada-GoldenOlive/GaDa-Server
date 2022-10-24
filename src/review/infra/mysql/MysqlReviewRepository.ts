@@ -82,7 +82,7 @@ export class MysqlReviewRepository implements IReviewRepository {
 
         if (reviewOrderOption === ReviewOrderOptions.DISTANCE) {
             query.setParameter('curPoint', MysqlWalkwayRepositoryMapper.pointToString(curPoint))
-            .orderBy('LEAST(st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.startPoint), st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway.endPoint))');
+            .orderBy('LEAST(st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway_walk.startPoint), st_distance_sphere_1(ST_GeomFromText(:curPoint, 4326), walkway_walk.endPoint))');
         }
 
         else {

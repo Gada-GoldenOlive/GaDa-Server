@@ -6,7 +6,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags }
 import { CommonResponse } from '../../common/controller/dto/CommonResponse';
 import { GetAllReviewUseCase, GetAllReviewUseCaseCodes } from '../application/GetAllReviewUseCase/GetAllReviewUseCase';
 import { CreateLikeRequest, CreateReviewRequest, UpdateReviewRequest } from './dto/ReviewRequest';
-import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedResponse, CreatePreSignedUrlResponse, ImageDto, ReviewDto } from './dto/ReviewResponse';
+import { FeedDto, GetAllReviewResponse, GetFeedResponse, GetAllFeedResponse, ReviewDto } from './dto/ReviewResponse';
 import { GetWalkwayUseCase } from '../../walkway/application/GetWalkwayUseCase/GetWalkwayUseCase';
 import { IGetAllReviewUseCaseResponse } from '../application/GetAllReviewUseCase/dto/IGetAllReviewUseCaseResponse';
 import { GetReviewUseCase, GetReviewUseCaseCodes } from '../application/GetReviewUseCase/IGetReviewUseCase';
@@ -141,7 +141,10 @@ export class ReviewController {
         type: GetFeedResponse,
     })
     @ApiOperation({
-        summary: '리뷰 생성',
+        summary: '리뷰 생성 (배지 리턴)',
+        description: '리뷰 n개 달성! 배지가 리턴됨.<br>'
+        + '- status가 NON_ACHIEVE면 일반 배지, HIDDEN이면 히든 배지<br>'
+        + '- 하나씩 리턴됨'
     })
     async create(
         @Body() body: CreateReviewRequest,
@@ -202,16 +205,16 @@ export class ReviewController {
         if (reviews.length >= 100) {
             await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.HUNDRED, this.achieves);
         }
-        if (reviews.length >= 20) {
+        else if (reviews.length >= 20) {
             await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.TWENTY, this.achieves);
         }
-        if (reviews.length >= 10) {
+        else if (reviews.length >= 10) {
             await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.TEN, this.achieves);
         }
-        if (reviews.length >= 5) {
+        else if (reviews.length >= 5) {
             await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.FIVE, this.achieves);
         }
-        if (reviews.length >= 3) {
+        else if (reviews.length >= 3) {
             await this.pushAchieve(request.user, BadgeCategory.REVIEW, BadgeCode.THREE, this.achieves);
         }
 

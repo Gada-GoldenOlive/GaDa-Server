@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import { LocationDto } from './PinResponse';
 
 export class CreatePinRequest {

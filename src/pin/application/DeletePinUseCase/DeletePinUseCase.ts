@@ -1,12 +1,16 @@
 import { Inject } from '@nestjs/common';
+import _ from 'lodash';
 
 import { UseCase } from '../../../common/application/UseCase';
 import { ImageUrl } from '../../../common/domain/Image/ImageUrl';
+import { Comment } from '../../domain/Comment/Comment';
+import { CommentStatus, COMMENT_STATUS } from '../../domain/Comment/CommentStatus';
 import { Pin } from '../../domain/Pin/Pin';
 import { PinContent } from '../../domain/Pin/PinContent';
 import { PinLocation } from '../../domain/Pin/PinLocation';
 import { PinStatus } from '../../domain/Pin/PinStatus';
 import { PinTitle } from '../../domain/Pin/PinTitle';
+import { COMMENT_REPOSITORY, ICommentRepository } from '../../infra/ICommentRepository';
 import { PIN_REPOSITORY, IPinRepository } from '../../infra/IPinRepository';
 import { IDeletePinUseCaseRequest } from './dto/IDeletePinUseCaseRequest';
 import { IDeletePinUseCaseResponse } from './dto/IDeletePinUseCaseResponse';
@@ -21,6 +25,8 @@ export class DeletePinUseCase implements UseCase<IDeletePinUseCaseRequest, IDele
 	constructor(
 		@Inject(PIN_REPOSITORY)
 		private readonly pinRepository: IPinRepository,
+		@Inject(COMMENT_REPOSITORY)
+		private readonly commentRepository: ICommentRepository,
 	) {}
 
 	async execute(request: IDeletePinUseCaseRequest): Promise<IDeletePinUseCaseResponse> {
@@ -44,9 +50,27 @@ export class DeletePinUseCase implements UseCase<IDeletePinUseCaseRequest, IDele
 				user: foundPin.user,
 				createdAt: foundPin.createdAt,
 				updatedAt: new Date(),
-			}, request.id).value;
+			}, foundPin.id).value;
+
+			const comments = await this.commentRepository.findAll({
+				pinId: foundPin.id,
+			});
+
+			if (comments.items) {
+				_.map(comments.items, (comment) => {
+					Comment.create({
+						content: comment.content,
+						status: CommentStatus.DELETE as COMMENT_STATUS,
+						pin: comment.pin,
+						user: comment.user,
+						createdAt: comment.createdAt,
+						updatedAt: comment.updatedAt,
+					}, comment.id).value;
+				});
+			}
 			
 			await this.pinRepository.save(pin);
+			await this.commentRepository.updateAll(comments.items);
 
 			return {
 				code: DeletePinUseCaseCodes.SUCCESS,

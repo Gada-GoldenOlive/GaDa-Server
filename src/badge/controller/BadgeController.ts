@@ -94,7 +94,9 @@ export class BadgeController {
 	@Get()
     @UseGuards(JwtAuthGuard)
 	@ApiOperation({
-		description: 'query로 요청한 category 혹은 code에 해당하는 배지 모두 리턴'
+		summary: '배지들 리턴 (백엔드 용, 프론트는 쓸 일 X)',
+		description: 'query로 요청한 category 혹은 code에 해당하는 배지 모두 리턴<br>'
+		+ '- category, code 둘 중 하나만 보내도 되고 둘 다 보내도 됨'
 	})
 	@HttpCode(StatusCodes.OK)
 	@ApiOkResponse({
@@ -131,7 +133,10 @@ export class BadgeController {
 	@Get('/list')
 	@UseGuards(JwtAuthGuard)
 	@ApiOperation({
-		description: '토큰으로 보낸 유저의 전체 배지 리턴'
+		summary: '토큰으로 보낸 유저의 전체 배지 리턴',
+		description: '[리턴되는 것]<br>'
+		+ '- status: 배지의 상태 (non_achieve: 획득 전, achieve: 획득)<br>'
+		+ '- 히든 배지는 리턴되지 않음'
 	})
 	@HttpCode(StatusCodes.OK)
 	@ApiResponse({
