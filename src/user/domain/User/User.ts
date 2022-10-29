@@ -15,6 +15,8 @@ import { UserTotalTime } from './UserTotalTime';
 import { UserWeekDistance } from './UserWeekDistance';
 import { UserWeekTime } from './UserWeekTime';
 
+export const DEFAULT_USER_IMAGE_URL = 'https://golden-olive-gada.s3.ap-northeast-2.amazonaws.com/%EA%B8%B0%EB%B3%B8%EC%9D%B4%EB%AF%B8%EC%A7%80/profile.png';
+
 export interface UserNewProps {
     loginId: UserLoginId;
     password: UserPassword;
@@ -135,7 +137,6 @@ export class User extends AggregateRoot<UserProps> {
 
     private static getUserImageAndSetIfImageIsUndefined(props: UserNewProps) {
         let { image } = props;
-        const DEFAULT_USER_IMAGE_URL = 'https://golden-olive-gada.s3.ap-northeast-2.amazonaws.com/%EA%B8%B0%EB%B3%B8%EC%9D%B4%EB%AF%B8%EC%A7%80/profile.png';
 
         if (_.isNil(props.image) || _.isEmpty(props.image)) {
             image = ImageUrl.create(DEFAULT_USER_IMAGE_URL).value;

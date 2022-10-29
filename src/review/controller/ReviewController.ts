@@ -22,7 +22,7 @@ import { GetWalkUseCase, GetWalkUseCaseCodes } from '../../walkway/application/G
 import { CreateAllReviewImageUseCase, CreateAllReviewImageUseCaseCodes } from '../application/CreateAllReviewImageUseCase/CreateAllReviewImageUseCase';
 import { Review } from '../domain/Review/Review';
 import { Image } from '../../common/domain/Image/Image';
-import { User } from '../../user/domain/User/User';
+import { DEFAULT_USER_IMAGE_URL, User } from '../../user/domain/User/User';
 import { UserStatus } from '../../user/domain/User/UserStatus';
 import { DeleteReviewUseCase, DeleteReviewUseCaseCodes } from '../application/DeleteReviewUseCase/DeleteReviewUseCase';
 import { Achieve } from '../../badge/domain/Achieve/Achieve';
@@ -104,7 +104,7 @@ export class ReviewController {
         let userId = review.walk.user.id;
 
         if (review.walk.user.status === UserStatus.DELETE) {
-            userImage = null;
+            userImage = DEFAULT_USER_IMAGE_URL;
             userName = '탈퇴한 회원';
             userId = 'jonjaehaji-aneum';
         }
@@ -367,7 +367,7 @@ export class ReviewController {
 
             if (review.walk.user.status === UserStatus.DELETE) {
                 userId = 'jonjaehaji-aneum';
-                userImage = null;
+                userImage = DEFAULT_USER_IMAGE_URL;
                 userName = '탈퇴한 회원';
             }
             
